@@ -11,7 +11,17 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        $user->slug = Str::slug($user->first_name . ' ' . $user->last_name);
+        $slug = Str::slug($user->first_name . ' ' . $user->last_name);
+        $originalSlug = $slug;
+
+
+        $counter = 1;
+        while (User::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $user->slug = $slug;
     }
 
     /**
