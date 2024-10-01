@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
+        Schema::create('devices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('council_position_id')->nullable();
-            $table->foreignId('chatroom_id')->nullable();
-            $table->text('message')->nullable();
+            $table->foreignId('user_id')->onDelete('cascade');  
+            $table->text('device_token')->unique()->nullable();  
+            $table->string('device_id')->nullable();  
+            $table->string('device_name')->nullable();  
+            $table->string('device_type')->nullable();  
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('messages');
+        Schema::dropIfExists('devices');
     }
 };
