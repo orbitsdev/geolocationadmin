@@ -38,4 +38,26 @@ class Collection extends Model
     public function collectionItems(){
         return $this->hasMany(CollectionItem::class, 'collection_id');
     }
+
+    public function scopeByCouncil($query, $councilId)
+    {
+        return $query->whereHas('councilPosition.council', function ($q) use ($councilId) {
+            $q->where('id', $councilId);
+        });
+    }
+
+    public function addItem($itemData)
+{
+    return $this->collectionItems()->create($itemData);
+}
+public function removeItem($itemId)
+{
+    return $this->collectionItems()->where('id', $itemId)->delete();
+}
+public function getWithRelations()
+{
+    return $this->with(['councilPosition', 'collectionItems'])->find($this->id);
+}
+    
+
 }

@@ -26,4 +26,11 @@ class Post extends Model
         return $this->belongsTo(CouncilPosition::class, 'council_position_id');
     }
 
+    public function scopeByCouncil($query, $councilId)
+    {
+        return $query->whereHas('councilPosition.council', function ($q) use ($councilId) {
+            $q->where('id', $councilId);
+        });
+    }
+
 }

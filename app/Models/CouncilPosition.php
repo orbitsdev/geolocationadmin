@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Council;
+use App\Models\Message;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,16 +20,45 @@ class CouncilPosition extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+    public function fullName(): string
+    {
 
+        return $this->user ? $this->user->fullName() : 'No user assigned';
+    }
     public function tasks(){
         return $this->hasMany(Task::class);
     }
+
     public function posts(){
         return $this->hasMany(Post::class);
     }
-
-    public function scopeCouncelBatch($query, $councilId){
-       return $query->where('council_id', $councilId);
+    public function messages(){
+        return $this->hasMany(Message::class);
     }
+
+    public function getMessages()
+    {
+        return $this->messages()->get();
+    }
+
+    public function getMessagesByChatRoom($chatRoomId)
+    {
+        return $this->messages()->where('chat_room_id', $chatRoomId)->get();
+    }
+
+
+    public function tasksByStatus($status){
+        return $this->tasks()->where('status', $status)->get();
+    }
+
+    public static function positionsByCouncil($councilId)
+    {
+        return self::where('council_id', $councilId)->get();
+    }
+
+
+
+
+
 
 }

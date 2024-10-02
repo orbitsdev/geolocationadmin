@@ -35,10 +35,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return true;
     }
-    public function getFilamentName(): string
-    {
-        return "{$this->first_name} {$this->last_name}";
-    }
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -62,4 +59,19 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function councilPositions(){
         return $this->hasMany(CouncilPosition::class);
     }
+
+    public function scopeCouncilPositionYear($query, $councilId){
+        return $query->whereHas('councilPositions.council', function($q) use($councilId){
+            $q->where('id',$councilId);
+        });
+    }
+    public function getFilamentName(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+    public function fullName(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
 }

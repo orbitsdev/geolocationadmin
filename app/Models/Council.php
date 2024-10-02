@@ -30,4 +30,35 @@ class Council extends Model
         return $this->hasMany(ChatRoom::class);
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeByYear($query, $year)
+    {
+        return $query->whereYear('created_at', $year);
+    }
+
+    public function scopeWithData($query)
+    {
+        return $query->with(['councilPositions', 'collections', 'chatRooms']);
+    }
+
+    public function getPositions()
+    {
+        return $this->councilPositions()->get();
+    }
+
+    public function getCollections()
+    {
+        return $this->collections()->get();
+    }
+
+    public function getChatRooms()
+    {
+        return $this->chatRooms()->get();
+    }
+
+
 }
