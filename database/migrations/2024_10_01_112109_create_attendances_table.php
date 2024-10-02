@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('device_id')->nullable();
             $table->string('device_name')->nullable();
             $table->text('selfie_image')->nullable();
-            $table->boolean('attendance_allowed')->default(true);  
+            $table->boolean('attendance_allowed')->default(true);
             $table->text('notes')->nullable(); // Option
             $table->timestamps();
         });

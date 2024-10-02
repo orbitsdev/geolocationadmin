@@ -18,4 +18,18 @@ class ChatRoom extends Model
     public function messages(){
         return $this->hasMany(Message::class);
     }
+
+    public function getName()
+    {
+        // Check if the chat room has a name, otherwise generate a default name
+        $name = $this->name ?? 'Chat Room ' . $this->id;
+    
+        // If the council relation is loaded and exists, append the council's name
+        if ($this->council) {
+            $name .= ' - ' . $this->council->name;
+        }
+
+        return $name;
+    }
+
 }

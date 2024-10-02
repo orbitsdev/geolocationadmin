@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('council_position_id')->nullable();
-            $table->foreignId('chatroom_id')->nullable();
+            $table->foreignId('chat_room_id')->nullable();
             $table->text('message')->nullable();
             $table->timestamps();
         });

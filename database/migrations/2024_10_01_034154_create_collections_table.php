@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('collections', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('council_id')->nullable();
             $table->foreignId('council_position_id')->nullable();
             $table->string('title')->nullable();
-            $table->string('type')->default('chart')->nullable();
+            $table->string('type')->default('Bar Chart')->nullable();
             $table->text('description')->nullable();
 
             //amount
-            
+
             $table->timestamps();
         });
     }

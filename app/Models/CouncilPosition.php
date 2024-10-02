@@ -27,4 +27,8 @@ class CouncilPosition extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function scopeCouncelBatch($query, $councilId){
+       return $query->where('council_id', $councilId);
+    }
+
 }

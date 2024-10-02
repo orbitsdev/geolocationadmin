@@ -24,6 +24,20 @@ class Task extends Model
     public const STATUS_REVIEW = 'Review';
     public const STATUS_BLOCKED = 'Blocked';
 
+    public const STATUS_OPTIONS = [
+        self::STATUS_TODO => self::STATUS_TODO,
+        self::STATUS_IN_PROGRESS => self::STATUS_IN_PROGRESS,
+        self::STATUS_COMPLETED => self::STATUS_COMPLETED,
+        self::STATUS_COMPLETED_LATE => self::STATUS_COMPLETED_LATE,
+        self::STATUS_DUE => self::STATUS_DUE,
+        self::STATUS_ON_HOLD => self::STATUS_ON_HOLD,
+        self::STATUS_CANCELLED => self::STATUS_CANCELLED,
+        self::STATUS_REVIEW => self::STATUS_CANCELLED,
+        self::STATUS_BLOCKED => self::STATUS_BLOCKED,
+    ];
+
+
+
     public function files(): MorphMany
     {
         return $this->morphMany(File::class, 'fileable');
@@ -43,4 +57,8 @@ class Task extends Model
     {
         return $this->belongsTo(CouncilPosition::class, 'approved_by_council_position_id');
     }
+
+    
+
+
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "639b98088493b0d1a1f9ce134ec506da",
+    "content-hash": "4b228f1d31ea4d8580e08949f1da6e44",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -71,6 +71,81 @@
                 "source": "https://github.com/AnourValar/eloquent-serialize/tree/1.2.25"
             },
             "time": "2024-09-16T12:59:37+00:00"
+        },
+        {
+            "name": "awcodes/filament-table-repeater",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/awcodes/filament-table-repeater.git",
+                "reference": "b6f23068e8b6e4bbac4e40f68f9b6d474ddd2558"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/awcodes/filament-table-repeater/zipball/b6f23068e8b6e4bbac4e40f68f9b6d474ddd2558",
+                "reference": "b6f23068e8b6e4bbac4e40f68f9b6d474ddd2558",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.13.5"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^7.0",
+                "orchestra/testbench": "^8.0",
+                "pestphp/pest": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0",
+                "pestphp/pest-plugin-livewire": "^2.0",
+                "phpunit/phpunit": "^10.0",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Awcodes\\FilamentTableRepeater\\FilamentTableRepeaterServiceProvider"
+                    ],
+                    "aliases": {
+                        "FilamentTableRepeater": "Awcodes\\FilamentTableRepeater\\Facades\\FilamentTableRepeater"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Awcodes\\FilamentTableRepeater\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Weston",
+                    "email": "awcodes1@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A modified version of the Filament Forms Repeater to display it as a table.",
+            "homepage": "https://github.com/awcodes/filament-table-repeater",
+            "keywords": [
+                "awcodes",
+                "filament-table-repeater",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/awcodes/filament-table-repeater/issues",
+                "source": "https://github.com/awcodes/filament-table-repeater/tree/v2.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/awcodes",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-08-01T18:13:44+00:00"
         },
         {
             "name": "blade-ui-kit/blade-heroicons",
