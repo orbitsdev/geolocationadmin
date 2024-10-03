@@ -15,7 +15,7 @@ class CouncilController extends Controller
      */
     public function index()
     {
-        $councils = Council::with('positions')->paginate(10);
+        $councils = Council::with('councilPositions')->paginate(10);
 
 
         return ApiResponse::paginated($councils, 'Councils retrieved successfully');
@@ -27,7 +27,8 @@ class CouncilController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
+           'name' => 'required|string|unique:councils,name|max:255',
+
             'is_active' => 'sometimes|boolean',
         ]);
 

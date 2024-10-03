@@ -30,18 +30,25 @@ class CouncilPositionController extends Controller
             'position' => 'required|string|max:255',
         ]);
 
+        // Check if the user already has a position in the same council
+        $existingPosition = CouncilPosition::where('council_id', $validatedData['council_id'])
+            ->where('user_id', $validatedData['user_id'])
+            ->first();
+
+        if ($existingPosition) {
+            return ApiResponse::error('User already has a position in this council', 400);
+        }
 
         DB::beginTransaction();
 
         try {
+            // Create the new council position
             $position = CouncilPosition::create($validatedData);
-
 
             DB::commit();
 
             return ApiResponse::success(new CouncilPositionResource($position), 'Council position created successfully', 201);
         } catch (\Exception $e) {
-
             DB::rollBack();
 
             return ApiResponse::error('Failed to create council position', 500);
@@ -64,24 +71,21 @@ class CouncilPositionController extends Controller
     {
         $position = CouncilPosition::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'council_id' => 'sometimes|exists:councils,id',
-            'user_id' => 'sometimes|exists:users,id',
-            'position' => 'sometimes|string|max:255',
-        ]);
 
+        $validatedData = $request->validate([
+            'position' => 'sometimes|string|max:255', // Allow position to be updated
+        ]);
 
         DB::beginTransaction();
 
         try {
-            $position->update($validatedData);
 
+            $position->update($validatedData);
 
             DB::commit();
 
             return ApiResponse::success(new CouncilPositionResource($position), 'Council position updated successfully');
         } catch (\Exception $e) {
-
             DB::rollBack();
 
             return ApiResponse::error('Failed to update council position', 500);

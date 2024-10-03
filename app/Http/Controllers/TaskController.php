@@ -24,30 +24,38 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the incoming request
         $validatedData = $request->validate([
             'council_position_id' => 'required|exists:council_positions,id',
             'title' => 'required|string|max:255',
             'task_details' => 'nullable|string',
             'due_date' => 'required|date',
+            'is_lock' => 'sometimes|boolean',  // Validate as boolean
+            'is_done' => 'sometimes|boolean',  // Validate as boolean
         ]);
 
+        // Set default values if not provided
+        $validatedData['status'] = $validatedData['status'] ?? 'To Do';
 
         DB::beginTransaction();
 
         try {
+            // Create the task with the validated data
             $task = Task::create($validatedData);
-
 
             DB::commit();
 
+            // Return the response with the created task resource
             return ApiResponse::success(new TaskResource($task), 'Task created successfully', 201);
         } catch (\Exception $e) {
-
             DB::rollBack();
 
+            // Return an error response in case of failure
             return ApiResponse::error('Failed to create task', 500);
         }
     }
+
+
 
     /**
      * Display the specified resource.
@@ -91,7 +99,7 @@ class TaskController extends Controller
         } catch (\Exception $e) {
 
             DB::rollBack();
-
+            \Log::error('Failed to update task', ['error' => $e->getMessage()]);
             return ApiResponse::error('Failed to update task', 500);
         }
     }
@@ -109,7 +117,7 @@ class TaskController extends Controller
         try {
             $task->delete();
 
-          
+
             DB::commit();
 
             return ApiResponse::success(null, 'Task deleted successfully');

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('councils', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->string('name')->unique()->nullable();
             $table->boolean('is_active')->default(true)->nullable();
             $table->timestamps();
         });

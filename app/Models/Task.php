@@ -13,6 +13,29 @@ class Task extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'council_position_id',
+        'approved_by_council_position_id',
+        'title',
+        'task_details',
+        'due_date',
+        'completed_at',
+        'status',
+        'is_lock',
+        'is_done',
+    ];
+
+    protected $casts = [
+        'due_date' => 'datetime',
+        'completed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'is_lock' => 'boolean',
+        'is_done' => 'boolean',
+        'status' => 'string',
+    ];
+
+
 
     public const STATUS_TODO = 'To Do';
     public const STATUS_IN_PROGRESS = 'In Progress';

@@ -43,7 +43,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [AuthController::class, 'userDetails']); // Get user details
     Route::put('user', [AuthController::class, 'updateUser']);
     Route::apiResource('councils', CouncilController::class);
-    Route::apiResource('council-positions', CouncilPositionController::class);
+    Route::get('councils/{council}/positions', [CouncilPositionController::class, 'index']);
+    Route::get('councils/{council}/positions/{id}', [CouncilPositionController::class, 'show']);
+    Route::post('councils/{council}/positions', [CouncilPositionController::class, 'store']);
+    Route::put('councils/{council}/positions/{id}', [CouncilPositionController::class, 'update']);
+    Route::delete('councils/{council}/positions/{id}', [CouncilPositionController::class, 'destroy']);
     Route::apiResource('tasks', TaskController::class);
     Route::apiResource('posts', PostController::class);
     Route::apiResource('collections', CollectionController::class);
