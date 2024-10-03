@@ -12,6 +12,12 @@ class Event extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
     public function councilPosition()
     {
         return $this->belongsTo(CouncilPosition::class);

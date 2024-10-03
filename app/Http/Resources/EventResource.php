@@ -25,16 +25,16 @@ class EventResource extends JsonResource
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'radius' => $this->radius,
-            'start_time' => $this->start_time->toDateTimeString(),
-            'end_time' => $this->end_time->toDateTimeString(),
+            'start_time' => $this->start_time ? $this->start_time->toDateTimeString() : null,
+            'end_time' => $this->end_time ? $this->end_time->toDateTimeString() : null,
             'is_active' => $this->is_active,
             'max_capacity' => $this->max_capacity,
             'type' => $this->type,
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
-            'council' => new CouncilResource($this->whenLoaded('council')), // Include council if loaded
-            'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')), // Include council position if loaded
-            'attendances' => AttendanceResource::collection($this->whenLoaded('attendances')), // Include attendances if loaded
+            'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,
+            'council' => new CouncilResource($this->whenLoaded('council')),
+            'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
+            'attendances' => AttendanceResource::collection($this->whenLoaded('attendances')),
         ];
     }
 }
