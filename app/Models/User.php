@@ -4,9 +4,12 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Panel;
+use App\Enums\AccountProvider;
 use App\Models\CouncilPosition;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Contracts\Cache\Store;
 use Filament\Models\Contracts\HasName;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +29,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'first_name',
         'last_name',
         'slug',
+        'image',
         'role',
         'email',
         'password',
@@ -74,4 +78,14 @@ class User extends Authenticatable implements FilamentUser, HasName
         return "{$this->first_name} {$this->last_name}";
     }
 
+
+    public function getImage()
+    {
+        if (!empty($this->image)) {
+            return Storage::disk('public')->url($this->image); // This should return the full URL for the stored image
+        }
+
+        // Return the full URL for the placeholder image
+        return url('images/placeholder-image.jpg');
+    }
 }
