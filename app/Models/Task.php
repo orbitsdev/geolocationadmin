@@ -48,6 +48,16 @@ class Task extends Model
         return $this->morphOne(File::class, 'fileable');
     }
 
+    public function assignedCouncilPosition()
+    {
+        return $this->belongsTo(CouncilPosition::class, 'council_position_id');
+    }
+
+    public function approvedByCouncilPosition()
+    {
+        return $this->belongsTo(CouncilPosition::class, 'approved_by_council_position_id');
+    }
+
     public function councilPosition()
     {
         return $this->belongsTo(CouncilPosition::class, 'council_position_id');

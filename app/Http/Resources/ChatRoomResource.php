@@ -3,11 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\CouncilPositionResource;
+use App\Http\Resources\MessageResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-
-class CouncilResource extends JsonResource
+class ChatRoomResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,9 +17,9 @@ class CouncilResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'council_id' => $this->council_id,
             'name' => $this->name,
-            'is_active' => $this->is_active,
-            'positions' => CouncilPositionResource::collection($this->whenLoaded('positions')),
+            'messages' => MessageResource::collection($this->whenLoaded('messages')), 
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
         ];
