@@ -72,6 +72,15 @@ class AttendanceController extends Controller
             $validatedData['longitude']
         );
 
+        // return ApiResponse::success([
+        //     'calculated_distance' => $distance,
+        //     'event_latitude' => $event->latitude,
+        //     'event_longitude' => $event->longitude,
+        //     'user_latitude' => $validatedData['latitude'],
+        //     'user_longitude' => $validatedData['longitude'],
+        // ], 'Distance calculated successfully');
+        
+
         if ($distance <= $event->radius) {
             DB::beginTransaction();
 
@@ -104,8 +113,13 @@ class AttendanceController extends Controller
                 return ApiResponse::error('Failed to mark attendance', 500);
             }
         } else {
-            return ApiResponse::error('You are not within the geofence', 403);
+         
+            return ApiResponse::error(
+                "You are not within the geofence. Calculated distance: {$distance} meters. Geofence radius: {$event->radius} meters.",
+                403
+            );
         }
+    
     }
 
 

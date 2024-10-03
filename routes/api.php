@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'store']);
     Route::apiResource('councils.events', EventController::class);
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-in', [AttendanceController::class, 'checkIn']);
+    Route::post('councils/{councilId}/events/{eventId}/attendance/check-out', [AttendanceController::class, 'checkOut']);
     Route::post('devices/register', [DeviceController::class, 'storeOrUpdate']);
     Route::delete('devices/{deviceId}', [DeviceController::class, 'destroy']);
 });
