@@ -105,4 +105,6 @@ class CouncilController extends Controller
 
         return ApiResponse::success(null, 'Council deleted successfully');
     }
+
+    
 }

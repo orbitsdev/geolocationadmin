@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\CouncilPositionResource;
+use App\Models\Council;
 
 class CouncilPositionController extends Controller
 {
@@ -42,7 +43,20 @@ class CouncilPositionController extends Controller
         DB::beginTransaction();
 
         try {
-            // Create the new council position
+            // Check if the user already has any positions with 'is_login' set to true
+            $hasLoginCouncilPosition = CouncilPosition::where('user_id', $validatedData['user_id'])
+                ->where('is_login', true)
+                ->get();
+
+            // If the user has a previous position with 'is_login' set to true, set it to false
+            if ($hasLoginCouncilPosition->count() > 0) {
+                CouncilPosition::where('user_id', $validatedData['user_id'])
+                    ->where('is_login', true)
+                    ->update(['is_login' => false]);
+            }
+
+            // Create the new council position and set 'is_login' to true
+            $validatedData['is_login'] = true;
             $position = CouncilPosition::create($validatedData);
 
             DB::commit();
@@ -54,6 +68,7 @@ class CouncilPositionController extends Controller
             return ApiResponse::error('Failed to create council position', 500);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -71,15 +86,23 @@ class CouncilPositionController extends Controller
     {
         $position = CouncilPosition::findOrFail($id);
 
-
         $validatedData = $request->validate([
-            'position' => 'sometimes|string|max:255', // Allow position to be updated
+            'position' => 'sometimes|string|max:255',
+            'is_login' => 'sometimes|boolean', // Validate `is_login`
         ]);
 
         DB::beginTransaction();
 
         try {
+            // If `is_login` is being updated to `true`, update other positions to `false`
+            if (isset($validatedData['is_login']) && $validatedData['is_login'] === true) {
+                // Set other positions with `is_login` to `false` for the same user
+                CouncilPosition::where('user_id', $position->user_id)
+                    ->where('is_login', true)
+                    ->update(['is_login' => false]);
+            }
 
+            // Update the position with the validated data
             $position->update($validatedData);
 
             DB::commit();
@@ -91,6 +114,7 @@ class CouncilPositionController extends Controller
             return ApiResponse::error('Failed to update council position', 500);
         }
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -114,6 +138,30 @@ class CouncilPositionController extends Controller
             DB::rollBack();
 
             return ApiResponse::error('Failed to delete council position', 500);
+        }
+    }
+    public function switchPosition(Request $request, $id)
+    {
+        $position = CouncilPosition::findOrFail($id);
+
+        DB::beginTransaction();
+
+        try {
+            // Set 'is_login' to false for any existing positions with 'is_login' set to true for the same user
+            CouncilPosition::where('user_id', $position->user_id)
+                ->where('is_login', true)
+                ->update(['is_login' => false]);
+
+            // Set 'is_login' to true for the selected position
+            $position->update(['is_login' => true]);
+
+            DB::commit();
+
+            return ApiResponse::success(new CouncilPositionResource($position), 'Council position switched successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ApiResponse::error('Failed to switch council position', 500);
         }
     }
 }

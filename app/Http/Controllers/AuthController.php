@@ -68,7 +68,9 @@ class AuthController extends Controller
             'password' => Hash::make($validatedData['password']),
             'provider' => 'CREDENTIALS',
         ]);
-
+        $user->load(['councilPositions' => function ($query) {
+            $query->notLogin();
+        }]);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return ApiResponse::success([
@@ -91,7 +93,9 @@ class AuthController extends Controller
         if (!$user || !Hash::check($validatedData['password'], $user->password)) {
             return ApiResponse::error('Invalid credentials', 401);
         }
-
+        $user->load(['councilPositions' => function ($query) {
+            $query->notLogin();
+        }]);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return ApiResponse::success([
@@ -120,7 +124,9 @@ class AuthController extends Controller
                 'image' => $googleUser->getAvatar(),
             ]
         );
-
+        $user->load(['councilPositions' => function ($query) {
+            $query->notLogin();
+        }]);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return ApiResponse::success([
@@ -173,7 +179,9 @@ class AuthController extends Controller
         if (!empty($validatedData['password'])) {
             $user->password = Hash::make($validatedData['password']);
         }
-
+        $user->load(['councilPositions' => function ($query) {
+            $query->notLogin();
+        }]);
         // Save the updated user information
         $user->save();
 

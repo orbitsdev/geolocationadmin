@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class CouncilPosition extends Model
 {
     use HasFactory;
+    protected $casts = [
+        'is_login' => 'boolean',
+    ];
 
     public function council(){
         return $this->belongsTo(Council::class);
@@ -56,6 +59,9 @@ class CouncilPosition extends Model
         return self::where('council_id', $councilId)->get();
     }
 
+    public function scopeNotLogin($query){
+        $query->where('is_login', false);
+    }
 
 
 

@@ -87,5 +87,14 @@ class User extends Authenticatable implements FilamentUser, HasName
 
         // Return the full URL for the placeholder image
         return url('images/placeholder-image.jpg');
+
+
     }
+
+    public function defaultCouncilPosition()
+{
+    return $this->councilPositions()->where('is_login', true)->first();
+}
+
+
 }

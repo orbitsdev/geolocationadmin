@@ -20,11 +20,10 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'full_name' => $this->fullName(),
             'email' => $this->email,
-            'slug' => $this->slug,
             'role' => $this->role,
             'image' => $this->getImage(),
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
+            'councilPositions'=> CouncilPositionResource::collection($this->councilPositions),
+            'default_position' => new CouncilPositionResource($this->defaultCouncilPosition()),
         ];
     }
 }

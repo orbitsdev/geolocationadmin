@@ -22,6 +22,7 @@ class UserObserver
         }
 
         $user->slug = $slug;
+    
     }
 
     /**

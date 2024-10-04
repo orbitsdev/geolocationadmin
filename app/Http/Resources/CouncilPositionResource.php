@@ -19,10 +19,10 @@ class CouncilPositionResource extends JsonResource
             'council_id' => $this->council_id,
             'council_name' => $this->council->name ?? null,
             'user_id' => $this->user_id,
-            'user_name' => $this->user->name ?? null,
+          
             'position' => $this->position,
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
+            'is_login' => $this->is_login,
+
         ];
     }
 }
