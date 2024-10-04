@@ -27,12 +27,15 @@ class ApiResponse
     }
 
     // Paginated response
-    public static function paginated(LengthAwarePaginator $data, $message = 'Data retrieved successfully', $code = 200)
+    public static function paginated(LengthAwarePaginator $data, $message = 'Data retrieved successfully', $resource = null, $code = 200)
     {
+        // Check if a resource is provided; otherwise, use the plain items.
+        $dataItems = $resource ? $resource::collection($data) : $data->items();
+
         return response()->json([
             'status' => true,
             'message' => $message,
-            'data' => $data->items(),
+            'data' => $dataItems,
             'pagination' => [
                 'current_page' => $data->currentPage(),
                 'last_page' => $data->lastPage(),
@@ -43,4 +46,5 @@ class ApiResponse
             ],
         ], $code);
     }
+
 }

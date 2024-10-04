@@ -16,7 +16,8 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $tasks = Task::with(['assignedCouncilPosition', 'approvedByCouncilPosition'])->paginate(10);
-        return ApiResponse::paginated($tasks, 'Tasks retrieved successfully');
+
+        return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', \App\Http\Resources\TaskResource::class);
     }
 
     /**
