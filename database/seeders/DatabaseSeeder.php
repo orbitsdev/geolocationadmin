@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\FileSeeder;
 use Database\Seeders\EventSeeder;
 use Database\Seeders\DeviceSeeder;
 use Database\Seeders\PositionSeeder;
@@ -23,6 +24,7 @@ class DatabaseSeeder extends Seeder
             EventSeeder::class,
             AttendanceSeeder::class,
             DeviceSeeder::class,
+            FileSeeder::class,
         ]);
         // \App\Models\User::factory(10)->create();
 

@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('status')->default('To Do');
             $table->boolean('is_lock')->default(false);
             $table->boolean('is_done')->default(false);
-
+            $table->dateTime('status_changed_at')->nullable();  // Track when the status changes
+            $table->text('remarks')->nullable();  //
             $table->timestamps();
         });
     }

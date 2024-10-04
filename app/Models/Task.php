@@ -21,6 +21,8 @@ class Task extends Model
         'due_date',
         'completed_at',
         'status',
+        'status_changed_at',  // Include status_changed_at in fillable
+        'remarks',  // Include remarks in fillable
         'is_lock',
         'is_done',
     ];
@@ -28,6 +30,7 @@ class Task extends Model
     protected $casts = [
         'due_date' => 'datetime',
         'completed_at' => 'datetime',
+        'status_changed_at' => 'datetime',  // Cast status_changed_at as datetime
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'is_lock' => 'boolean',

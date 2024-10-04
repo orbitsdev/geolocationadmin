@@ -15,7 +15,7 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $tasks = Task::with(['assignedCouncilPosition', 'approvedByCouncilPosition'])->paginate(10);
+        $tasks = Task::with(['assignedCouncilPosition', 'approvedByCouncilPosition', 'file', 'files'])->paginate(10);
 
         return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', \App\Http\Resources\TaskResource::class);
     }
@@ -93,7 +93,7 @@ class TaskController extends Controller
         try {
             $task->update($validatedData);
 
-
+            $task->load(['assignedCouncilPosition', 'approvedByCouncilPosition', 'file', 'files']);
             DB::commit();
 
             return ApiResponse::success(new TaskResource($task), 'Task updated successfully');
@@ -129,4 +129,40 @@ class TaskController extends Controller
             return ApiResponse::error('Failed to delete task', 500);
         }
     }
+
+
+    public function updateStatus(Request $request, $id)
+{
+    $task = Task::findOrFail($id);
+
+    $validatedData = $request->validate([
+        'status' => 'required|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
+        'remarks' => 'sometimes|string|nullable',  // Optional remarks for the status change
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        // Update the status and set the status_changed_at timestamp
+        $task->status = $validatedData['status'];
+        $task->status_changed_at = now();
+
+        // If remarks are provided, update the remarks column
+        if (isset($validatedData['remarks'])) {
+            $task->remarks = $validatedData['remarks'];
+        }
+
+        // Save the task
+        $task->save();
+        $task->load(['assignedCouncilPosition', 'approvedByCouncilPosition', 'file', 'files']);
+        DB::commit();
+
+        return ApiResponse::success(new TaskResource($task), 'Task status updated successfully');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Failed to update task status', ['error' => $e->getMessage()]);
+        return ApiResponse::error('Failed to update task status', 500);
+    }
+}
+
 }

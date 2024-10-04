@@ -19,7 +19,8 @@ class CouncilPositionResource extends JsonResource
             'council_id' => $this->council_id,
             'council_name' => $this->council->name ?? null,
             'user_id' => $this->user_id,
-          
+            'fullname'=> $this->user->fullName(),
+            'image'=> $this->user->getImage(),
             'position' => $this->position,
             'is_login' => $this->is_login,
 

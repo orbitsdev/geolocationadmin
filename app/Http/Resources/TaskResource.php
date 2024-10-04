@@ -16,18 +16,22 @@ class TaskResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+          'id' => $this->id,
             'title' => $this->title,
             'task_details' => $this->task_details,
-            'due_date' => $this->due_date ? $this->due_date->format('F j, Y, g:i A') : null, // Human-readable format
-            'completed_at' => $this->completed_at ? $this->completed_at->format('F j, Y, g:i A') : null, // Human-readable format
+            'due_date' => $this->due_date ? $this->due_date->format('F j, Y, g:i A') : null,
+            'completed_at' => $this->completed_at ? $this->completed_at->format('F j, Y, g:i A') : null,
             'status' => $this->status,
+            'status_changed_at' => $this->status_changed_at ? $this->status_changed_at->format('F j, Y, g:i A') : null,
+            'remarks' => $this->remarks,  // Include remarks
             'is_lock' => $this->is_lock,
             'is_done' => $this->is_done,
             'assigned_council_position' => new CouncilPositionResource($this->whenLoaded('assignedCouncilPosition')),
             'approved_by_council_position' => new CouncilPositionResource($this->whenLoaded('approvedByCouncilPosition')),
-            'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null, // Human-readable format
-            'updated_at' => $this->updated_at ? $this->updated_at->format('F j, Y, g:i A') : null, // Human-readable format
+            'file' => new FileResource($this->whenLoaded('file')),
+            'files' => FileResource::collection($this->whenLoaded('files')),
+            'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->format('F j, Y, g:i A') : null,
         ];
     }
 }

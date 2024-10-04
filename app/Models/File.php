@@ -24,4 +24,10 @@ class File extends Model
             return asset('images/placeholder-image.jpg'); // Return default image URL
         }
     }
+
+    public function getFileUrlAttribute()
+    {
+        return Storage::url($this->file);
+    }
+
 }
