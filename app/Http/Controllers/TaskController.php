@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\TaskResource;
 
@@ -63,7 +64,7 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        $task = Task::with(['assignedCouncilPosition', 'approvedByCouncilPosition','files','file'])->findOrFail($id);
+        $task = Task::withTaskRelations()->findOrFail($id);
         return ApiResponse::success(new TaskResource($task), 'Task retrieved successfully');
 
     }
@@ -93,7 +94,7 @@ class TaskController extends Controller
         try {
             $task->update($validatedData);
 
-            $task->load(['assignedCouncilPosition', 'approvedByCouncilPosition', 'file', 'files']);
+            $task->loadTaskRelations();
             DB::commit();
 
             return ApiResponse::success(new TaskResource($task), 'Task updated successfully');
@@ -170,7 +171,7 @@ class TaskController extends Controller
 
         // Save the task
         $task->save();
-        $task->load(['assignedCouncilPosition', 'approvedByCouncilPosition', 'file', 'files']);
+        $task->loadTaskRelations();
 
         DB::commit();
 
@@ -216,6 +217,26 @@ public function uploadFiles(Request $request, $id)
         return ApiResponse::error('Failed to upload files for task: ' . $e->getMessage(), 500);
     }
 }
+public function fetchByCouncilPositionOrCouncil($councilPositionId)
+{
+    // Fetch the CouncilPosition to get the related council_id
+    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+
+    // Now you have the council_id from the councilPosition object
+    $councilId = $councilPosition->council_id;
+
+    // Query tasks based on the council_position_id or council_id as needed
+    $tasks = Task::where('council_position_id', $councilPosition->id)
+        ->whereHas('assignedCouncilPosition', function ($query) use ($councilId) {
+            $query->where('council_id', $councilId);
+        })
+        ->withTaskRelations()
+        ->paginate(10); // Add pagination here
+
+    // Return the paginated tasks using the TaskResource
+    return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', TaskResource::class);
+}
+
 
 
 }

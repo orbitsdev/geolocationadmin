@@ -126,6 +126,12 @@ public function scopeByCouncilPosition($query, $councilPositionId)
 {
     return $query->where('council_position_id', $councilPositionId);
 }
+public function scopeByCouncil($query, $councilId)
+{
+    return $query->whereHas('assignedCouncilPosition', function ($q) use ($councilId) {
+        $q->where('council_id', $councilId);
+    });
+}
 
 public function scopeApproved($query)
 {
@@ -139,7 +145,22 @@ public function checkForLateCompletion()
         $this->save();
     }
 }
-
-
-
+public function scopeWithTaskRelations($query)
+{
+    return $query->with([
+        'assignedCouncilPosition',
+        'approvedByCouncilPosition',
+        'file',
+        'files'
+    ]);
+}
+public function loadTaskRelations()
+    {
+        return $this->load([
+            'assignedCouncilPosition',
+            'approvedByCouncilPosition',
+            'file',
+            'files'
+        ]);
+    }
 }

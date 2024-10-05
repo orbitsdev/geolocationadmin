@@ -51,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/council-positions/{id}/switch', [CouncilPositionController::class, 'switchPosition']);
     Route::put('/tasks/{id}/status', [TaskController::class, 'updateStatus']);
     Route::post('/tasks/{id}/files', [TaskController::class, 'uploadFiles']);
+    Route::get('/tasks/council-tasks/{council_position_id}', [TaskController::class, 'fetchByCouncilPositionOrCouncil']);
+
     Route::apiResource('tasks', TaskController::class);
 
     Route::apiResource('posts', PostController::class);
