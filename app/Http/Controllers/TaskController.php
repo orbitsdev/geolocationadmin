@@ -82,7 +82,7 @@ class TaskController extends Controller
             'task_details' => 'sometimes|string',
             'due_date' => 'sometimes|date',
             'completed_at' => 'sometimes|nullable|date',
-            'status' => 'sometimes|string|in:To Do,In Progress,Completed',
+            'status' => 'sometimes|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
             'is_lock' => 'sometimes|boolean',
             'is_done' => 'sometimes|boolean',
         ]);
@@ -136,6 +136,7 @@ class TaskController extends Controller
     $task = Task::findOrFail($id);
 
     $validatedData = $request->validate([
+        
         'status' => 'required|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
         'remarks' => 'sometimes|string|nullable',  // Optional remarks for the status change
     ]);

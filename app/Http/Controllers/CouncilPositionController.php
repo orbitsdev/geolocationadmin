@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
+use App\Models\Council;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\CouncilPositionResource;
-use App\Models\Council;
 
 class CouncilPositionController extends Controller
 {
@@ -16,8 +17,39 @@ class CouncilPositionController extends Controller
      */
     public function index(Request $request, $councilId)
     {
-        $positions = CouncilPosition::where('council_id', $councilId)->with('user')->paginate(10);
-        return ApiResponse::paginated($positions, 'Council positions retrieved successfully');
+        $positions = CouncilPosition::where('council_id', $councilId)
+        ->with(['user'])  // Only eager load users, not tasks
+        ->withCount([
+            'tasks as total_to_do_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_TODO);
+            },
+            'tasks as total_in_progress_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_IN_PROGRESS);
+            },
+            'tasks as total_completed_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_COMPLETED);
+            },
+            'tasks as total_completed_late_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_COMPLETED_LATE);
+            },
+            'tasks as total_due_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_DUE);
+            },
+            'tasks as total_on_hold_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_ON_HOLD);
+            },
+            'tasks as total_cancelled_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_CANCELLED);
+            },
+            'tasks as total_review_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_REVIEW);
+            },
+            'tasks as total_blocked_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_BLOCKED);
+            }
+        ])
+        ->paginate(10);
+        return ApiResponse::paginated($positions, 'Council positions retrieved successfully', CouncilPositionResource::class);
     }
 
     /**
@@ -75,7 +107,37 @@ class CouncilPositionController extends Controller
      */
     public function show(string $id)
     {
-        $position = CouncilPosition::with('user', 'council')->findOrFail($id);
+        $position = CouncilPosition::with('user', 'council')
+        ->withCount([
+            'tasks as total_to_do_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_TODO);
+            },
+            'tasks as total_in_progress_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_IN_PROGRESS);
+            },
+            'tasks as total_completed_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_COMPLETED);
+            },
+            'tasks as total_completed_late_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_COMPLETED_LATE);
+            },
+            'tasks as total_due_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_DUE);
+            },
+            'tasks as total_on_hold_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_ON_HOLD);
+            },
+            'tasks as total_cancelled_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_CANCELLED);
+            },
+            'tasks as total_review_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_REVIEW);
+            },
+            'tasks as total_blocked_tasks' => function ($query) {
+                $query->where('status', Task::STATUS_BLOCKED);
+            }
+        ])
+        ->findOrFail($id);
         return ApiResponse::success(new CouncilPositionResource($position), 'Council position retrieved successfully');
     }
 
