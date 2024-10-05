@@ -23,6 +23,7 @@ class CouncilPositionResource extends JsonResource
             'image'=> $this->user->getImage(),
             'position' => $this->position,
             'is_login' => $this->is_login,
+            'grant_access' => $this->grant_access,
             'total_to_do_tasks' => $this->total_to_do_tasks,
             'total_in_progress_tasks' => $this->total_in_progress_tasks,
             'total_completed_tasks' => $this->total_completed_tasks,

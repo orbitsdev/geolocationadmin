@@ -135,18 +135,33 @@ class TaskController extends Controller
 {
     $task = Task::findOrFail($id);
 
+    // Validate the request data
     $validatedData = $request->validate([
-        
         'status' => 'required|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
-        'remarks' => 'sometimes|string|nullable',  // Optional remarks for the status change
+        'remarks' => 'sometimes|string|nullable', // Optional remarks for the status change
+        'is_admin_action' => 'sometimes|boolean', // Optional boolean field to indicate an approval action
     ]);
 
     DB::beginTransaction();
-
     try {
         // Update the status and set the status_changed_at timestamp
         $task->status = $validatedData['status'];
         $task->status_changed_at = now();
+
+        // Always set the completed_at if the status is 'Completed'
+        if ($task->status === Task::STATUS_COMPLETED || $task->status === Task::STATUS_COMPLETED_LATE) {
+            // Always set the completed_at if the status is Completed or Completed Late
+            $task->completed_at = now();
+        
+            // Only set the approved_by_council_position_id if the action is flagged as an admin-like approval action
+            if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
+                $task->approved_by_council_position_id = $request->user()->defaultCouncilPosition()->id;
+            }
+        } else {
+            // For other statuses, reset only the approval-related fields, but leave completed_at intact
+            $task->approved_by_council_position_id = null;
+        }
+        
 
         // If remarks are provided, update the remarks column
         if (isset($validatedData['remarks'])) {
@@ -156,14 +171,18 @@ class TaskController extends Controller
         // Save the task
         $task->save();
         $task->load(['assignedCouncilPosition', 'approvedByCouncilPosition', 'file', 'files']);
+
         DB::commit();
 
         return ApiResponse::success(new TaskResource($task), 'Task status updated successfully');
     } catch (\Exception $e) {
         DB::rollBack();
         \Log::error('Failed to update task status', ['error' => $e->getMessage()]);
-        return ApiResponse::error('Failed to update task status', 500);
+        return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
     }
 }
+
+    
+
 
 }

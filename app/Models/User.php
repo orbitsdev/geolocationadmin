@@ -89,7 +89,9 @@ class User extends Authenticatable implements FilamentUser, HasName
         return url('images/placeholder-image.jpg');
 
 
-    }
+    }   
+
+    // this can be use for.. who change the status 
 
     public function defaultCouncilPosition()
 {

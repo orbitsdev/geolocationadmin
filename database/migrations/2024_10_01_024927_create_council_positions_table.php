@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable();
             $table->string('position')->nullable();
             $table->boolean('is_login')->default(false);
+            $table->boolean('grant_access')->default(false); 
             $table->timestamps();
         });
     }
