@@ -63,7 +63,7 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        $task = Task::with(['assignedCouncilPosition', 'approvedByCouncilPosition'])->findOrFail($id);
+        $task = Task::with(['assignedCouncilPosition', 'approvedByCouncilPosition','files','file'])->findOrFail($id);
         return ApiResponse::success(new TaskResource($task), 'Task retrieved successfully');
 
     }
@@ -182,7 +182,40 @@ class TaskController extends Controller
     }
 }
 
-    
+public function uploadFiles(Request $request, $id)
+{
+    $task = Task::findOrFail($id);
+
+    // Validate the incoming request to ensure files are uploaded
+    $validatedData = $request->validate([
+        'files.*' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        // Handle file uploads
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('task_files','public');
+                $task->files()->create([
+                    'file' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+        }
+
+        DB::commit();
+
+        return ApiResponse::success(null, 'Files uploaded successfully', 201);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Failed to upload files for task', ['error' => $e->getMessage()]);
+        return ApiResponse::error('Failed to upload files for task: ' . $e->getMessage(), 500);
+    }
+}
 
 
 }

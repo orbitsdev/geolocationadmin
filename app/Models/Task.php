@@ -42,7 +42,7 @@ class Task extends Model
 
     public const STATUS_TODO = 'To Do';
     public const STATUS_IN_PROGRESS = 'In Progress';
-    public const STATUS_COMPLETED = 'Completed / Done';
+    public const STATUS_COMPLETED = 'Done';
     public const STATUS_COMPLETED_LATE = 'Completed Late';
     public const STATUS_DUE = 'Due / Pending';
     public const STATUS_ON_HOLD = 'On Hold';

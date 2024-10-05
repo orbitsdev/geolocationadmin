@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('councils/{council}/positions/{id}', [CouncilPositionController::class, 'destroy']);
     Route::put('/council-positions/{id}/switch', [CouncilPositionController::class, 'switchPosition']);
     Route::put('/tasks/{id}/status', [TaskController::class, 'updateStatus']);
+    Route::post('/tasks/{id}/files', [TaskController::class, 'uploadFiles']);
     Route::apiResource('tasks', TaskController::class);
 
     Route::apiResource('posts', PostController::class);

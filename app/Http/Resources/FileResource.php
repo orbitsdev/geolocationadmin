@@ -19,7 +19,7 @@ class FileResource extends JsonResource
             'file_name' => $this->file_name,
             'file_type' => $this->file_type,
             'file_size' => $this->file_size,
-            'file_url' => $this->file_url, 
+            'file_url' => $this->getFileUrlAttribute(), 
             'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
         ];
     }

@@ -26,8 +26,16 @@ class File extends Model
     }
 
     public function getFileUrlAttribute()
-    {
-        return Storage::url($this->file);
+{
+
+    if(Storage::disk('public')->exists($this->file)){
+        return Storage::disk('public')->url($this->file);
     }
+
+
+    
+    return null; 
+}
+
 
 }
