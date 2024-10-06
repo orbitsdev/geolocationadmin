@@ -6,9 +6,10 @@ use App\Models\Post;
 use Illuminate\Support\Arr;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Storage;
-use App\Filament\Resources\PostResource;
 
 class PostController extends Controller
 {
@@ -17,8 +18,8 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $posts = Post::with('files', 'councilPosition')->paginate(10);
-        return ApiResponse::paginated($posts, 'Posts retrieved successfully');
+        $posts = Post::withPostRelations()->paginate(10);
+        return ApiResponse::paginated($posts, 'Posts retrieved successfully', PostResource::class);
     }
 
     /**
@@ -37,13 +38,13 @@ class PostController extends Controller
     DB::beginTransaction();
 
     try {
-        // Exclude 'files' from the validated data because it's handled separately
+      
         $postData = Arr::except($validatedData, ['files']);
         
-        // Create the post without the 'files' field
+       
         $post = Post::create($postData);
 
-        // Handle file uploads separately
+        
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
                 $path = $file->store('uploads','public');
@@ -57,8 +58,10 @@ class PostController extends Controller
         }
 
         DB::commit();
+        $post->loadPostRelations();
 
         return ApiResponse::success(new PostResource($post), 'Post created successfully', 201);
+        
     } catch (\Exception $e) {
         DB::rollBack();
         return ApiResponse::error('Failed to create post ' . $e->getMessage(), 500);
@@ -71,7 +74,7 @@ class PostController extends Controller
     public function show(string $id)
     {
 
-        $post = Post::with('files', 'councilPosition')->findOrFail($id);
+        $post = Post::withPostRelations()->findOrFail($id);
         return ApiResponse::success(new PostResource($post), 'Post retrieved successfully');
     }
 
@@ -79,47 +82,49 @@ class PostController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $post = Post::findOrFail($id);
+{
+    $post = Post::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'council_position_id' => 'sometimes|exists:council_positions,id',
-            'title' => 'sometimes|string|max:255',
-            'content' => 'sometimes|string',
-            'description' => 'nullable|string',
-            'files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-        ]);
+    // Validate the incoming request
+    $validatedData = $request->validate([
+        'council_position_id' => 'sometimes|exists:council_positions,id',
+        'title' => 'sometimes|string|max:255',
+        'content' => 'sometimes|string',
+        'description' => 'nullable|string',
+        'files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+    ]);
 
+    DB::beginTransaction();
 
-        DB::beginTransaction();
+    try {
+        // Update the post with the validated data
+        $post->update($validatedData);
 
-        try {
-
-            $post->update($validatedData);
-
-
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $path = $file->store('uploads');
-                    $post->files()->create([
-                        'file' => $path,
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_type' => $file->getClientMimeType(),
-                        'file_size' => $file->getSize(),
-                    ]);
-                }
+        // Check if any files are uploaded and handle the file upload process
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('uploads', 'public');
+                $post->files()->create([
+                    'file' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                    'file_size' => $file->getSize(),
+                ]);
             }
-
-
-            DB::commit();
-
-            return ApiResponse::success(new PostResource($post), 'Post updated successfully');
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-            return ApiResponse::error('Failed to update post', 500);
         }
+
+        // Load the relationships, including files (if they exist)
+        $post->loadPostRelations();
+
+        DB::commit();
+
+        return ApiResponse::success(new PostResource($post), 'Post updated successfully');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return ApiResponse::error('Failed to update post: ' . $e->getMessage(), 500);
     }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -151,4 +156,24 @@ class PostController extends Controller
             return ApiResponse::error('Failed to delete post', 500);
         }
     }
+
+    public function fetchByCouncilPositionOrCouncil($councilPositionId)
+{
+    // Fetch the CouncilPosition to get the related council_id
+    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+
+    // Now you have the council_id from the councilPosition object
+    $councilId = $councilPosition->council_id;
+
+    // Query tasks based on the council_position_id or council_id as needed
+    $tasks = Post::where('council_position_id', $councilPosition->id)
+        ->whereHas('councilPosition', function ($query) use ($councilId) {
+            $query->where('council_id', $councilId);
+        })
+        ->withPostRelations()
+        ->paginate(10); // Add pagination here
+
+    // Return the paginated tasks using the TaskResource
+    return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', PostResource::class);
+}
 }

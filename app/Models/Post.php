@@ -33,4 +33,21 @@ class Post extends Model
         });
     }
 
+    public function scopeWithPostRelations($query)
+    {
+        return $query->with([
+            'councilPosition',
+            'file',
+            'files'
+        ]);
+    }
+    public function loadPostRelations()
+    {
+        return $this->load([
+            'councilPosition',
+            'file',
+            'files'
+        ]);
+    }
+
 }
