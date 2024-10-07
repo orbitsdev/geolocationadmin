@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Http\Resources\CouncilResource;
 use App\Http\Resources\AttendanceResource;
 use App\Http\Resources\CouncilPositionResource;
@@ -18,23 +19,27 @@ class EventResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+           'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'content' => $this->content,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'radius' => $this->radius,
-            'start_time' => $this->start_time ? $this->start_time->toDateTimeString() : null,
-            'end_time' => $this->end_time ? $this->end_time->toDateTimeString() : null,
+            'start_time' => $this->start_time ? $this->formattedDate($this->start_time) : null, // Custom format
+            'end_time' => $this->end_time ? $this->formattedDate($this->end_time) : null,     // Custom format
             'is_active' => $this->is_active,
             'max_capacity' => $this->max_capacity,
             'type' => $this->type,
-            'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,
-            'council' => new CouncilResource($this->whenLoaded('council')),
-            'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
+
+            'council' => new ($this->whenLoaded('council')),
+            'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
             'attendances' => AttendanceResource::collection($this->whenLoaded('attendances')),
         ];
+    }
+    protected function formattedDate($date)
+    {
+        // Parse the date and format it for public display
+        return Carbon::parse($date)->format('l, F j, Y, g:i A');
     }
 }

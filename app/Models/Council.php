@@ -60,5 +60,8 @@ class Council extends Model
         return $this->chatRooms()->get();
     }
 
+    public function chatRoom(){
+        return $this->hasOne(ChatRoom::class);
+    }
 
 }

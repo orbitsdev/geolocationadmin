@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\EventResource;
 
@@ -13,14 +14,21 @@ class EventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($councilId)
+    public function index(Request $request, $councilId)
     {
+        // Get the page and perPage from the query string, default to page 1 and 10 items per page
+        $page = $request->query('page', 1);
+        $perPage = $request->query('perPage', 10);
+
+        // Fetch the events for the given council with pagination
         $events = Event::where('council_id', $councilId)
             ->with('councilPosition', 'attendances')
-            ->paginate(10);
+            ->paginate($perPage, ['*'], 'page', $page);
 
-        return ApiResponse::paginated($events, 'Events retrieved successfully');
+        // Return paginated events
+        return ApiResponse::paginated($events, 'Events retrieved successfully', EventResource::class);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -129,4 +137,24 @@ class EventController extends Controller
             return ApiResponse::error('Failed to delete event', 500);
         }
     }
+    public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
+{
+    // Fetch the council position to get the related council_id
+    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+    $councilId = $councilPosition->council_id;
+
+    // Get the page and perPage from the query string, default to page 1 and 10 items per page
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
+
+    // Query events based on council_position_id or council_id
+    $events = Event::where('council_position_id', $councilPositionId)
+        ->orWhere('council_id', $councilId)
+        ->with('councilPosition', 'attendances')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    // Return the paginated events using the appropriate resource
+    return ApiResponse::paginated($events, 'Events retrieved successfully', EventResource::class);
+}
+
 }

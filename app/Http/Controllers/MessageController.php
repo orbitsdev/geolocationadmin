@@ -6,6 +6,7 @@ use App\Models\ChatRoom;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\MessageResource;
+use App\Http\Resources\ChatRoomResource;
 
 class MessageController extends Controller
 {
@@ -14,11 +15,11 @@ class MessageController extends Controller
      */
     public function index($chatRoomId)
     {
-        $chatRoom = ChatRoom::findOrFail($chatRoomId);
+        $chatRoom = ChatRoom::with(['messages.councilPosition']) // Eager load related data
+                        ->findOrFail($chatRoomId);
 
-        $messages = $chatRoom->messages()->with('councilPosition')->paginate(10);
 
-        return ApiResponse::paginated($messages, 'Messages retrieved successfully');
+    return ApiResponse::success(new ChatRoomResource($chatRoom), 'Chat room with messages retrieved successfully');
     }
 
     /**

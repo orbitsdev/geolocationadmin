@@ -19,9 +19,8 @@ class ChatRoomResource extends JsonResource
             'id' => $this->id,
             'council_id' => $this->council_id,
             'name' => $this->name,
-            'messages' => MessageResource::collection($this->whenLoaded('messages')), 
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
+            'messages' => MessageResource::collection($this->whenLoaded('messages')),
+            
         ];
     }
 }

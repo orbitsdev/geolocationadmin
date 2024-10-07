@@ -48,4 +48,8 @@ class ChatRoom extends Model
         return $this->messages()->get();
     }
 
+    public function scopeWithMessages($query){
+        return $query->with('messages');
+    }
+
 }

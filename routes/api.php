@@ -63,9 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/collections/council-collections/{council_position_id}', [CollectionController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::apiResource('collections', CollectionController::class);
 
-    Route::get('councils/{councilId}/chat-room', [ChatRoomController::class, 'show']);
+    Route::post('chat-rooms/{chatRoomId}/create-messages', [MessageController::class, 'store']);
+    // Route::get('councils/{councilId}/chat-room', [ChatRoomController::class, 'show']);
     Route::get('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'index']);
-    Route::post('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'store']);
+    Route::get('/councils/council-events/{council_position_id}', [EventController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::apiResource('councils.events', EventController::class);
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-in', [AttendanceController::class, 'checkIn']);
 
