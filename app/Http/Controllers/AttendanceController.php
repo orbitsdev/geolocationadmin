@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Attendance;
 use App\Helpers\ApiResponse;
+use App\Http\Resources\AttendanceResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -49,8 +50,6 @@ class AttendanceController extends Controller
     {
         //
     }
-
-
     public function checkIn(Request $request, $councilId, $eventId)
     {
         $validatedData = $request->validate([
@@ -59,10 +58,39 @@ class AttendanceController extends Controller
             'longitude' => 'required|numeric',
             'device_id' => 'nullable|string',
             'device_name' => 'nullable|string',
-            'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',  // Validate selfie as file
+            'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $event = Event::where('council_id', $councilId)->findOrFail($eventId);
+
+        // Validate if current time is within event start and end times
+
+
+    if ($event->restrict_event) {
+        $formattedStartTime = $event->start_time->format('l, F j, Y, g:i A');
+        $formattedEndTime = $event->end_time->format('l, F j, Y, g:i A');
+        $currentTime = now()->format('l, F j, Y, g:i A');
+
+
+        if (now()->lt($event->start_time)) {
+            return ApiResponse::error(
+                "The event has not started yet. It starts on {$formattedStartTime}. Current time is {$currentTime}. Please wait until the event begins.",
+                403
+            );
+        }
+
+        if (now()->gt($event->end_time)) {
+            return ApiResponse::error(
+                "The event has already ended. It ended on {$formattedEndTime}. Current time is {$currentTime}. You cannot check in at this time.",
+                403
+            );
+        }
+    }
+
+        // Fetch existing attendance for this council position and event
+        $attendance = Attendance::where('event_id', $eventId)
+            ->where('council_position_id', $validatedData['council_position_id'])
+            ->first();
 
         // Calculate distance between event location and user's location
         $distance = $this->calculateDistance(
@@ -71,15 +99,6 @@ class AttendanceController extends Controller
             $validatedData['latitude'],
             $validatedData['longitude']
         );
-
-        // return ApiResponse::success([
-        //     'calculated_distance' => $distance,
-        //     'event_latitude' => $event->latitude,
-        //     'event_longitude' => $event->longitude,
-        //     'user_latitude' => $validatedData['latitude'],
-        //     'user_longitude' => $validatedData['longitude'],
-        // ], 'Distance calculated successfully');
-        
 
         if ($distance <= $event->radius) {
             DB::beginTransaction();
@@ -92,45 +111,79 @@ class AttendanceController extends Controller
                     $selfiePath = $request->file('selfie_image')->store('selfies', 'public');
                 }
 
-                // Create attendance record
-                $attendance = Attendance::create([
-                    'event_id' => $event->id,
-                    'council_position_id' => $validatedData['council_position_id'],
-                    'latitude' => $validatedData['latitude'],
-                    'longitude' => $validatedData['longitude'],
-                    'status' => 'present',
-                    'check_in_time' => now(),
-                    'device_id' => $validatedData['device_id'] ?? null,
-                    'device_name' => $validatedData['device_name'] ?? null,
-                    'selfie_image' => $selfiePath,
-                ]);
+                if ($attendance) {
+                    // Update existing attendance record
+                    $attendance->update([
+                        'latitude' => $validatedData['latitude'],
+                        'longitude' => $validatedData['longitude'],
+                        'status' => 'present',
+                        'check_in_time' => now(),
+                        'device_id' => $validatedData['device_id'] ?? $attendance->device_id,
+                        'device_name' => $validatedData['device_name'] ?? $attendance->device_name,
+                        'selfie_image' => $selfiePath ?? $attendance->selfie_image,
+                    ]);
+                } else {
+                    // Create a new attendance record
+                    $attendance = Attendance::create([
+                        'event_id' => $event->id,
+                        'council_position_id' => $validatedData['council_position_id'],
+                        'latitude' => $validatedData['latitude'],
+                        'longitude' => $validatedData['longitude'],
+                        'status' => 'present',
+                        'check_in_time' => now(),
+                        'device_id' => $validatedData['device_id'] ?? null,
+                        'device_name' => $validatedData['device_name'] ?? null,
+                        'selfie_image' => $selfiePath,
+                    ]);
+                }
 
+                $attendance->loadRelations();
                 DB::commit();
 
-                return ApiResponse::success($attendance, 'Attendance marked successfully');
+                return ApiResponse::success(new AttendanceResource($attendance), 'Attendance marked successfully');
             } catch (\Exception $e) {
                 DB::rollBack();
                 return ApiResponse::error('Failed to mark attendance', 500);
             }
         } else {
-         
             return ApiResponse::error(
                 "You are not within the geofence. Calculated distance: {$distance} meters. Geofence radius: {$event->radius} meters.",
                 403
             );
         }
-    
     }
-
 
     public function checkOut(Request $request, $councilId, $eventId)
     {
-        // Same as before, no change for selfie handling here
         $validatedData = $request->validate([
             'council_position_id' => 'required|exists:council_positions,id',
         ]);
 
         $event = Event::where('council_id', $councilId)->findOrFail($eventId);
+
+        if ($event->restrict_event) {
+
+
+                    // Validate if current time is within event start and end times
+                    $formattedStartTime = $event->start_time->format('l, F j, Y, g:i A');
+                    $formattedEndTime = $event->end_time->format('l, F j, Y, g:i A');
+                    $currentTime = now()->format('l, F j, Y, g:i A');
+
+                    // Validate if current time is within event start and end times
+                    if (now()->lt($event->start_time)) {
+                        return ApiResponse::error(
+                            "The event has not started yet. It starts on {$formattedStartTime}. Current time is {$currentTime}. You cannot check out at this time.",
+                            403
+                        );
+                    }
+
+                    if (now()->gt($event->end_time)) {
+                        return ApiResponse::error(
+                            "The event has already ended. It ended on {$formattedEndTime}. Current time is {$currentTime}. You cannot check out at this time.",
+                            403
+                        );
+                    }
+        }
 
         $attendance = Attendance::where('event_id', $event->id)
             ->where('council_position_id', $validatedData['council_position_id'])
@@ -144,9 +197,10 @@ class AttendanceController extends Controller
                 'status' => 'checked-out',
             ]);
 
+            $attendance->loadRelations();
             DB::commit();
 
-            return ApiResponse::success($attendance, 'Checked out successfully');
+            return ApiResponse::success(new AttendanceResource($attendance), 'Checked out successfully');
         } catch (\Exception $e) {
             DB::rollBack();
             return ApiResponse::error('Failed to check out', 500);
@@ -154,10 +208,11 @@ class AttendanceController extends Controller
     }
 
 
+
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371;
-        
+
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
 

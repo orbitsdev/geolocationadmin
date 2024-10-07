@@ -20,5 +20,22 @@ class Attendance extends Model
     {
         return $this->belongsTo(Event::class);
     }
+
+
+    public function scopeWithRelations($query)
+    {
+        return $query->with([
+            'councilPosition',
+            'event',
+        ]);
+    }
+    public function loadRelations()
+    {
+        return $this->load([
+            'councilPosition',
+            'event',
+
+        ]);
+    }
 }
 

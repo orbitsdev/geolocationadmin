@@ -23,8 +23,8 @@ class EventResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'content' => $this->content,
-            'latitude' => $this->latitude,
-            'longitude' => $this->longitude,
+            'latitude' => number_format($this->latitude, 8, '.', ''),  // Preserve 8 decimal places as string
+            'longitude' => number_format($this->longitude, 8, '.', ''),
             'radius' => $this->radius,
             'start_time' => $this->start_time ? $this->formattedDate($this->start_time) : null, // Custom format
             'end_time' => $this->end_time ? $this->formattedDate($this->end_time) : null,     // Custom format
