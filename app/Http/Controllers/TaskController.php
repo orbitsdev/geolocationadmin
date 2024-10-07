@@ -16,8 +16,13 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $tasks = Task::with(['assignedCouncilPosition', 'approvedByCouncilPosition', 'file', 'files'])->paginate(10);
+        $page = $request->query('page', 1);
+        $perPage = $request->query('perPage', 10);
 
+        // Fetch the tasks with pagination
+        $tasks = Task::withTaskRelations()->paginate($perPage, ['*'], 'page', $page);
+
+        // Return the paginated API response
         return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', \App\Http\Resources\TaskResource::class);
     }
 
@@ -153,7 +158,7 @@ class TaskController extends Controller
         if ($task->status === Task::STATUS_COMPLETED || $task->status === Task::STATUS_COMPLETED_LATE) {
             // Always set the completed_at if the status is Completed or Completed Late
             $task->completed_at = now();
-        
+
             // Only set the approved_by_council_position_id if the action is flagged as an admin-like approval action
             if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
                 $task->approved_by_council_position_id = $request->user()->defaultCouncilPosition()->id;
@@ -162,7 +167,7 @@ class TaskController extends Controller
             // For other statuses, reset only the approval-related fields, but leave completed_at intact
             $task->approved_by_council_position_id = null;
         }
-        
+
 
         // If remarks are provided, update the remarks column
         if (isset($validatedData['remarks'])) {
@@ -217,7 +222,7 @@ public function uploadFiles(Request $request, $id)
         return ApiResponse::error('Failed to upload files for task: ' . $e->getMessage(), 500);
     }
 }
-public function fetchByCouncilPositionOrCouncil($councilPositionId)
+public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
     // Fetch the CouncilPosition to get the related council_id
     $councilPosition = CouncilPosition::findOrFail($councilPositionId);
@@ -225,17 +230,22 @@ public function fetchByCouncilPositionOrCouncil($councilPositionId)
     // Now you have the council_id from the councilPosition object
     $councilId = $councilPosition->council_id;
 
-    // Query tasks based on the council_position_id or council_id as needed
+    // Get the page and perPage from the query string, default to page 1 and 10 per page
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
+
+    // Query tasks based on the council_position_id or council_id
     $tasks = Task::where('council_position_id', $councilPosition->id)
         ->whereHas('assignedCouncilPosition', function ($query) use ($councilId) {
             $query->where('council_id', $councilId);
         })
         ->withTaskRelations()
-        ->paginate(10); // Add pagination here
+        ->paginate($perPage, ['*'], 'page', $page); // Apply pagination
 
     // Return the paginated tasks using the TaskResource
     return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', TaskResource::class);
 }
+
 
 
 

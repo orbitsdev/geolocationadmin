@@ -18,7 +18,14 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $posts = Post::withPostRelations()->paginate(10);
+
+        $page = $request->query('page', 1);
+        $perPage = $request->query('perPage', 10);
+
+        // Fetch the posts with pagination and load relationships
+        $posts = Post::withPostRelations()->paginate($perPage, ['*'], 'page', $page);
+
+        // Return the paginated API response
         return ApiResponse::paginated($posts, 'Posts retrieved successfully', PostResource::class);
     }
 
@@ -38,13 +45,13 @@ class PostController extends Controller
     DB::beginTransaction();
 
     try {
-      
+
         $postData = Arr::except($validatedData, ['files']);
-        
-       
+
+
         $post = Post::create($postData);
 
-        
+
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
                 $path = $file->store('uploads','public');
@@ -61,7 +68,7 @@ class PostController extends Controller
         $post->loadPostRelations();
 
         return ApiResponse::success(new PostResource($post), 'Post created successfully', 201);
-        
+
     } catch (\Exception $e) {
         DB::rollBack();
         return ApiResponse::error('Failed to create post ' . $e->getMessage(), 500);
@@ -151,29 +158,34 @@ class PostController extends Controller
 
             return ApiResponse::success(null, 'Post deleted successfully');
         } catch (\Exception $e) {
-           
+
             DB::rollBack();
             return ApiResponse::error('Failed to delete post', 500);
         }
     }
 
-    public function fetchByCouncilPositionOrCouncil($councilPositionId)
-{
-    // Fetch the CouncilPosition to get the related council_id
-    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+    public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
+    {
+        
+        $councilPosition = CouncilPosition::findOrFail($councilPositionId);
 
-    // Now you have the council_id from the councilPosition object
-    $councilId = $councilPosition->council_id;
 
-    // Query tasks based on the council_position_id or council_id as needed
-    $tasks = Post::where('council_position_id', $councilPosition->id)
-        ->whereHas('councilPosition', function ($query) use ($councilId) {
-            $query->where('council_id', $councilId);
-        })
-        ->withPostRelations()
-        ->paginate(10); // Add pagination here
+        $councilId = $councilPosition->council_id;
 
-    // Return the paginated tasks using the TaskResource
-    return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', PostResource::class);
-}
+
+        $page = $request->query('page', 1);
+        $perPage = $request->query('perPage', 10);
+
+
+        $posts = Post::where('council_position_id', $councilPosition->id)
+            ->whereHas('councilPosition', function ($query) use ($councilId) {
+                $query->where('council_id', $councilId);
+            })
+            ->withPostRelations()
+            ->paginate($perPage, ['*'], 'page', $page);
+
+
+        return ApiResponse::paginated($posts, 'Posts retrieved successfully', PostResource::class);
+    }
+
 }
