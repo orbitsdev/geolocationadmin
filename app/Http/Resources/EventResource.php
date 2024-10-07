@@ -31,7 +31,6 @@ class EventResource extends JsonResource
             'is_active' => $this->is_active,
             'max_capacity' => $this->max_capacity,
             'type' => $this->type,
-
             'council' => new ($this->whenLoaded('council')),
             'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
             'attendances' => AttendanceResource::collection($this->whenLoaded('attendances')),

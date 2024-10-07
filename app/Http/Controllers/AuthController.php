@@ -144,58 +144,73 @@ class AuthController extends Controller
         return ApiResponse::success(null, 'Logged out successfully');
     }
 
-    // Get the details of the authenticated user
     public function userDetails(Request $request)
-    {
-        $user = $request->user(); // Assuming you're using Sanctum to handle authentication
+{
+    // Get the authenticated user
+    $user = $request->user();
 
-        return ApiResponse::success(new UserResource($user), 'User details retrieved successfully');
-    }
+    // Load related council positions (or any other relations you may need)
+    $user->load(['councilPositions' => function ($query) {
+        $query->notLogin();
+    }]);
 
+    // Return the user details using the UserResource
+    return ApiResponse::success(new UserResource($user), 'User details retrieved successfully');
+}
+
+
+    // Get the details of the authenticated user
     public function updateUser(Request $request)
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        $validatedData = $request->validate([
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'sometimes|string|min:8|confirmed',
-        ]);
+    $validatedData = $request->validate([
+        'first_name' => 'sometimes|string|max:255',
+        'last_name' => 'sometimes|string|max:255',
+        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+        'password' => 'sometimes|string|min:8|confirmed',
+        'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048'
+    ]);
 
-        // Update user data
-        if (!empty($validatedData['first_name'])) {
-            $user->first_name = $validatedData['first_name'];
-        }
-
-        if (!empty($validatedData['last_name'])) {
-            $user->last_name = $validatedData['last_name'];
-        }
-        if (!empty($validatedData['email'])) {
-            $user->email = $validatedData['email'];
-        }
-
-        // Update password if provided
-        if (!empty($validatedData['password'])) {
-            $user->password = Hash::make($validatedData['password']);
-        }
-        $user->load(['councilPositions' => function ($query) {
-            $query->notLogin();
-        }]);
-        // Save the updated user information
-        $user->save();
-
-        return ApiResponse::success(new UserResource($user), 'User updated successfully');
+    // Update user data
+    if (!empty($validatedData['first_name'])) {
+        $user->first_name = $validatedData['first_name'];
     }
-    private function parseFullName($fullName)
-    {
-        $nameParts = explode(' ', trim($fullName));
-        $firstName = array_shift($nameParts); // Get the first part of the name
-        $lastName = implode(' ', $nameParts); // Concatenate the rest as the last name
 
-        return [
-            'first_name' => $firstName,
-            'last_name' => $lastName ?: '',
-        ];
+    if (!empty($validatedData['last_name'])) {
+        $user->last_name = $validatedData['last_name'];
     }
+
+    if (!empty($validatedData['email'])) {
+        $user->email = $validatedData['email'];
+    }
+
+    // Update password if provided
+    if (!empty($validatedData['password'])) {
+        $user->password = Hash::make($validatedData['password']);
+    }
+
+    // Handle image upload
+    if ($request->hasFile('image')) {
+        // Store the uploaded image in the 'public/profile_images' directory
+        $path = $request->file('image')->store('profile_images', 'public');
+        // Save the image path to the user model
+        $user->image = $path;
+    }
+
+    // Save the updated user information
+    $user->save();
+
+    // Reload the user data after saving
+    $user->refresh();
+
+    // Load related council positions
+    $user->load(['councilPositions' => function ($query) {
+        $query->notLogin();
+    }]);
+
+    return ApiResponse::success(new UserResource($user), 'User updated successfully');
+}
+
+
 }
