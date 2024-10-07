@@ -40,7 +40,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::get('user', [AuthController::class, 'userDetails']); // Get user details
+    Route::get('user', [AuthController::class, 'userDetails']); 
     Route::put('user', [AuthController::class, 'updateUser']);
     Route::apiResource('councils', CouncilController::class);
 
@@ -64,7 +64,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('collections', CollectionController::class);
 
     Route::post('chat-rooms/{chatRoomId}/create-messages', [MessageController::class, 'store']);
-    // Route::get('councils/{councilId}/chat-room', [ChatRoomController::class, 'show']);
     Route::get('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'index']);
     Route::get('/councils/council-events/{council_position_id}', [EventController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::apiResource('councils.events', EventController::class);
