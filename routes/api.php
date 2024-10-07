@@ -43,7 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [AuthController::class, 'userDetails']); // Get user details
     Route::put('user', [AuthController::class, 'updateUser']);
     Route::apiResource('councils', CouncilController::class);
-    
+
     Route::get('councils/{council}/positions', [CouncilPositionController::class, 'index']);
     Route::get('councils/{council}/positions/{id}', [CouncilPositionController::class, 'show']);
     Route::post('councils/{council}/positions', [CouncilPositionController::class, 'store']);
@@ -58,15 +58,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/posts/council-posts/{council_position_id}', [PostController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::apiResource('posts', PostController::class);
-    Route::apiResource('collections', CollectionController::class);
 
     Route::delete('collections/{collectionId}/items/{itemId}', [CollectionController::class, 'removeItem']);
+    Route::get('/collections/council-collections/{council_position_id}', [CollectionController::class, 'fetchByCouncilPositionOrCouncil']);
+    Route::apiResource('collections', CollectionController::class);
+
     Route::get('councils/{councilId}/chat-room', [ChatRoomController::class, 'show']);
     Route::get('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'index']);
     Route::post('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'store']);
     Route::apiResource('councils.events', EventController::class);
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-in', [AttendanceController::class, 'checkIn']);
-    
+
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-out', [AttendanceController::class, 'checkOut']);
     Route::post('devices/register', [DeviceController::class, 'storeOrUpdate']);
     Route::delete('devices/{deviceId}', [DeviceController::class, 'destroy']);

@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Collection;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
-use App\Filament\Resources\CollectionResource;
+use App\Http\Resources\CollectionResource;
 
 class CollectionController extends Controller
 {
@@ -14,16 +15,27 @@ class CollectionController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        $collections = Collection::with('collectionItems', 'councilPosition')->paginate(10);
-        return ApiResponse::paginated($collections, 'Collections retrieved successfully');
-    }
+{
+    // Get the page and perPage from the query string, default to page 1 and 10 per page
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
+
+    // Fetch collections with relationships and apply pagination
+    $collections = Collection::with('collectionItems', 'councilPosition')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    // Return the paginated API response
+    return ApiResponse::paginated($collections, 'Collections retrieved successfully', CollectionResource::class);
+}
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+
+
         $validatedData = $request->validate([
             'council_position_id' => 'required|exists:council_positions,id',
             'title' => 'required|string|max:255',
@@ -164,4 +176,29 @@ class CollectionController extends Controller
             return ApiResponse::error('Failed to remove collection item', 500);
         }
     }
+
+    public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
+{
+
+    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+
+    $councilId = $councilPosition->council_id;
+    
+
+
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
+
+    // Query collections based on the council_position_id or council_id
+    $collections = Collection::where('council_position_id', $councilPosition->id)
+        ->whereHas('councilPosition', function ($query) use ($councilId) {
+            $query->where('council_id', $councilId);
+        })
+        ->with('collectionItems', 'councilPosition')
+        ->paginate($perPage, ['*'], 'page', $page); // Apply pagination
+
+    // Return the paginated collections using the appropriate resource
+    return ApiResponse::paginated($collections, 'Collections retrieved successfully', CollectionResource::class);
+}
+
 }
