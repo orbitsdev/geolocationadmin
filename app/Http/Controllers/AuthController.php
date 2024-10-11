@@ -91,7 +91,7 @@ class AuthController extends Controller
         $user = User::where('email', $validatedData['email'])->first();
 
         if (!$user || !Hash::check($validatedData['password'], $user->password)) {
-            return ApiResponse::error('Invalid credentials', 401);
+            return ApiResponse::error('Invalid credentials', 422);
         }
         $user->load(['councilPositions' => function ($query) {
             $query->notLogin();
