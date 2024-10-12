@@ -20,7 +20,7 @@ class CouncilController extends Controller
         $perPage = $request->query('perPage', 10);
 
         // Fetch the tasks with pagination
-        $councils =  Council::with('councilPositions')->paginate($perPage, ['*'], 'page', $page);
+        $councils =  Council::latest()->with('councilPositions')->paginate($perPage, ['*'], 'page', $page);
 
         // Return the paginated API response
         return ApiResponse::paginated($councils, 'Councils retrieved successfully', CouncilResource::class);
