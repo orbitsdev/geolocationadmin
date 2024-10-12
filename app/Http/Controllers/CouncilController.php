@@ -13,12 +13,18 @@ class CouncilController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $councils = Council::with('councilPositions')->paginate(10);
 
+        $page = $request->query('page', 1);
+        $perPage = $request->query('perPage', 10);
 
-        return ApiResponse::paginated($councils, 'Councils retrieved successfully');
+        // Fetch the tasks with pagination
+        $councils =  Council::with('councilPositions')->paginate($perPage, ['*'], 'page', $page);
+
+        // Return the paginated API response
+        return ApiResponse::paginated($councils, 'Councils retrieved successfully', CouncilResource::class);
+       
     }
 
     /**
@@ -39,7 +45,7 @@ class CouncilController extends Controller
             $council = Council::create($validatedData);
 
 
-
+            $council->loadRelations();
 
             DB::commit();
 
@@ -59,6 +65,7 @@ class CouncilController extends Controller
     public function show(string $id)
     {
         $council = Council::with('positions')->findOrFail($id);
+        $council->loadRelations();
         return ApiResponse::success(new CouncilResource($council), 'Council retrieved successfully');
     }
 
@@ -82,7 +89,7 @@ class CouncilController extends Controller
 
 
 
-
+            $council->loadRelations();
             DB::commit();
 
             return ApiResponse::success(new CouncilResource($council), 'Council updated successfully');

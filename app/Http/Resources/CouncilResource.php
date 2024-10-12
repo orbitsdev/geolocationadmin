@@ -20,7 +20,7 @@ class CouncilResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'is_active' => $this->is_active,
-            'positions' => CouncilPositionResource::collection($this->whenLoaded('positions')),
+            'council_positions' => CouncilPositionResource::collection($this->whenLoaded('councilPositions')),
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
         ];

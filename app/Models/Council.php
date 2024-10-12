@@ -11,10 +11,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Council extends Model
 {
     use HasFactory;
+    protected $casts = [
+       
+        'is_active' => 'boolean',
+        
+    ];
 
     public function councilPositions(){
         return $this->hasMany(CouncilPosition::class);
     }
+    public function loadRelations()
+    {
+        return $this->load([
+            'councilPositions',
+            
+        ]);
+    }
+
     public function collections(){
         return $this->hasMany(Collection::class);
     }
