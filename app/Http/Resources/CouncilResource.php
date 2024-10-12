@@ -21,8 +21,8 @@ class CouncilResource extends JsonResource
             'name' => $this->name,
             'is_active' => $this->is_active,
             'council_positions' => CouncilPositionResource::collection($this->whenLoaded('councilPositions')),
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
+            'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
+            'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
         ];
     }
 }
