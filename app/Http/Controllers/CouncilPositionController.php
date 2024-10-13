@@ -178,11 +178,7 @@ class CouncilPositionController extends Controller
         // Get optional search and pagination parameters
         $search = $request->input('search');
         $perPage = $request->input('perPage', 20); // Default to 20 items per batch
-        $page = $request->input('page', 1); // Default to page 1
-    
-        // Calculate the offset (skip)
-        $skip = ($page - 1) * $perPage;
-    
+        
         // Fetch users who do not already have a position in this council
         $usersQuery = User::whereDoesntHave('councilPositions', function($query) use ($councilId) {
             $query->where('council_id', $councilId);
@@ -197,14 +193,14 @@ class CouncilPositionController extends Controller
             });
         }
     
-        // Apply the limit and offset (take and skip)
-        $users = $usersQuery->select('id', 'first_name', 'last_name', 'email', 'profile_image')
-            ->skip($skip)
+        // Apply the limit without skipping (no skip here)
+        $users = $usersQuery
             ->take($perPage)
             ->get();
     
         return ApiResponse::success(AvailableUserResource::collection($users), 'Available users for council position');
     }
+    
     
     
 
