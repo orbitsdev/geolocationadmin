@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Council;
 use App\Helpers\ApiResponse;
+use App\Http\Resources\AvailableUserResource;
 use Illuminate\Http\Request;
 use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
@@ -181,7 +182,7 @@ class CouncilPositionController extends Controller
         ->select('id', 'first_name', 'last_name', 'email') // Select only the necessary fields
         ->get(); // Fetch all users without pagination
     
-        return ApiResponse::success($users, 'Available users for council position');
+        return ApiResponse::success(AvailableUserResource::collection($users), 'Available users for council position');
     }
     
 
