@@ -97,6 +97,40 @@ class User extends Authenticatable implements FilamentUser, HasName
 {
     return $this->councilPositions()->where('is_login', true)->first();
 }
+public function scopeHasPositionInCouncil($query, $councilId)
+{
+    return $query->whereHas('councilPositions', function($q) use($councilId) {
+        $q->where('council_id', $councilId);
+    });
+}
+
+public function currentCouncilPosition($councilId)
+{
+    return $this->councilPositions()->where('council_id', $councilId)->first();
+}
+
+public function hasMultiplePositionsInCouncil($councilId)
+{
+    return $this->councilPositions()->where('council_id', $councilId)->count() > 1;
+}
+public function activeCouncilPositions()
+{
+    return $this->councilPositions()->where('is_login', true)->get();
+}
+public function assignPosition($councilId, $position, $isLogin = false)
+{
+    // Check if the user already has a position in the same council
+    if ($this->councilPositions()->where('council_id', $councilId)->exists()) {
+        throw new \Exception("User already has a position in this council.");
+    }
+
+    // Assign new position
+    return $this->councilPositions()->create([
+        'council_id' => $councilId,
+        'position' => $position,
+        'is_login' => $isLogin,
+    ]);
+}
 
 
 }

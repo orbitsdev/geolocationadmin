@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Council;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
@@ -170,4 +171,18 @@ class CouncilPositionController extends Controller
             return ApiResponse::error('Failed to switch council position', 500);
         }
     }
+
+    public function availableUsers(Request $request, $councilId)
+    {
+        // Fetch users who do not already have a position in this council
+        $users = User::whereDoesntHave('councilPositions', function($query) use ($councilId) {
+            $query->where('council_id', $councilId);
+        })
+        ->select('id', 'first_name', 'last_name', 'email') // Select only the necessary fields
+        ->get(); // Fetch all users without pagination
+    
+        return ApiResponse::success($users, 'Available users for council position');
+    }
+    
+
 }
