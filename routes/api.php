@@ -10,6 +10,7 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\CouncilController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ChatRoomController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CouncilPositionController;
@@ -43,7 +44,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [AuthController::class, 'userDetails']); 
     Route::put('user', [AuthController::class, 'updateUser']);
     Route::apiResource('councils', CouncilController::class);
+
     Route::get('councils/{council}/available-users', [CouncilPositionController::class, 'availableUsers']);
+    Route::get('positions', [PositionController::class, 'index']);
+
 
     Route::get('councils/{council}/positions', [CouncilPositionController::class, 'index']);
     Route::get('councils/{council}/positions/{id}', [CouncilPositionController::class, 'show']);
