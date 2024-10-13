@@ -28,14 +28,7 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                ImageColumn::make('image')
-                ->disk('public')
-                ->label('Image')
-                ->width(60)->height(60)
-                ->url(fn (User $record): null|string => $record->profile_photo_path ?  Storage::disk('public')->url($record->profile_photo_path) : null)
-                ->defaultImageUrl(url('/images/placeholder-image.jpg'))
-                ->openUrlInNewTab()
-                ->circular(),
+              
                 Forms\Components\TextInput::make('first_name')
                     ->required()
                     ->maxLength(255),
