@@ -127,28 +127,26 @@ class CouncilPositionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($councilId, $id)
     {
-        $position = CouncilPosition::findOrFail($id);
-
+        // Check if the council and the position both exist
+        $position = CouncilPosition::where('council_id', $councilId)->findOrFail($id);
+    
         // Begin transaction
         DB::beginTransaction();
-
+    
         try {
+            // Delete the council position
             $position->delete();
-
-
             DB::commit();
-
+    
             return ApiResponse::success(null, 'Council position deleted successfully');
         } catch (\Exception $e) {
-
             DB::rollBack();
-
             return ApiResponse::error('Failed to delete council position', 500);
         }
     }
-    
+
     public function switchPosition(Request $request, $id)
     {
         $position = CouncilPosition::findOrFail($id);
