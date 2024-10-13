@@ -64,7 +64,7 @@ class CouncilController extends Controller
      */
     public function show(string $id)
     {
-        $council = Council::with('positions')->findOrFail($id);
+        $council = Council::findOrFail($id);
         $council->loadRelations();
         return ApiResponse::success(new CouncilResource($council), 'Council retrieved successfully');
     }

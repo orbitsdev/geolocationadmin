@@ -148,6 +148,7 @@ class CouncilPositionController extends Controller
             return ApiResponse::error('Failed to delete council position', 500);
         }
     }
+    
     public function switchPosition(Request $request, $id)
     {
         $position = CouncilPosition::findOrFail($id);
