@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\FileUpload;
 
 class UserResource extends Resource
 {
@@ -44,8 +45,14 @@ class UserResource extends Resource
                     ->password()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('image')
-                    ->columnSpanFull(),
+                    FileUpload::make('image')
+                    ->disk('public')
+                    ->directory('uploads')
+                    ->image()
+                    ->imageEditor()
+                    // ->required()
+                    ->columnSpanFull()
+                    ->label('PROFILE'),
             ]);
     }
 
