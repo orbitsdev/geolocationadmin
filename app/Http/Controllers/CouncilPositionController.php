@@ -20,7 +20,8 @@ class CouncilPositionController extends Controller
     public function index(Request $request, $councilId)
     {
         $positions = CouncilPosition::where('council_id', $councilId)
-        ->with(['user'])  // Only eager load users, not tasks
+        ->with(['user'])
+        ->latest()  // Only eager load users, not tasks
          ->withTaskCounts()
         ->paginate(10);
         return ApiResponse::paginated($positions, 'Council positions retrieved successfully', CouncilPositionResource::class);
@@ -131,15 +132,15 @@ class CouncilPositionController extends Controller
     {
         // Check if the council and the position both exist
         $position = CouncilPosition::where('council_id', $councilId)->findOrFail($id);
-    
+
         // Begin transaction
         DB::beginTransaction();
-    
+
         try {
             // Delete the council position
             $position->delete();
             DB::commit();
-    
+
             return ApiResponse::success(null, 'Council position deleted successfully');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -177,12 +178,12 @@ class CouncilPositionController extends Controller
         // Get optional search and pagination parameters
         $search = $request->input('search');
         $perPage = $request->input('perPage', 20); // Default to 20 items per batch
-        
+
         // Fetch users who do not already have a position in this council
         $usersQuery = User::whereDoesntHave('councilPositions', function($query) use ($councilId) {
             $query->where('council_id', $councilId);
         });
-    
+
         // Apply search if provided
         if ($search) {
             $usersQuery->where(function($query) use ($search) {
@@ -191,16 +192,16 @@ class CouncilPositionController extends Controller
                     ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
-    
+
         // Apply the limit without skipping (no skip here)
         $users = $usersQuery
             ->take($perPage)
             ->get();
-    
+
         return ApiResponse::success(AvailableUserResource::collection($users), 'Available users for council position');
     }
-    
-    
-    
+
+
+
 
 }
