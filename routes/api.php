@@ -41,13 +41,13 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::get('user', [AuthController::class, 'userDetails']); 
+    Route::get('user', [AuthController::class, 'userDetails']);
     Route::put('user', [AuthController::class, 'updateUser']);
     Route::apiResource('councils', CouncilController::class);
 
+
     Route::get('councils/{council}/available-users', [CouncilPositionController::class, 'availableUsers']);
     Route::get('positions', [PositionController::class, 'index']);
-
 
     Route::get('councils/{council}/positions', [CouncilPositionController::class, 'index']);
     Route::get('councils/{council}/positions/{id}', [CouncilPositionController::class, 'show']);

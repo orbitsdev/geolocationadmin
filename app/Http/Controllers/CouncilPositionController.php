@@ -36,6 +36,7 @@ class CouncilPositionController extends Controller
             'council_id' => 'required|exists:councils,id',
             'user_id' => 'required|exists:users,id',
             'position' => 'required|string|max:255',
+            'grant_access' => 'sometimes|boolean',
         ]);
 
         // Check if the user already has a position in the same council
@@ -97,7 +98,8 @@ class CouncilPositionController extends Controller
 
         $validatedData = $request->validate([
             'position' => 'sometimes|string|max:255',
-            'is_login' => 'sometimes|boolean', // Validate `is_login`
+            'is_login' => 'sometimes|boolean',
+            'grant_access' => 'sometimes|boolean', // Validate grant_access field
         ]);
 
         DB::beginTransaction();
