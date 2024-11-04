@@ -17,7 +17,7 @@ class CouncilController extends Controller
     {
 
         $page = $request->query('page', 1);
-        $perPage = $request->query('perPage', 10);
+        $perPage = $request->query('perPage', 20);
 
         // Fetch the tasks with pagination
         $councils =  Council::latest()->with('councilPositions')->paginate($perPage, ['*'], 'page', $page);
