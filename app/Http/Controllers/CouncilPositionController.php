@@ -69,7 +69,7 @@ class CouncilPositionController extends Controller
 
             DB::commit();
 
-            return ApiResponse::success(new CouncilPositionResource($position), 'Council position created successfully'.$validatedData, 201);
+            return ApiResponse::success(new CouncilPositionResource($position), 'Council position created successfully', 201);
         } catch (\Exception $e) {
             DB::rollBack();
 
