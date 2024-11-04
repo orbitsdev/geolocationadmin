@@ -81,9 +81,9 @@ class CouncilPositionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $council, string $id)
     {
-        $position = CouncilPosition::with('user', 'council')
+        $position = CouncilPosition::withRelation()
          ->withTaskCounts()
         ->findOrFail($id);
         return ApiResponse::success(new CouncilPositionResource($position), 'Council position retrieved successfully');

@@ -66,6 +66,11 @@ class CouncilPosition extends Model
         $query->where('is_login', false);
     }
 
+    public function scopeWithRelation($query)
+    {
+        $query->with(['user','council']);
+    }
+
     public function scopeWithTaskCounts($query)
     {
         return $query->withCount([
