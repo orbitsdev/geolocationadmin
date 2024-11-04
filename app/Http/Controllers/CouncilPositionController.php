@@ -73,7 +73,7 @@ class CouncilPositionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return ApiResponse::error('Failed to create council position', 500);
+            return ApiResponse::error('Failed to create council position '.$e->getMessage(), 500);
         }
     }
 
