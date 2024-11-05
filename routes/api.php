@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('positions', [PositionController::class, 'index']);  
     
     Route::get('councils/{council}/available-users', [CouncilPositionController::class, 'availableUsers']);
-    Route::get('councils/{council}/search-officers', [CouncilPositionController::class, 'officers']);
+    Route::get('councils/{council}/search-officers', [CouncilPositionController::class, 'searchOfficer']);
     Route::get('councils/{council}/positions', [CouncilPositionController::class, 'index']);
     Route::get('councils/{council}/positions/{id}', [CouncilPositionController::class, 'show']);
     Route::post('councils/{council}/positions', [CouncilPositionController::class, 'store']);
