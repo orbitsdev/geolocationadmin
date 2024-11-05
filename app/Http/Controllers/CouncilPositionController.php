@@ -212,7 +212,9 @@ class CouncilPositionController extends Controller
         $perPage = $request->input('perPage', 20); // Default to 20 items per batch
 
         // Fetch users who do not already have a position in this council
-        $officersQuery = CouncilPosition::where('council_id', $councilId)->withRelation();
+        $officersQuery = CouncilPosition::whereHas('council', function($query) use($councilId){
+            $query->where('council_id', $councilId);
+        })->withRelation();
 
         // Apply search if provided
         if ($search) {
