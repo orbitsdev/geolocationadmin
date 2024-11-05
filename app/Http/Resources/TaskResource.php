@@ -16,7 +16,7 @@ class TaskResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-          'id' => $this->id,
+            'id' => $this->id,
             'title' => $this->title,
             'task_details' => $this->task_details,
             'due_date' => $this->due_date ? $this->due_date->format('F j, Y, g:i A') : null,
@@ -31,9 +31,11 @@ class TaskResource extends JsonResource
             'file' => [],
             'files' => [],
             'media' => $this->getMedia('task_media')->map(function ($media) {
+                // $extension = pathinfo($media->file_name, PATHINFO_EXTENSION);
                 return [
                     'url' => $media->getUrl(),
                     'type' => $media->mime_type,
+                    // 'extension' => $extension,
                 ];
             }),
             'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
