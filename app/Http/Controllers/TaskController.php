@@ -9,8 +9,10 @@ use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\TaskResource;
 
-class TaskController extends Controller
+class TaskController extends Controller 
 {
+
+
     /**
      * Display a listing of the resource.
      */
@@ -18,9 +20,10 @@ class TaskController extends Controller
     {
         $page = $request->query('page', 1);
         $perPage = $request->query('perPage', 10);
+        $councilId = $request->query('councilId', 10);
 
         // Fetch the tasks with pagination
-        $tasks = Task::withTaskRelations()->paginate($perPage, ['*'], 'page', $page);
+        $tasks = Task::taskBelongToCouncilOf($councilId)->withTaskRelations()->paginate($perPage, ['*'], 'page', $page);
 
         // Return the paginated API response
         return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', \App\Http\Resources\TaskResource::class);
@@ -38,7 +41,8 @@ class TaskController extends Controller
             'task_details' => 'nullable|string',
             'due_date' => 'required|date',
             'is_lock' => 'sometimes|boolean',  // Validate as boolean
-            'is_done' => 'sometimes|boolean',  // Validate as boolean
+            'is_done' => 'sometimes|boolean',
+            'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
         ]);
 
         // Set default values if not provided
@@ -49,6 +53,20 @@ class TaskController extends Controller
         try {
             // Create the task with the validated data
             $task = Task::create($validatedData);
+
+            if ($request->hasFile('media')) {
+                foreach ($request->file('media') as $file) {
+                    $mediaItem = $task->addMedia($file)->preservingOriginal()->toMediaCollection('task_media');
+    
+                    // $mediaItem = $review->addMedia($file)->toMediaCollection('review_media');
+                    $filesData[] = [
+                        'original_name' => $file->getClientOriginalName(),
+                        'mime_type' => $file->getMimeType(),
+                        'size' => $file->getSize(),
+                    ];
+                }
+            }
+    
 
             DB::commit();
 

@@ -28,8 +28,14 @@ class TaskResource extends JsonResource
             'is_done' => $this->is_done,
             'assigned_council_position' => new CouncilPositionResource($this->whenLoaded('assignedCouncilPosition')),
             'approved_by_council_position' => new CouncilPositionResource($this->whenLoaded('approvedByCouncilPosition')),
-            'file' => new FileResource($this->whenLoaded('file')),
-            'files' => FileResource::collection($this->whenLoaded('files')),
+            'file' => [],
+            'files' => [],
+            'media' => $this->getMedia('task_media')->map(function ($media) {
+                return [
+                    'url' => $media->getUrl(),
+                    'type' => $media->mime_type,
+                ];
+            }),
             'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
             'updated_at' => $this->updated_at ? $this->updated_at->format('F j, Y, g:i A') : null,
         ];

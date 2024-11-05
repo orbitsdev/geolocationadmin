@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-class Task extends Model
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class Task extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia;
 
     protected $fillable = [
         'council_position_id',
@@ -146,13 +148,19 @@ public function checkForLateCompletion()
     }
 }
 public function scopeWithTaskRelations($query)
-{
+{                        
     return $query->with([
         'assignedCouncilPosition',
         'approvedByCouncilPosition',
-        'file',
-        'files'
+        'media'
+        
     ]);
+}
+public function scopeTaskBelongToCouncilOf($query ,$councilId)
+{
+    return $query->whereHas('councilPosition', function($q) use($councilId){
+        return $q->where('council_id', $councilId);
+    });
 }
 public function loadTaskRelations()
     {
@@ -162,5 +170,12 @@ public function loadTaskRelations()
             'file',
             'files'
         ]);
+    }
+
+    public function registerMediaCollections(): void
+    {
+
+        $this->addMediaCollection('task_media');
+
     }
 }
