@@ -204,6 +204,34 @@ class CouncilPositionController extends Controller
     }
 
 
+    public function searchOfficer(Request $request, $councilId)
+    {
+        // Get optional search and pagination parameters
+        $search = $request->input('search');
+        $councilId = $request->input('councilId');
+        $perPage = $request->input('perPage', 20); // Default to 20 items per batch
+
+        // Fetch users who do not already have a position in this council
+        $officersQuery = CouncilPosition::where('council_id', $councilId)->withRelation();
+
+        // Apply search if provided
+        if ($search) {
+            $officersQuery->where('position', 'Like',  "%{$search}%")->orWhereHas('user',function($query) use ($search) {
+                $query->where('first_name', 'LIKE', "%{$search}%")
+                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Apply the limit without skipping (no skip here)
+        $officers = $officersQuery
+            ->take($perPage)
+            ->get();
+
+        return ApiResponse::success(CouncilPositionResource::collection($officers), 'Available officers for this academic year');
+    }
+
+
 
 
 }

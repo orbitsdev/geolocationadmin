@@ -46,9 +46,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('councils', CouncilController::class);
 
 
+    Route::get('positions', [PositionController::class, 'index']);  
+    
     Route::get('councils/{council}/available-users', [CouncilPositionController::class, 'availableUsers']);
-    Route::get('positions', [PositionController::class, 'index']);
-
+    Route::get('councils/{council}/search-officers', [CouncilPositionController::class, 'officers']);
     Route::get('councils/{council}/positions', [CouncilPositionController::class, 'index']);
     Route::get('councils/{council}/positions/{id}', [CouncilPositionController::class, 'show']);
     Route::post('councils/{council}/positions', [CouncilPositionController::class, 'store']);
