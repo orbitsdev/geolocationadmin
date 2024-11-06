@@ -9,6 +9,7 @@
         "awcodes/filament-table-repeater": "2.0",
         "filament/filament": "^3.2",
         "guzzlehttp/guzzle": "^7.2",
+        "kreait/laravel-firebase": "^5.9",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^3.3",
         "laravel/socialite": "^5.16",
