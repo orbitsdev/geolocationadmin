@@ -178,4 +178,17 @@ public function loadTaskRelations()
         $this->addMediaCollection('task_media');
 
     }
+
+    
+public function getImage()
+{
+
+   
+    if ($this->hasMedia('task_media')) {
+        return $this->getFirstMediaUrl('task_media');
+    }
+
+    return asset('images/placeholder-image.jpg');
+}
+
 }

@@ -14,11 +14,12 @@ use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
-class User extends Authenticatable implements FilamentUser, HasName
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class User extends Authenticatable implements FilamentUser, HasName , HasMedia
 {
-
-    use HasApiTokens, HasFactory, Notifiable;
+    
+    use HasApiTokens, HasFactory, Notifiable, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -81,12 +82,11 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function getImage()
     {
-        if (!empty($this->image)) {
-            return Storage::disk('public')->url($this->image); // This should return the full URL for the stored image
+        if ($this->hasMedia('avatar')) {
+            return $this->getFirstMediaUrl('avatar');
         }
-
-        // Return the full URL for the placeholder image
-        return url('images/placeholder-image.jpg');
+    
+        return asset('images/placeholder-image.jpg');
 
 
     }   
@@ -131,6 +131,14 @@ public function assignPosition($councilId, $position, $isLogin = false)
         'is_login' => $isLogin,
     ]);
 }
+
+
+public function registerMediaCollections(): void
+{
+    $this->addMediaCollection('avatar');
+
+}
+
 
 
 }
