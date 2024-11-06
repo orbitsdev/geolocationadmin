@@ -86,7 +86,7 @@ class User extends Authenticatable implements FilamentUser, HasName , HasMedia
             return $this->getFirstMediaUrl('avatar');
         }
     
-        return asset('images/placeholder-image.jpg');
+        return url('images/placeholder-image.jpg');
 
 
     }   
