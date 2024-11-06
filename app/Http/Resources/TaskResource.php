@@ -27,8 +27,7 @@ class TaskResource extends JsonResource
             'status_changed_at' => $this->status_changed_at ? $this->status_changed_at->format('F j, Y, g:i A') : null,
             'remarks' => $this->remarks,  // Include remarks
             'assigned_council_position' => new CouncilPositionResource($this->whenLoaded('assignedCouncilPosition')),
-            'approved_by_council_position' => new CouncilPositionResource($this->whenLoaded('approvedByCouncilPosition')),
-           
+            'approved_by_council_position' => new CouncilPositionResource($this->whenLoaded('approvedByCouncilPosition')),  
             'media' => $this->getMedia('task_media')->map(function ($media) {
                 // $extension = pathinfo($media->file_name, PATHINFO_EXTENSION);
                 return [

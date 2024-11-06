@@ -149,7 +149,7 @@ public function checkForLateCompletion()
 }
 public function scopeWithTaskRelations($query)
 {                        
-    return $query->with([
+    return $query->latest()->with([
         'assignedCouncilPosition',
         'approvedByCouncilPosition',
         'media'
