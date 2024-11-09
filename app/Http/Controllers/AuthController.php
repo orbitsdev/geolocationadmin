@@ -145,9 +145,7 @@ class AuthController extends Controller
         $user = $request->user();
         $user->tokens()->delete();
 
-        Device::where('user_id', $user->id)
-                     ->where('device_id', $request->device_id)
-                     ->delete();
+        Device::where('user_id', $user->id)->delete();
 
         return ApiResponse::success(null, 'Logged out successfully');
     }
