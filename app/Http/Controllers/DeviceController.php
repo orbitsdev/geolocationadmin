@@ -61,8 +61,8 @@ class DeviceController extends Controller
                             ->first();
 
     if ($existingDevice) {
-        return ApiResponse::success([], 'This device token is already associated with another account.');
-        // return ApiResponse::error('This device token is already associated with another account.', 403);
+        
+        return ApiResponse::error('This device token is already associated with another account.', 403);
     }
 
     
