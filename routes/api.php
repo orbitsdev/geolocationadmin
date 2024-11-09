@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FCMController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TaskController;
@@ -79,3 +80,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('devices/register', [DeviceController::class, 'storeOrUpdate']);
     Route::delete('devices/{deviceId}', [DeviceController::class, 'destroy']);
 });
+
+
+Route::post('/send-notification', [FCMController::class, 'sendPushNotification']);

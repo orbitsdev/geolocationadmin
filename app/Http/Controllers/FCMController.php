@@ -14,7 +14,6 @@ class FCMController extends Controller
        (new FirebaseService())->sendNotification($token, $title, $body, $data);
 
 
-
             return response()->json(['message' => 'Notification sent successfully'], 200);
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
 
