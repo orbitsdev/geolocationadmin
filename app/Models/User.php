@@ -146,6 +146,6 @@ public function devices(){
 
 public function tokens()
 {
-    return $this->devices()->pluck('device_token')->toArray();
+    return $this->devices()->get()->pluck('device_token')->toArray();
 }
 }
