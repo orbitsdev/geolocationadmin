@@ -132,7 +132,7 @@ class TaskController extends Controller
             $task->update($validatedData);
 
             $task->loadTaskRelations();
-            $officer = CouncilPosition::findOrFail($validatedData['council_position_id']);
+            $officer = CouncilPosition::findOrFail($task->assignedCouncilPosition->id);
             
         if ($officer && $officer->user) {
             $officer->user->notify(new TaskUpdate($task->id,'Update Assigned',$task->title));
