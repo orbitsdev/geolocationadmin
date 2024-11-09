@@ -146,7 +146,7 @@ public function devices(){
     return $this->hasMany(Device::class);
 }
 
-public function tokens()
+public function deviceTokens()
 {
     return $this->devices()->get()->pluck('device_token');
 }
