@@ -11,7 +11,7 @@ class FCMController extends Controller
 {
     try {
         (new FirebaseService())->sendNotification(
-            'dm7BpX-ORLC8ObJkndCxnu:APA91bG1Fkt6EoFUA7qfUzEP4KTiasyuyA0vqfHbTiCGWA7P9LLoXcB6cooILO-VYTizfvjjPZ4D2fjrHUUvSCO_wdaLQzPaB5smvrCNsP7pVfVe7d_iN1M',
+            'fUyNeZkhQ-6wn2-S-Jn48C:APA91bHZSBE0Lu8bOBpc98TPcXi6BywPoTpFr9aXfQjuJjIhK_6H8mlaoNRdpu_U2YXbLghaM-v1DiNH_8jMLcrhLcoCoPL4eiF8ioZp8oacivLXBqi1SC8',
             'Test Title',
             'Test Body',
             ['extraKey' => 'extraValue']
