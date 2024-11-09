@@ -82,6 +82,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-// Route::get('/send-notification', function(){
-//         return FCMController::sendPushNotification();
-// });
+Route::get('/send-notification', function(){
+    FCMController::sendPushNotification('fUyNeZkhQ-6wn2-S-Jn48C:APA91bHZSBE0Lu8bOBpc98TPcXi6BywPoTpFr9aXfQjuJjIhK_6H8mlaoNRdpu_U2YXbLghaM-v1DiNH_8jMLcrhLcoCoPL4eiF8ioZp8oacivLXBqi1SC8', 'Task Assigned', 'test', [
+        
+        'notification' => 'task',
+    ]);
+});
