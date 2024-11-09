@@ -7,34 +7,28 @@ use App\Services\FirebaseService;
 
 class FCMController extends Controller
 {
-    public static function sendPushNotification($token, $title = 'Notification', $body = 'You have a new message', $data = [])
-    {
-        try {
-            (new FirebaseService())->sendNotification(
-                $token,
-                $title,
-                $body,
-                $data
-            );
+    public static function sendPushNotification($token, $title ='geolocation', $body='notification', $data=[])
+{
+    try {
+        (new FirebaseService())->sendNotification( 
+            $token,
+            $title,
+            $body,
+            ['task_notification' => 'task_id']
+        );
 
-            // Log notification success (Optional)
-            \Log::info('Notification sent successfully', ['token' => $token, 'data' => $data]);
-
-        } catch (\Kreait\Firebase\Exception\MessagingException $e) {
-            \Log::error('Firebase Messaging Exception', ['error' => $e->errors()]);
-
-            return response()->json([
-                'message' => 'Failed to send notification',
-                'error' => $e->errors(),
-            ], 400);
-        } catch (\Exception $e) {
-            \Log::error('General Notification Error', ['error' => $e->getMessage()]);
-
-            return response()->json([
-                'message' => 'An error occurred',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json(['message' => 'Notification sent successfully'], 200);
+    } catch (\Kreait\Firebase\Exception\MessagingException $e) {
+        return response()->json([
+            'message' => 'Failed to send notification',
+            'error' => $e->errors(),
+        ], 400);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
 }
