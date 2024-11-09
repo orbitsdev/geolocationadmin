@@ -12,7 +12,7 @@ class FirebaseService{
 
     public function __construct(){
 
-        $factory = (new Factory)->withServiceAccount(storage_path('avante-foods-0c4324ce9d17.json'));
+        $factory = (new Factory)->withServiceAccount(storage_path('geolocation-b3fab-1123e3fba137.json'));
         $this->messaging = $factory->createMessaging();
 
     }
