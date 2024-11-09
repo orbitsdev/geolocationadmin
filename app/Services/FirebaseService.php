@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use Kreait\Firebase\Exception\FirebaseException;
 
 class FirebaseService{
@@ -17,14 +18,23 @@ class FirebaseService{
 
     }
 
-    public function sendNotification($deviceToken, $title, $body = [], $data = []){
-        $message= CloudMessage::withTarget('token', $deviceToken)->withNotification(['title'=> $title, 'body'=> $body])->withData($data);
+    // public function sendNotification($deviceToken, $title, $body = [], $data = []){
+    //     $message= CloudMessage::withTarget('token', $deviceToken)->withNotification(['title'=> $title, 'body'=> $body])->withData($data);
 
 
-        $this->messaging->send($message);
+    //     $this->messaging->send($message);
 
 
-    }
+    // }
+
+    public function sendNotification($deviceToken, $title, $body, $data = [])
+{
+    $message = CloudMessage::withTarget('token', $deviceToken)
+        ->withNotification(Notification::create($title, $body))
+        ->withData($data);
+
+    $this->messaging->send($message);
+}
 
 
 
