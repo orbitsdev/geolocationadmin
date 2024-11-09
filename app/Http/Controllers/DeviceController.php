@@ -44,29 +44,42 @@ class DeviceController extends Controller
      * Remove the specified resource from storage.
      */
     public function storeOrUpdate(Request $request)
-    {
-        $validatedData = $request->validate([
-            'device_token' => 'required|string',
-            'device_id' => 'required|string',
-            'device_name' => 'nullable|string',
-            'device_type' => 'nullable|string',
-        ]);
+{
+    $validatedData = $request->validate([
+        'device_token' => 'required|string',
+        'device_id' => 'required|string',
+        'device_name' => 'nullable|string',
+        'device_type' => 'nullable|string',
+    ]);
 
-        // Retrieve the authenticated user using Sanctum
-        $user = $request->user(); // This retrieves the user associated with the token
+    // Retrieve the authenticated user using Sanctum
+    $user = $request->user();
 
-        // Find or create the device for this user
-        $device = Device::updateOrCreate(
-            ['user_id' => $user->id, 'device_id' => $validatedData['device_id']],
-            [
-                'device_token' => $validatedData['device_token'],
-                'device_name' => $validatedData['device_name'] ?? null,
-                'device_type' => $validatedData['device_type'] ?? null,
-            ]
-        );
+    // Check if the device token is already used by another user
+    $existingDevice = Device::where('device_token', $validatedData['device_token'])
+                            ->where('user_id', '!=', $user->id)
+                            ->first();
 
-        return ApiResponse::success($device, 'Device registered/updated successfully');
+    if ($existingDevice) {
+        return ApiResponse::error('This device token is already associated with another account.', 403);
     }
+
+    
+    $device = Device::updateOrCreate(
+        [
+            'user_id' => $user->id,
+            'device_id' => $validatedData['device_id'],
+        ],
+        [
+            'device_token' => $validatedData['device_token'],
+            'device_name' => $validatedData['device_name'] ?? null,
+            'device_type' => $validatedData['device_type'] ?? null,
+        ]
+    );
+
+    return ApiResponse::success($device, 'Device registered/updated successfully');
+}
+
 
     // Optionally delete a device (e.g., if the user logs out)
     public function destroy(Request $request, $deviceId)
