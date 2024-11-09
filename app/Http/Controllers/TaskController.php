@@ -65,25 +65,10 @@ class TaskController extends Controller
                         'size' => $file->getSize(),
                     ];
                 }
-            
-
-            // $officer = CouncilPosition::findOrFail($validatedData['council_position_id']);
-            // if($officer){
-            //     foreach($officer->user->tokens as $token){
-            //         FCMController::sendPushNotification($token, 'Task was assign', $task->title,  [
-            //             'council_position_id' =>  $officer->id,
-            //             'user_id'=> $officer->user->id,
-            //             'notification'=> 'task',
-            //         ]);
-            // }
-            
-        }
-            
-           
+            }
+    
 
             DB::commit();
-
-            
 
             // Return the response with the created task resource
             return ApiResponse::success(new TaskResource($task), 'Task created successfully', 201);
