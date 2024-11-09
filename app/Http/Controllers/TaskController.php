@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\TaskResource;
+use App\Notifications\TaskUpdate;
 
 class TaskController extends Controller 
 {
@@ -69,8 +70,10 @@ class TaskController extends Controller
             
             
         $officer = CouncilPosition::findOrFail($validatedData['council_position_id']);
+        
 
         if ($officer && $officer->user) {
+            $officer->user->notify(new TaskUpdate($task->id,'Task Assigned',$task->title));
             foreach ($officer->user->deviceTokens() as $token) {
                 FCMController::sendPushNotification($token, 'Task Assigned', $task->title, [
                     'council_position_id' => $officer->id,
