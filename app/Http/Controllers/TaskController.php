@@ -65,7 +65,7 @@ class TaskController extends Controller
                         'size' => $file->getSize(),
                     ];
                 }
-            }
+            
 
             // $officer = CouncilPosition::findOrFail($validatedData['council_position_id']);
             // if($officer){
