@@ -146,8 +146,5 @@ public function devices(){
     return $this->hasMany(Device::class);
 }
 
-public function tokens()
-{
-    return $this->devices()->get()->pluck('device_token')->toArray();
-}
+
 }
