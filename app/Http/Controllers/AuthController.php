@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use App\Models\Device;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -142,6 +143,9 @@ class AuthController extends Controller
         $user = $request->user();
         $user->tokens()->delete();
 
+        // Device::where('user_id', $user->id)
+        // ->where('device_id', $request->device_id)
+        // ->delete();
 
         return ApiResponse::success(null, 'Logged out successfully');
     }
