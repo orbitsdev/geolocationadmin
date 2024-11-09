@@ -148,7 +148,7 @@ public function devices(){
 
 public function deviceTokens()
 {
-    return $this->devices()->get()->pluck('device_token');
+    return $this->devices()->pluck('device_token');
 }
 
 
