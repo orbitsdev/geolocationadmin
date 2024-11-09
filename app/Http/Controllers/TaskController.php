@@ -73,7 +73,9 @@ class TaskController extends Controller
         
 
         if ($officer && $officer->user) {
-            $officer->user->notify(new TaskUpdate($task->id,'Task Assigned',$task->title));
+
+            $officer->user->notify(new TaskUpdate($task->id, 'Task Assigned', $task->title));
+
             foreach ($officer->user->deviceTokens() as $token) {
                 FCMController::sendPushNotification($token, 'Task Assigned', $task->title, [
                     'council_position_id' => $officer->id,
@@ -135,7 +137,7 @@ class TaskController extends Controller
             $officer = CouncilPosition::findOrFail($task->assignedCouncilPosition->id);
             
         if ($officer && $officer->user) {
-            $officer->user->notify(new TaskUpdate($task->id,'Update Assigned',$task->title));
+            $officer->user->notify(new TaskUpdate($task->id, 'Task Assigned', $task->title));
             foreach ($officer->user->deviceTokens() as $token) {
                 FCMController::sendPushNotification($token, 'Update Assigned', $task->title, [
                     'council_position_id' => $officer->id,
