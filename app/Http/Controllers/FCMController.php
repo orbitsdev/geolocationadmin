@@ -7,14 +7,14 @@ use App\Services\FirebaseService;
 
 class FCMController extends Controller
 {
-    public static function sendPushNotification()
+    public static function sendPushNotification($token, $title = 'Notification', $body = 'You have a new message', $data = [])
 {
     try {
         (new FirebaseService())->sendNotification(
-            'dm7BpX-ORLC8ObJkndCxnu:APA91bG1Fkt6EoFUA7qfUzEP4KTiasyuyA0vqfHbTiCGWA7P9LLoXcB6cooILO-VYTizfvjjPZ4D2fjrHUUvSCO_wdaLQzPaB5smvrCNsP7pVfVe7d_iN1M',
-            'Test Title',
-            'Test Body',
-            ['extraKey' => 'extraValue']
+            $token,
+            $title,
+            $body,
+            $data
         );
 
         return response()->json(['message' => 'Notification sent successfully'], 200);
