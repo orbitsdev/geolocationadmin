@@ -82,4 +82,4 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-Route::post('/send-notification', [FCMController::class, 'sendPushNotification']);
+Route::get('/send-notification', [FCMController::class, 'sendPushNotification']);
