@@ -7,14 +7,14 @@ use App\Services\FirebaseService;
 
 class FCMController extends Controller
 {
-    public static function sendPushNotification($token, $title ='geolocation', $body='notification', $data=[])
+    public static function sendPushNotification()
 {
     try {
-        (new FirebaseService())->sendNotification( 
-            $token,
-            $title,
-            $body,
-            ['task_notification' => 'task_id']
+        (new FirebaseService())->sendNotification(
+            'dm7BpX-ORLC8ObJkndCxnu:APA91bG1Fkt6EoFUA7qfUzEP4KTiasyuyA0vqfHbTiCGWA7P9LLoXcB6cooILO-VYTizfvjjPZ4D2fjrHUUvSCO_wdaLQzPaB5smvrCNsP7pVfVe7d_iN1M',
+            'Test Title',
+            'Test Body',
+            ['extraKey' => 'extraValue']
         );
 
         return response()->json(['message' => 'Notification sent successfully'], 200);
