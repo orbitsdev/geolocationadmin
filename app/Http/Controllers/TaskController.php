@@ -151,7 +151,7 @@ class TaskController extends Controller
 
             DB::rollBack();
             \Log::error('Failed to update task', ['error' => $e->getMessage()]);
-            return ApiResponse::error('Failed to update task', 500);
+            return ApiResponse::error('Failed to update task '.$e->getMessage(), 500);
         }
     }
 
