@@ -43,7 +43,45 @@ class DeviceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function storeOrUpdate(Request $request)
+//     public function storeOrUpdate(Request $request)
+// {
+//     $validatedData = $request->validate([
+//         'device_token' => 'required|string',
+//         'device_id' => 'required|string',
+//         'device_name' => 'nullable|string',
+//         'device_type' => 'nullable|string',
+//     ]);
+
+//     // Retrieve the authenticated user using Sanctum
+//     $user = $request->user();
+
+//     // Check if the device token is already used by another user
+//     $existingDevice = Device::where('device_token', $validatedData['device_token'])
+//                             ->where('user_id', '!=', $user->id)
+//                             ->first();
+
+//     if ($existingDevice) {
+        
+//         return ApiResponse::error('This device token is already associated with another account.', 403);
+//     }
+
+    
+//     $device = Device::updateOrCreate(
+//         [
+//             'user_id' => $user->id,
+//             'device_id' => $validatedData['device_id'],
+//         ],
+//         [
+//             'device_token' => $validatedData['device_token'],
+//             'device_name' => $validatedData['device_name'] ?? null,
+//             'device_type' => $validatedData['device_type'] ?? null,
+//         ]
+//     );
+
+//     return ApiResponse::success($device, 'Device registered/updated successfully');
+// }
+
+public function storeOrUpdate(Request $request)
 {
     $validatedData = $request->validate([
         'device_token' => 'required|string',
@@ -55,31 +93,45 @@ class DeviceController extends Controller
     // Retrieve the authenticated user using Sanctum
     $user = $request->user();
 
-    // Check if the device token is already used by another user
-    $existingDevice = Device::where('device_token', $validatedData['device_token'])
-                            ->where('user_id', '!=', $user->id)
-                            ->first();
+    // Check if the same device_id is used by the user for another account
+    $existingDeviceForUser = Device::where('device_id', $validatedData['device_id'])
+                                   ->where('user_id', $user->id)
+                                   ->first();
 
-    if ($existingDevice) {
-        
-        return ApiResponse::error('This device token is already associated with another account.', 403);
-    }
-
-    
-    $device = Device::updateOrCreate(
-        [
-            'user_id' => $user->id,
-            'device_id' => $validatedData['device_id'],
-        ],
-        [
+    if ($existingDeviceForUser) {
+        // Update existing device entry for this user
+        $existingDeviceForUser->update([
             'device_token' => $validatedData['device_token'],
             'device_name' => $validatedData['device_name'] ?? null,
             'device_type' => $validatedData['device_type'] ?? null,
-        ]
-    );
+        ]);
+    } else {
+        // Invalidate the existing device if associated with another user
+        $existingDeviceForToken = Device::where('device_token', $validatedData['device_token'])
+                                        ->where('device_id', '!=', $validatedData['device_id'])
+                                        ->first();
 
-    return ApiResponse::success($device, 'Device registered/updated successfully');
+        if ($existingDeviceForToken) {
+            $existingDeviceForToken->delete(); // Optional: Invalidate previous association.
+        }
+
+        // Create or update the device for the authenticated user
+        Device::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'device_id' => $validatedData['device_id'],
+            ],
+            [
+                'device_token' => $validatedData['device_token'],
+                'device_name' => $validatedData['device_name'] ?? null,
+                'device_type' => $validatedData['device_type'] ?? null,
+            ]
+        );
+    }
+
+    return ApiResponse::success(null, 'Device registered/updated successfully');
 }
+
 
 
     // Optionally delete a device (e.g., if the user logs out)
