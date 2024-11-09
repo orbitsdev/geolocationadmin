@@ -132,6 +132,18 @@ class TaskController extends Controller
             $task->update($validatedData);
 
             $task->loadTaskRelations();
+            $officer = CouncilPosition::findOrFail($validatedData['council_position_id']);
+            
+        if ($officer && $officer->user) {
+            $officer->user->notify(new TaskUpdate($task->id,'Update Assigned',$task->title));
+            foreach ($officer->user->deviceTokens() as $token) {
+                FCMController::sendPushNotification($token, 'Update Assigned', $task->title, [
+                    'council_position_id' => $officer->id,
+                    'user_id' => $officer->user->id,
+                    'notification' => 'task',
+                ]);
+            }
+        }
             DB::commit();
 
             return ApiResponse::success(new TaskResource($task), 'Task updated successfully');
