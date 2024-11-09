@@ -7,7 +7,7 @@ use App\Services\FirebaseService;
 
 class FCMController extends Controller
 {
-    public static function sendPushNotification($token, $title, $body, $data){
+    public static function sendPushNotification(){
 
         try {
 
