@@ -82,6 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-Route::get('/send-notification', function(){
-        return FCMController::sendPushNotification();
-});
+// Route::get('/send-notification', function(){
+//         return FCMController::sendPushNotification();
+// });

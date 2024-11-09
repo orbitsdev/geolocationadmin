@@ -140,5 +140,12 @@ public function registerMediaCollections(): void
 }
 
 
+public function devices(){
+    return $this->hasMany(Device::class);
+}
 
+public function tokens()
+{
+    return $this->devices()->pluck('device_token')->toArray();
+}
 }
