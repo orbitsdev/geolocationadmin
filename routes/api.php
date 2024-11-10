@@ -14,6 +14,7 @@ use App\Http\Controllers\ChatRoomController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CouncilPositionController;
 
 /*
@@ -79,6 +80,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-out', [AttendanceController::class, 'checkOut']);
     Route::post('devices/register', [DeviceController::class, 'storeOrUpdate']);
     Route::delete('devices/{deviceId}', [DeviceController::class, 'destroy']);
+
+    Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+    Route::post('/notifications/read/multiple', [NotificationController::class, 'markMultipleAsRead']);
+
+   
 });
 
 
