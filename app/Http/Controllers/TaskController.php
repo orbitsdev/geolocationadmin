@@ -196,16 +196,16 @@ class TaskController extends Controller
 
     DB::beginTransaction();
     try {
-        // Update the status and set the status_changed_at timestamp
+        
         $task->status = $validatedData['status'];
         $task->status_changed_at = now();
 
-        // Always set the completed_at if the status is 'Completed'
-        if ($task->status === Task::STATUS_COMPLETED || $task->status === Task::STATUS_COMPLETED_LATE) {
-            // Always set the completed_at if the status is Completed or Completed Late
+      
+        if ($task->status === Task::STATUS_COMPLETED ) {
+           
             $task->completed_at = now();
 
-            // Only set the approved_by_council_position_id if the action is flagged as an admin-like approval action
+           
             if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
                 $task->approved_by_council_position_id = $request->user()->defaultCouncilPosition()->id;
             }
@@ -215,12 +215,12 @@ class TaskController extends Controller
         }
 
 
-        // If remarks are provided, update the remarks column
-        if (isset($validatedData['remarks'])) {
+    
+        if (!empty($validatedData['remarks'])) {
             $task->remarks = $validatedData['remarks'];
         }
 
-        // Save the task
+        
         $task->save();
         $task->loadTaskRelations();
 
@@ -238,24 +238,20 @@ public function uploadFiles(Request $request, $id)
 {
     $task = Task::findOrFail($id);
 
-    // Validate the incoming request to ensure files are uploaded
+   
     $validatedData = $request->validate([
-        'files.*' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
     ]);
 
     DB::beginTransaction();
 
     try {
         // Handle file uploads
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                $path = $file->store('task_files','public');
-                $task->files()->create([
-                    'file' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize(),
-                ]);
+        if ($request->hasFile('media')) {
+            foreach ($request->file('media') as $file) {
+                $mediaItem = $task->addMedia($file)->preservingOriginal()->toMediaCollection('task_media');
+
+                
             }
         }
 

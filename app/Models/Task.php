@@ -44,24 +44,18 @@ class Task extends Model implements HasMedia
 
     public const STATUS_TODO = 'To Do';
     public const STATUS_IN_PROGRESS = 'In Progress';
-    public const STATUS_COMPLETED = 'Done';
-    public const STATUS_COMPLETED_LATE = 'Completed Late';
-    public const STATUS_DUE = 'Due / Pending';
-    public const STATUS_ON_HOLD = 'On Hold';
-    public const STATUS_CANCELLED = 'Cancelled';
-    public const STATUS_REVIEW = 'Review';
-    public const STATUS_BLOCKED = 'Blocked';
+    public const STATUS_COMPLETED = 'Completed ';
+    public const STATUS_NEED_REVISION = 'Needs Revision';
+  
+    public const STATUS_REJECTED = 'Rejected ';
+
 
     public const STATUS_OPTIONS = [
         self::STATUS_TODO => self::STATUS_TODO,
         self::STATUS_IN_PROGRESS => self::STATUS_IN_PROGRESS,
         self::STATUS_COMPLETED => self::STATUS_COMPLETED,
-        self::STATUS_COMPLETED_LATE => self::STATUS_COMPLETED_LATE,
-        self::STATUS_DUE => self::STATUS_DUE,
-        self::STATUS_ON_HOLD => self::STATUS_ON_HOLD,
-        self::STATUS_CANCELLED => self::STATUS_CANCELLED,
-        self::STATUS_REVIEW => self::STATUS_REVIEW, // Corrected here
-        self::STATUS_BLOCKED => self::STATUS_BLOCKED,
+        self::STATUS_NEED_REVISION => self::STATUS_NEED_REVISION,
+        self::STATUS_REJECTED => self::STATUS_REJECTED,
     ];
 
 
@@ -140,13 +134,13 @@ public function scopeApproved($query)
     return $query->whereNotNull('approved_by_council_position_id');
 }
 
-public function checkForLateCompletion()
-{
-    if ($this->status === self::STATUS_COMPLETED && $this->completed_at && $this->due_date && $this->completed_at > $this->due_date) {
-        $this->status = self::STATUS_COMPLETED_LATE;
-        $this->save();
-    }
-}
+// public function checkForLateCompletion()
+// {
+//     if ($this->status === self::STATUS_COMPLETED && $this->completed_at && $this->due_date && $this->completed_at > $this->due_date) {
+//         $this->status = self::STATUS_COMPLETED_LATE;
+//         $this->save();
+//     }
+// }
 public function scopeWithTaskRelations($query)
 {                        
     return $query->latest()->with([
@@ -167,8 +161,7 @@ public function loadTaskRelations()
         return $this->load([
             'assignedCouncilPosition',
             'approvedByCouncilPosition',
-            'file',
-            'files'
+            'media',
         ]);
     }
 
