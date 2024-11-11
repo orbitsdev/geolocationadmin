@@ -14,7 +14,7 @@ class TaskUpdate extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $taskId,public $title,public $body)
+    public function __construct(public $modelId,public $title,public $body)
     {
         //
     }
@@ -32,7 +32,7 @@ class TaskUpdate extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'task_id'=>$this->taskId,
+            'model_id'=>$this->modelId,
             'title'=>$this->title,
             'body'=>$this->body,
         ];
