@@ -24,7 +24,7 @@ class NotificationController extends Controller
             ->latest()
             ->paginate($perPage, ['*'], 'page', $page);
     
-
+        
 
    return ApiResponse::paginated($notifications, 'Notification retrieved successfully', \App\Http\Resources\NotificationResource::class);
     }
