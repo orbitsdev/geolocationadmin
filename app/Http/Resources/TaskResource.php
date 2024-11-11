@@ -27,15 +27,18 @@ class TaskResource extends JsonResource
             'status_changed_at' => $this->status_changed_at ? $this->status_changed_at->format('F j, Y, g:i A') : null,
             'remarks' => $this->remarks,  // Include remarks
             'assigned_council_position' => new CouncilPositionResource($this->whenLoaded('assignedCouncilPosition')),
-            'approved_by_council_position' => new CouncilPositionResource($this->whenLoaded('approvedByCouncilPosition')),  
+            'approved_by_council_position' => new CouncilPositionResource($this->whenLoaded('approvedByCouncilPosition')),
             'media' => $this->getMedia('task_media')->map(function ($media) {
-                // $extension = pathinfo($media->file_name, PATHINFO_EXTENSION);
+                $extension = $media->file_name ? pathinfo($media->file_name, PATHINFO_EXTENSION) : null;
+
                 return [
+                    'id' => $media->id, // Include the media ID
                     'url' => $media->getUrl(),
                     'type' => $media->mime_type,
-                    // 'extension' => $extension,
+                    'extension' => $extension, // Include the file extension or null if not available
                 ];
             }),
+
             'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
             'updated_at' => $this->updated_at ? $this->updated_at->format('F j, Y, g:i A') : null,
         ];
