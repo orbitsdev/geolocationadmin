@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Models\CouncilPosition;
+use App\Notifications\TaskUpdate;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\TaskResource;
-use App\Notifications\TaskUpdate;
 
 class TaskController extends Controller 
 {
@@ -77,11 +78,18 @@ class TaskController extends Controller
             $officer->user->notify(new TaskUpdate($task->id, 'Task Assigned', $task->title));
 
             foreach ($officer->user->deviceTokens() as $token) {
-                FCMController::sendPushNotification($token, 'Task Assigned', $task->title, [
-                    'council_position_id' => $officer->id,
-                    'user_id' => $officer->user->id,
-                    'notification' => 'task',
-                ]);
+                FCMController::sendPushNotification(
+                    $token, 
+                    'Task Assigned', 
+                    "{$task->title} - Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date'), 
+                    [
+                        'council_position_id' => $officer->id,
+                        'user_id' => $officer->user->id,
+                        'notification' => 'task',
+                        'task_id' => $task->id, 
+                        'due_date' => $task->due_date, // Send raw due_date for client processing if needed
+                    ]
+                );
             }
         }
             DB::commit();
@@ -139,11 +147,20 @@ class TaskController extends Controller
         if ($officer && $officer->user) {
             $officer->user->notify(new TaskUpdate($task->id, 'Task Assigned', $task->title));
             foreach ($officer->user->deviceTokens() as $token) {
-                FCMController::sendPushNotification($token, 'Update Assigned', $task->title, [
-                    'council_position_id' => $officer->id,
-                    'user_id' => $officer->user->id,
-                    'notification' => 'task',
-                ]);
+                FCMController::sendPushNotification(
+                    $token, 
+                    'Task Updated', 
+                    "{$task->title} - Updated Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') . 
+                    ", Status: " . ucfirst($task->status), 
+                    [
+                        'council_position_id' => $officer->id,
+                        'user_id' => $officer->user->id,
+                        'notification' => 'task',
+                        'task_id' => $task->id, 
+                        'due_date' => $task->due_date, 
+                        'status' => $task->status,
+                    ]
+                );
             }
         }
             DB::commit();
