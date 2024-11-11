@@ -28,12 +28,9 @@ class CouncilPositionResource extends JsonResource
             'total_to_do_tasks' => $this->total_to_do_tasks ?? 0,
             'total_in_progress_tasks' => $this->total_in_progress_tasks ?? 0,
             'total_completed_tasks' => $this->total_completed_tasks ?? 0,
-            'total_completed_late_tasks' => $this->total_completed_late_tasks ?? 0,
-            'total_due_tasks' => $this->total_due_tasks?? 0,
-            'total_on_hold_tasks' => $this->total_on_hold_tasks?? 0,
-            'total_cancelled_tasks' => $this->total_cancelled_tasks?? 0,
-            'total_review_tasks' => $this->total_review_tasks?? 0,
-            'total_blocked_tasks' => $this->total_blocked_tasks?? 0,
+            'total_need_revision' => $this->total_need_revision ?? 0,
+            'total_rejected' => $this->total_rejected ?? 0,
+          
 
         ];
     }

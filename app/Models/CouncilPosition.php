@@ -82,24 +82,13 @@ class CouncilPosition extends Model
             'tasks as total_completed_tasks' => function ($query) {
                 $query->where('status', Task::STATUS_COMPLETED);
             },
-            'tasks as total_completed_late_tasks' => function ($query) {
-                $query->where('status', Task::STATUS_COMPLETED_LATE);
+            'tasks as total_need_revision' => function ($query) {
+                $query->where('status', Task::STATUS_NEED_REVISION);
             },
-            'tasks as total_due_tasks' => function ($query) {
-                $query->where('status', Task::STATUS_DUE);
+            'tasks as total_rejected' => function ($query) {
+                $query->where('status', Task::STATUS_REJECTED);
             },
-            'tasks as total_on_hold_tasks' => function ($query) {
-                $query->where('status', Task::STATUS_ON_HOLD);
-            },
-            'tasks as total_cancelled_tasks' => function ($query) {
-                $query->where('status', Task::STATUS_CANCELLED);
-            },
-            'tasks as total_review_tasks' => function ($query) {
-                $query->where('status', Task::STATUS_REVIEW);
-            },
-            'tasks as total_blocked_tasks' => function ($query) {
-                $query->where('status', Task::STATUS_BLOCKED);
-            },
+           
         ]);
     
     }
