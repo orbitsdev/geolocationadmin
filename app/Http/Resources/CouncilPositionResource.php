@@ -28,7 +28,7 @@ class CouncilPositionResource extends JsonResource
             'total_to_do_tasks' => $this->total_to_do_tasks ?? 0,
             'total_in_progress_tasks' => $this->total_in_progress_tasks ?? 0,
             'total_completed_tasks' => $this->total_completed_tasks ?? 0,
-            'total_need_revision' => $this->total_need_revision ?? 0,
+            'total_needs_revision' => $this->total_needs_revision ?? 0,
             'total_rejected' => $this->total_rejected ?? 0,
           
 

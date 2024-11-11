@@ -47,7 +47,7 @@ class Task extends Model implements HasMedia
     public const STATUS_COMPLETED = 'Completed ';
     public const STATUS_NEED_REVISION = 'Needs Revision';
   
-    public const STATUS_REJECTED = 'Rejected ';
+    public const STATUS_REJECTED = 'Rejected';
 
 
     public const STATUS_OPTIONS = [

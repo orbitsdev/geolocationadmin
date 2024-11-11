@@ -82,7 +82,7 @@ class CouncilPosition extends Model
             'tasks as total_completed_tasks' => function ($query) {
                 $query->where('status', Task::STATUS_COMPLETED);
             },
-            'tasks as total_need_revision' => function ($query) {
+            'tasks as total_needs_revision' => function ($query) {
                 $query->where('status', Task::STATUS_NEED_REVISION);
             },
             'tasks as total_rejected' => function ($query) {
