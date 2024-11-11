@@ -14,7 +14,7 @@ class NotificationController extends Controller
 
 
         $page = $request->query('page', 1);
-        $perPage = $request->query('perPage', 10);
+        $perPage = $request->query('perPage', 20);
         $user = $request->user();
 
         $notifications = DB::table('notifications')
@@ -24,7 +24,7 @@ class NotificationController extends Controller
             ->latest()
             ->paginate($perPage, ['*'], 'page', $page);
     
-        
+
 
    return ApiResponse::paginated($notifications, 'Notification retrieved successfully', \App\Http\Resources\NotificationResource::class);
     }
