@@ -293,10 +293,10 @@ public function uploadFiles(Request $request, $id)
 
 public function deleteMedia(Request $request, $taskId, $mediaId)
 {
-    // Find the task or fail if not found
+   
     $task = Task::findOrFail($taskId);
 
-    // Find the media item within the task's media collection
+  
     $media = $task->getMedia('task_media')->where('id', $mediaId)->first();
 
     if (!$media) {
@@ -306,12 +306,9 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
     DB::beginTransaction();
 
     try {
-        // Delete the media item
+        
         $media->delete();
-
         DB::commit();
-
-        // Refresh task relations if necessary
         $task->refresh()->loadTaskRelations();
 
         return ApiResponse::success(new TaskResource($task), 'Media deleted successfully.');
@@ -330,25 +327,24 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
 
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
-    // Fetch the CouncilPosition to get the related council_id
+    
     $councilPosition = CouncilPosition::findOrFail($councilPositionId);
 
-    // Now you have the council_id from the councilPosition object
     $councilId = $councilPosition->council_id;
 
-    // Get the page and perPage from the query string, default to page 1 and 10 per page
+
     $page = $request->query('page', 1);
     $perPage = $request->query('perPage', 10);
 
-    // Query tasks based on the council_position_id or council_id
+
     $tasks = Task::where('council_position_id', $councilPosition->id)
         ->whereHas('assignedCouncilPosition', function ($query) use ($councilId) {
             $query->where('council_id', $councilId);
         })
         ->withTaskRelations()
-        ->paginate($perPage, ['*'], 'page', $page); // Apply pagination
+        ->paginate($perPage, ['*'], 'page', $page);
 
-    // Return the paginated tasks using the TaskResource
+
     return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', TaskResource::class);
 }
 
