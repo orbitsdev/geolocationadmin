@@ -33,8 +33,8 @@ class TaskResource extends JsonResource
 
                 return [
                     'id' => $media->id, // Include the media ID
-                    'url' => $media->getUrl(),
-                    'type' => $media->mime_type,
+                    'url' => $media->getFullUrl(),
+                    'type' => $media->getMimeType(),
                     'extension' => $extension, // Include the file extension or null if not available
                 ];
             }),

@@ -278,7 +278,7 @@ public function uploadFiles(Request $request, $id)
         $task->refresh()->loadTaskRelations();
 
     
-        return ApiResponse::success($task, 'Files uploaded successfully', 201);
+        return ApiResponse::success(new TaskResource($task), 'Files uploaded successfully', 201);
     } catch (\Throwable $e) { // Catch all exceptions, including errors
         DB::rollBack(); // Roll back transaction on failure
         \Log::error('Failed to upload files for task', [
