@@ -146,7 +146,7 @@ public function scopeWithTaskRelations($query)
     return $query->latest()->with([
         'assignedCouncilPosition',
         'approvedByCouncilPosition',
-        'task_media'
+        'media'
         
     ]);
 }
