@@ -250,37 +250,46 @@ class TaskController extends Controller
         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
     }
 }
-
 public function uploadFiles(Request $request, $id)
 {
+    
     $task = Task::findOrFail($id);
 
-   
+  
     $validatedData = $request->validate([
-        'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
+        'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'], 
     ]);
 
     DB::beginTransaction();
 
     try {
-        // Handle file uploads
+        
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $file) {
-                $mediaItem = $task->addMedia($file)->preservingOriginal()->toMediaCollection('task_media');
-
-                
+                $task->addMedia($file)
+                     ->preservingOriginal() 
+                     ->toMediaCollection('task_media');
             }
         }
 
         DB::commit();
 
-        return ApiResponse::success(null, 'Files uploaded successfully', 201);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Failed to upload files for task', ['error' => $e->getMessage()]);
+
+        $task->refresh()->loadTaskRelations();
+
+    
+        return ApiResponse::success($task, 'Files uploaded successfully', 201);
+    } catch (\Throwable $e) { // Catch all exceptions, including errors
+        DB::rollBack(); // Roll back transaction on failure
+        \Log::error('Failed to upload files for task', [
+            'error' => $e->getMessage(),
+            'task_id' => $id,
+        ]);
+
         return ApiResponse::error('Failed to upload files for task: ' . $e->getMessage(), 500);
     }
 }
+
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
     // Fetch the CouncilPosition to get the related council_id
