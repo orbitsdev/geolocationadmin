@@ -250,6 +250,7 @@ class TaskController extends Controller
         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
     }
 }
+
 public function uploadFiles(Request $request, $id)
 {
     
@@ -257,7 +258,7 @@ public function uploadFiles(Request $request, $id)
 
   
     $validatedData = $request->validate([
-        'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'], 
+        'media.*' => ['nullable', 'file', 'max:50480'], 
     ]);
 
     DB::beginTransaction();
