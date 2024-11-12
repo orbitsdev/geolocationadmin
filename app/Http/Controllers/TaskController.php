@@ -291,6 +291,43 @@ public function uploadFiles(Request $request, $id)
     }
 }
 
+public function deleteMedia(Request $request, $taskId, $mediaId)
+{
+    // Find the task or fail if not found
+    $task = Task::findOrFail($taskId);
+
+    // Find the media item within the task's media collection
+    $media = $task->getMedia('task_media')->where('id', $mediaId)->first();
+
+    if (!$media) {
+        return ApiResponse::error('Media not found for this task.', 404);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        // Delete the media item
+        $media->delete();
+
+        DB::commit();
+
+        // Refresh task relations if necessary
+        $task->refresh()->loadTaskRelations();
+
+        return ApiResponse::success(new TaskResource($task), 'Media deleted successfully.');
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        \Log::error('Failed to delete media for task', [
+            'error' => $e->getMessage(),
+            'task_id' => $taskId,
+            'media_id' => $mediaId,
+        ]);
+
+        return ApiResponse::error('Failed to delete media: ' . $e->getMessage(), 500);
+    }
+}
+
+
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
     // Fetch the CouncilPosition to get the related council_id

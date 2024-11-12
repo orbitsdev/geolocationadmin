@@ -25,7 +25,7 @@ class TaskResource extends JsonResource
             'is_lock' => $this->is_lock,
             'is_done' => $this->is_done,
             'status_changed_at' => $this->status_changed_at ? $this->status_changed_at->format('F j, Y, g:i A') : null,
-            'remarks' => $this->remarks,  // Include remarks
+            'remarks' => $this->remarks,  
             'assigned_council_position' => new CouncilPositionResource($this->whenLoaded('assignedCouncilPosition')),
             'approved_by_council_position' => new CouncilPositionResource($this->whenLoaded('approvedByCouncilPosition')),
             'media' => $this->getMedia('task_media')->map(function ($media) {

@@ -61,6 +61,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/tasks/{id}/status', [TaskController::class, 'updateStatus']);
     Route::post('/tasks/{id}/files', [TaskController::class, 'uploadFiles']);
+    Route::delete('/tasks/{taskId}/media/{mediaId}', [TaskController::class, 'deleteMedia']);
+
     Route::get('/tasks/council-tasks/{council_position_id}', [TaskController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::apiResource('tasks', TaskController::class);
 
