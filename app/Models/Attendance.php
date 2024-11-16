@@ -6,11 +6,18 @@ use App\Models\Event;
 use App\Models\CouncilPosition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-class Attendance extends Model
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class Attendance extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia;
 
+
+    protected $casts = [
+        'due_date' => 'datetime',
+        'completed_at' => 'datetime',
+    ];
 
     public function councilPosition()
     {

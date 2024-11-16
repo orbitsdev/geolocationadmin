@@ -35,7 +35,7 @@ class EventController extends Controller
      */
     public function store(Request $request, $councilId)
     {
-        $validatedData = $request->validate([
+        $validatedData = $request->validate(    [
             'council_position_id' => 'required|exists:council_positions,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -45,15 +45,16 @@ class EventController extends Controller
             'radius' => 'required|numeric',
             'start_time' => 'required|date',
             'end_time' => 'required|date',
-            'is_active' => 'required|boolean',
-            'max_capacity' => 'nullable|integer',
-            'type' => 'nullable|string',
+            'is_active' => 'sometimes|boolean',
+            'restrict_event' => 'sometimes|boolean',
+            'max_capacity' => 'sometimes|nullable|integer|min:1',
+            'type' => 'sometimes|nullable|string',
         ]);
 
-        // Set the council_id for the event
+        
         $validatedData['council_id'] = $councilId;
 
-        // Begin transaction
+        
         DB::beginTransaction();
 
         try {

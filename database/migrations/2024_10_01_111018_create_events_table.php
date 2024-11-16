@@ -15,12 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('council_id')->nullable();
             $table->foreignId('council_position_id')->nullable();
-            $table->string('title');
+            $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->text('content')->nullable();
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);
             $table->decimal('radius', 8, 2);
+            $table->text('specified_location')->nullable();
+            $table->text('map_location')->nullable();
+            $table->text('place_id')->nullable();
             $table->timestamp('start_time');
             $table->timestamp('end_time');
             $table->boolean('is_active')->default(true);
