@@ -55,7 +55,7 @@ class EventController extends Controller
         //     'max_capacity' => 'sometimes|nullable|integer|min:1',
         //     'type' => 'sometimes|nullable|string',
         // ]);
-        return ApiResponse::success($request->all());
+        return ApiResponse::success([$request->all(),$councilId]);
         
         $validatedData['council_id'] = $councilId;
 
