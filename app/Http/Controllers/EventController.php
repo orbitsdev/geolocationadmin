@@ -65,7 +65,7 @@ class EventController extends Controller
 
             DB::commit();
 
-            return ApiResponse::success(new EventResource($event), 'Event created successfully', 201);
+            return ApiResponse::success(new EventResource($event), 'Event created successfully',);
         } catch (\Exception $e) {
             DB::rollBack();
             return ApiResponse::error('Failed to create event', 500);
