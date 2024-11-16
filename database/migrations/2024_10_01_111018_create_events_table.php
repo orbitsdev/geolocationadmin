@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->text('content')->nullable();
-            $table->double('latitude');  // No limitation on precision
-            $table->double('longitude'); // No limitation on precision
-            $table->double('radius'); 
+            $table->double('latitude', 15, 12); // Up to 12 decimal places, ideal for GPS precision
+    $table->double('longitude', 15, 12); // Same here
+    $table->double('radius', 15, 12)->nullable();
             $table->text('specified_location')->nullable();
             $table->text('map_location')->nullable();
             $table->text('place_id')->nullable();
