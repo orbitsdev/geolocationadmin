@@ -36,6 +36,9 @@ class EventController extends Controller
     public function store(Request $request, $councilId)
     {
 
+        return response()->json($request->all());
+
+
 
         // $validatedData = $request->validate(    [
         //     'council_position_id' => 'required|exists:council_positions,id',
@@ -55,23 +58,23 @@ class EventController extends Controller
         //     'max_capacity' => 'sometimes|nullable|integer|min:1',
         //     'type' => 'sometimes|nullable|string',
         // ]);
-        return ApiResponse::success([$request->all(),$councilId]);
+    //     return ApiResponse::success([$request->all(),$councilId]);
         
-        $validatedData['council_id'] = $councilId;
+    //     $validatedData['council_id'] = $councilId;
 
         
-        DB::beginTransaction();
+    //     DB::beginTransaction();
 
-        try {
-            $event = Event::create($validatedData);
+    //     try {
+    //         $event = Event::create($validatedData);
 
-            DB::commit();
+    //         DB::commit();
 
-            return ApiResponse::success(new EventResource($event), 'Event created successfully',);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return ApiResponse::error('Failed to create event', 500);
-        }
+    //         return ApiResponse::success(new EventResource($event), 'Event created successfully',);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return ApiResponse::error('Failed to create event', 500);
+    //     }
     }
     /**
      * Display the specified resource.
