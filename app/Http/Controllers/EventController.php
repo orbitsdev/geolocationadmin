@@ -36,26 +36,26 @@ class EventController extends Controller
     public function store(Request $request, $councilId)
     {
 
-        return ApiResponse::success($request->all());
-        $validatedData = $request->validate(    [
-            'council_position_id' => 'required|exists:council_positions,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'content' => 'nullable|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-           'radius' => 'required|numeric|min:1', 
-            'specified_location' => 'sometimes|nullable|string',
-            'map_location' => 'required|string',
-            'place_id' => 'required|string',
-            'start_time' => 'required|date|before:end_time', // Ensure start_time is before end_time
-             'end_time' => 'required|date|after:start_time',  
-            'is_active' => 'sometimes|boolean',
-            'restrict_event' => 'sometimes|boolean',
-            'max_capacity' => 'sometimes|nullable|integer|min:1',
-            'type' => 'sometimes|nullable|string',
-        ]);
 
+        // $validatedData = $request->validate(    [
+        //     'council_position_id' => 'required|exists:council_positions,id',
+        //     'title' => 'required|string|max:255',
+        //     'description' => 'nullable|string',
+        //     'content' => 'nullable|string',
+        //     'latitude' => 'required|numeric',
+        //     'longitude' => 'required|numeric',
+        //    'radius' => 'required|numeric|min:1', 
+        //     'specified_location' => 'sometimes|nullable|string',
+        //     'map_location' => 'required|string',
+        //     'place_id' => 'required|string',
+        //     'start_time' => 'required|date|before:end_time', // Ensure start_time is before end_time
+        //      'end_time' => 'required|date|after:start_time',  
+        //     'is_active' => 'sometimes|boolean',
+        //     'restrict_event' => 'sometimes|boolean',
+        //     'max_capacity' => 'sometimes|nullable|integer|min:1',
+        //     'type' => 'sometimes|nullable|string',
+        // ]);
+        return ApiResponse::success($request->all());
         
         $validatedData['council_id'] = $councilId;
 
