@@ -36,7 +36,8 @@ class EventController extends Controller
     public function store(Request $request, $councilId)
     {
 
-        return response()->json([$request->all(),$councilId]);
+        return response()->json([$request->all(), $councilId]);
+
 
 
 
