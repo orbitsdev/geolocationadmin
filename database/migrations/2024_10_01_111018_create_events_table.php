@@ -19,9 +19,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('content')->nullable();
             
-            $table->decimal('latitude', 30, 25); // 30 total digits, 25 decimal places
-            $table->decimal('longitude', 30, 25); // Same here
-            $table->decimal('radius', 20, 10)->nullable(); // High precision for radius
+            $table->douuble('latitude'); 
+            $table->douuble('longitude'); 
+            $table->douuble('radius')->nullable(); 
 
             $table->text('specified_location')->nullable();
             $table->text('map_location')->nullable();
