@@ -36,46 +36,43 @@ class EventController extends Controller
     public function store(Request $request, $councilId)
     {
 
-        return response()->json([$request->all(), $councilId]);
+    
 
-
-
-
-        // $validatedData = $request->validate(    [
-        //     'council_position_id' => 'required|exists:council_positions,id',
-        //     'title' => 'required|string|max:255',
-        //     'description' => 'nullable|string',
-        //     'content' => 'nullable|string',
-        //     'latitude' => 'required|numeric',
-        //     'longitude' => 'required|numeric',
-        //    'radius' => 'required|numeric|min:1', 
-        //     'specified_location' => 'sometimes|nullable|string',
-        //     'map_location' => 'required|string',
-        //     'place_id' => 'required|string',
-        //     'start_time' => 'required|date|before:end_time', // Ensure start_time is before end_time
-        //      'end_time' => 'required|date|after:start_time',  
-        //     'is_active' => 'sometimes|boolean',
-        //     'restrict_event' => 'sometimes|boolean',
-        //     'max_capacity' => 'sometimes|nullable|integer|min:1',
-        //     'type' => 'sometimes|nullable|string',
-        // ]);
-    //     return ApiResponse::success([$request->all(),$councilId]);
+        $validatedData = $request->validate(  [
+            'council_position_id' => 'required|exists:council_positions,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'content' => 'nullable|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+           'radius' => 'required|numeric|min:1', 
+            'specified_location' => 'sometimes|nullable|string',
+            'map_location' => 'required|string',
+            'place_id' => 'required|string',
+            'start_time' => 'required|date|before:end_time', // Ensure start_time is before end_time
+             'end_time' => 'required|date|after:start_time',  
+            'is_active' => 'sometimes|boolean',
+            'restrict_event' => 'sometimes|boolean',
+            'max_capacity' => 'sometimes|nullable|integer|min:1',
+            'type' => 'sometimes|nullable|string',
+        ]);
+        return ApiResponse::success([$request->all(),$councilId]);
         
-    //     $validatedData['council_id'] = $councilId;
+        $validatedData['council_id'] = $councilId;
 
         
-    //     DB::beginTransaction();
+        DB::beginTransaction();
 
-    //     try {
-    //         $event = Event::create($validatedData);
+        try {
+            $event = Event::create($validatedData);
 
-    //         DB::commit();
+            DB::commit();
 
-    //         return ApiResponse::success(new EventResource($event), 'Event created successfully',);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return ApiResponse::error('Failed to create event', 500);
-    //     }
+            return ApiResponse::success(new EventResource($event), 'Event created successfully',);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ApiResponse::error('Failed to create event', 500);
+        }
     }
     /**
      * Display the specified resource.
