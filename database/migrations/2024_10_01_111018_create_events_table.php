@@ -21,7 +21,7 @@ return new class extends Migration
             
             $table->text('latitude')->nullable(); 
             $table->text('longitude')->nullable(); 
-            $table->text('radicolumn: us')->nullable(); 
+            $table->string('radius')->nullable(); 
 
             $table->text('specified_location')->nullable();
             $table->text('map_location')->nullable();
