@@ -40,7 +40,7 @@ class Event extends Model
     }
 
     public function scopeWithRelation($query){
-        return $query->with(['councilPosition','council'])
+        return $query->latest()->with(['councilPosition','council'])
         ->withCount('attendances');
     }
 
