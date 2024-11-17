@@ -14,6 +14,9 @@ class Event extends Model
 
     protected $casts = [
             
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'radius' => 'float',
         'is_active' => 'boolean',
         'restrict_event' => 'boolean',
         'start_time' => 'datetime',
