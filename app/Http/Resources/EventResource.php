@@ -19,24 +19,28 @@ class EventResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+          
+
             'id' => $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
-            'content' => $this->content,
-            'latitude' => $this->latitude,   // Keep as raw value
-            'longitude' => $this->longitude, // Keep as raw value
-            'radius' => $this->radius,       // Keep as raw value
+            'title' => $this->title ?? null,
+            'description' => $this->description ?? null,
+            'content' => $this->content ?? null,
+            'latitude' => $this->latitude ?? null,   
+            'longitude' => $this->longitude ?? null,
+            'radius' => $this->radius ?? null,     
             'start_time' => $this->start_time ? $this->formattedDate($this->start_time) : null,
             'end_time' => $this->end_time ? $this->formattedDate($this->end_time) : null,
-            'is_active' => $this->is_active,
-            'restrict_event' => $this->restrict_event,
-            'max_capacity' => $this->max_capacity,
-            'type' => $this->type,
-            'specified_location' => $this->specified_location,
-            'map_location' => $this->map_location,
-            'place_id' => $this->place_id,
+            'is_active' => $this->is_active ?? null,
+            'restrict_event' => $this->restrict_event ?? null,
+            'max_capacity' => $this->max_capacity ?? null,
+            'type' => $this->type ?? null,
+            'specified_location' => $this->specified_location ?? null,
+            'map_location' => $this->map_location ?? null,
+            'place_id' => $this->place_id ?? null,
+
+            // Load related data when necessary
             'council' => new CouncilResource($this->whenLoaded('council')),
-            'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
+            'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
             'attendances' => AttendanceResource::collection($this->whenLoaded('attendances')),
         ];
     }
