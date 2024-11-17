@@ -36,7 +36,7 @@ class EventController extends Controller
     public function store(Request $request, $councilId)
     {
 
-        return ApiResponse::success([$request->all()]);
+  
 
         $validatedData = $request->validate(  [
             'council_position_id' => 'required|exists:council_positions,id',
@@ -68,7 +68,7 @@ class EventController extends Controller
             $event->load(['council', 'councilPosition'])->loadCount('attendances');
             DB::commit();
 
-            return ApiResponse::success(new EventResource($event), 'Event created successfully',);
+            return ApiResponse::success([new EventResource($event), $request->all()], 'Event created successfully',);
         } catch (\Exception $e) {
             DB::rollBack();
             return ApiResponse::error('Failed to create event', 500);
