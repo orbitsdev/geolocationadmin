@@ -65,10 +65,10 @@ class EventController extends Controller
 
         try {
             $event = Event::create($validatedData);
-
+            $event->load(['council', 'councilPosition'])->loadCount('attendances');
             DB::commit();
 
-            return ApiResponse::success([new EventResource($event, $request->all())], 'Event created successfully',);
+            return ApiResponse::success(new EventResource($event), 'Event created successfully',);
         } catch (\Exception $e) {
             DB::rollBack();
             return ApiResponse::error('Failed to create event', 500);
@@ -80,7 +80,7 @@ class EventController extends Controller
     public function show($councilId, $eventId)
     {
         $event = Event::where('council_id', $councilId)
-            ->with('councilPosition', 'attendances.councilPosition')
+        ->withRelation()
             ->findOrFail($eventId);
 
         return ApiResponse::success(new EventResource($event), 'Event retrieved successfully');
