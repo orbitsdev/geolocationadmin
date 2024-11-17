@@ -41,7 +41,8 @@ class EventResource extends JsonResource
             // Load related data when necessary
             'council' => new CouncilResource($this->whenLoaded('council')),
             'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
-            'attendances' => AttendanceResource::collection($this->whenLoaded('attendances')),
+            'total_attendance' => $this->attendances_count ?? 0,
+            // 'attendances' => AttendanceResource::collection($this->whenLoaded('attendances')),
         ];
     }
     protected function formattedDate($date)

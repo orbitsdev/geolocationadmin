@@ -22,7 +22,7 @@ class EventController extends Controller
 
         // Fetch the events for the given council with pagination
         $events = Event::where('council_id', $councilId)
-            ->with('councilPosition', 'attendances')
+            ->withRelation()
             ->paginate($perPage, ['*'], 'page', $page);
 
         // Return paginated events

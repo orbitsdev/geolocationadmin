@@ -39,4 +39,18 @@ class Event extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    public function scopeWithRelation($query){
+        return $query->with(['councilPosition','council'])
+        ->withCount('attendances');
+    }
+
+    public function scopeWithRelationAndActiveAttendance($query)
+{
+    return $query->with(['councilPosition', 'council'])
+                 ->withCount(['attendances' => function ($query) {
+                     $query->where('status', 'active');
+                 }]);
+}
+
+
 }
