@@ -45,11 +45,11 @@ class EventController extends Controller
             'content' => 'nullable|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-           'radius' => 'required|numeric|min:1', 
+             'radius' => 'required|numeric|min:1', 
             'specified_location' => 'sometimes|nullable|string',
             'map_location' => 'required|string',
             'place_id' => 'required|string',
-            'start_time' => 'required|date|before:end_time', // Ensure start_time is before end_time
+            'start_time' => 'required|date|before:end_time', 
              'end_time' => 'required|date|after:start_time',  
             'is_active' => 'sometimes|boolean',
             'restrict_event' => 'sometimes|boolean',
@@ -94,18 +94,21 @@ class EventController extends Controller
         $event = Event::where('council_id', $councilId)->findOrFail($eventId);
 
         $validatedData = $request->validate([
-            'council_position_id' => 'sometimes|exists:council_positions,id',
-            'title' => 'sometimes|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'content' => 'nullable|string',
-            'latitude' => 'sometimes|numeric',
-            'longitude' => 'sometimes|numeric',
-            'radius' => 'sometimes|numeric',
-            'start_time' => 'sometimes|date',
-            'end_time' => 'sometimes|date',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+             'radius' => 'required|numeric|min:1', 
+            'specified_location' => 'sometimes|nullable|string',
+            'map_location' => 'required|string',
+            'place_id' => 'required|string',
+            'start_time' => 'required|date|before:end_time', 
+             'end_time' => 'required|date|after:start_time',  
             'is_active' => 'sometimes|boolean',
-            'max_capacity' => 'nullable|integer',
-            'type' => 'nullable|string',
+            'restrict_event' => 'sometimes|boolean',
+            'max_capacity' => 'sometimes|nullable|integer|min:1',
+            'type' => 'sometimes|nullable|string',
         ]);
 
         // Begin transaction
