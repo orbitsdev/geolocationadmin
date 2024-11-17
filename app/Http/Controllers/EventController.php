@@ -36,7 +36,7 @@ class EventController extends Controller
     public function store(Request $request, $councilId)
     {
 
-
+        return ApiResponse::success([$request->all]);
 
         $validatedData = $request->validate(  [
             'council_position_id' => 'required|exists:council_positions,id',
