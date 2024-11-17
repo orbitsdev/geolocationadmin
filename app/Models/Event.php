@@ -46,7 +46,7 @@ class Event extends Model
 
     public function scopeWithRelationAndActiveAttendance($query)
 {
-    return $query->with(['councilPosition', 'council'])
+    return $query->latest()->with(['councilPosition', 'council'])
                  ->withCount(['attendances' => function ($query) {
                      $query->where('status', 'active');
                  }]);
