@@ -19,9 +19,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('content')->nullable();
             
-            $table->text('latitude')->nullable(); 
-            $table->text('longitude')->nullable(); 
-            $table->text('radius')->nullable(); 
+            $table->string('latitude')->nullable(); 
+            $table->string('longitude')->nullable(); 
+            $table->string('radius')->nullable(); 
 
             $table->text('specified_location')->nullable();
             $table->text('map_location')->nullable();
