@@ -17,7 +17,7 @@ class Event extends Model
 
         'latitude' => 'double',
         'longitude' => 'double',
-        'radius' => 'float',
+        'radius' => 'double',
         'is_active' => 'boolean',
         'restrict_event' => 'boolean',
         'start_time' => 'datetime',

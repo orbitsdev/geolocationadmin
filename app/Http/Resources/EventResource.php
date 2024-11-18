@@ -27,7 +27,7 @@ class EventResource extends JsonResource
             'content' => $this->content ?? null,
             'latitude' => $this->latitude ?? null,   
             'longitude' => $this->longitude ?? null,
-            'radius' => (double)$this->radius ?? null,     
+            'radius' => $this->radius ?? null,     
             'start_time' => $this->start_time ? $this->formattedDate($this->start_time) : null,
             'end_time' => $this->end_time ? $this->formattedDate($this->end_time) : null,
             'is_active' => $this->is_active ?? null,
@@ -38,7 +38,7 @@ class EventResource extends JsonResource
             'map_location' => $this->map_location ?? null,
             'place_id' => $this->place_id ?? null,
 
-            // Load related data when necessary
+            
             'council' => new CouncilResource($this->whenLoaded('council')),
             'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
             'total_attendance' => $this->attendances_count ?? 0,
