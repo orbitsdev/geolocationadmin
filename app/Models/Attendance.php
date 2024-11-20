@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+
 class Attendance extends Model implements HasMedia
 {
     use HasFactory;
@@ -15,8 +16,14 @@ class Attendance extends Model implements HasMedia
 
 
     protected $casts = [
-        'due_date' => 'datetime',
-        'completed_at' => 'datetime',
+
+        'check_in_coordinates' => 'json',
+        'check_out_coordinates' => 'json',
+        'attendance_time' => 'datetime',
+        'check_in_time' => 'datetime',
+        'check_out_time' => 'datetime',
+        'attendance_allowed' => 'boolean',
+
     ];
 
     public function councilPosition()
@@ -77,5 +84,18 @@ class Attendance extends Model implements HasMedia
             'status' => 'checked_out',
         ]);
     }
-}
+    public function registerMediaCollections(): void
+    {
 
+
+        $this->addMediaCollection('check_in_selfies')
+            ->useDisk('public') // Optional: specify disk if needed
+            ->singleFile(); // Ensures only one selfie per check-in (overwrite previous if any)
+
+
+        $this->addMediaCollection('check_out_selfies')
+            ->useDisk('public') // Optional: specify disk if needed
+            ->singleFile(); // Ensures only one selfie per check-out
+
+    }
+}

@@ -15,8 +15,8 @@
                 $table->id();
                 $table->foreignId('event_id')->nullable();
                 $table->foreignId('council_position_id')->nullable();
-                    $table->decimal('latitude', 10, 8);
-                    $table->decimal('longitude', 11, 8);
+                $table->json('check_in_coordinates')->nullable();
+                $table->json('check_out_coordinates')->nullable();
                 $table->string('status')->default('present');
                 $table->timestamp('attendance_time')->nullable();
                 $table->timestamp('check_in_time')->nullable(); // Optional

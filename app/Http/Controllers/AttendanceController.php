@@ -57,8 +57,9 @@ class AttendanceController extends Controller
 {
     $validatedData = $request->validate([
         'council_position_id' => 'required|exists:council_positions,id',
-        'latitude' => 'required|numeric',
-        'longitude' => 'required|numeric',
+        'check_in_coordinates' => 'required|array',
+        'check_in_coordinates.latitude' => 'required|numeric',
+        'check_in_coordinates.longitude' => 'required|numeric',
         'device_id' => 'nullable|string',
         'device_name' => 'nullable|string',
         'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
@@ -93,31 +94,30 @@ class AttendanceController extends Controller
     DB::beginTransaction();
 
     try {
-        $selfiePath = null;
-
-        // Handle selfie image upload
-        if ($request->hasFile('selfie_image')) {
-            $selfiePath = $request->file('selfie_image')->store('selfies', 'public');
-        }
-
         // Retrieve or create attendance record
         $attendance = Attendance::firstOrNew([
             'event_id' => $eventId,
             'council_position_id' => $validatedData['council_position_id'],
         ]);
 
+        // Handle check-in selfie upload
+        if ($request->hasFile('selfie_image')) {
+            $attendance
+                ->addMediaFromRequest('selfie_image')
+                ->preservingOriginal()
+                ->toMediaCollection('check_in_selfies');
+        }
+
         // Update attendance details
         $attendance->fill([
-            'latitude' => $validatedData['latitude'],
-            'longitude' => $validatedData['longitude'],
+            'check_in_coordinates' => $validatedData['check_in_coordinates'], // Save JSON coordinates
             'status' => 'present',
             'check_in_time' => now(),
             'device_id' => $validatedData['device_id'] ?? $attendance->device_id,
             'device_name' => $validatedData['device_name'] ?? $attendance->device_name,
-            'selfie_image' => $selfiePath ?? $attendance->selfie_image,
         ])->save();
 
-        $attendance->load('event', 'councilPosition'); // Eager load necessary relations
+        $attendance->load('event', 'councilPosition'); // Load necessary relations
 
         DB::commit();
 
@@ -126,6 +126,9 @@ class AttendanceController extends Controller
         DB::rollBack();
         return ApiResponse::error('Failed to mark attendance', 500);
     }
+
+
+
 }
 
 
@@ -133,12 +136,15 @@ public function checkOut(Request $request, $councilId, $eventId)
 {
     $validatedData = $request->validate([
         'council_position_id' => 'required|exists:council_positions,id',
-         'latitude' => 'required|numeric',  // Include latitude for distance validation
-        'longitude' => 'required|numeric'
+        'check_out_coordinates' => 'required|array',
+        'check_out_coordinates.latitude' => 'required|numeric',
+        'check_out_coordinates.longitude' => 'required|numeric',
+        'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
     ]);
 
     $event = Event::where('council_id', $councilId)->findOrFail($eventId);
 
+    // Validate event timing if restriction is enabled
     if ($event->restrict_event) {
         try {
             $this->validateEventTiming($event);
@@ -147,34 +153,34 @@ public function checkOut(Request $request, $councilId, $eventId)
         }
     }
 
-    // // Optional: Validate distance from event location if needed
-    // $distance = $this->calculateDistance(
-    //     $event->latitude,
-    //     $event->longitude,
-    //     $validatedData['latitude'],
-    //     $validatedData['longitude']
-    // );
-
-    // if ($distance > $event->radius + 5) { // 5 meters tolerance
-    //     return ApiResponse::error(
-    //         "You are not within the geofence. Calculated distance: {$distance} meters. Geofence radius: {$event->radius} meters.",
-    //         403
-    //     );
-    // }
-
     $attendance = Attendance::where('event_id', $event->id)
         ->where('council_position_id', $validatedData['council_position_id'])
         ->firstOrFail();
 
+    if ($attendance->check_out_time) {
+        return ApiResponse::error('You have already checked out.', 403);
+    }
+
     DB::beginTransaction();
 
     try {
+        // Handle check-out selfie upload
+        if ($request->hasFile('selfie_image')) {
+            $attendance
+                ->addMediaFromRequest('selfie_image')
+                ->preservingOriginal()
+                ->toMediaCollection('check_out_selfies');
+        }
+
+        // Update attendance details
         $attendance->update([
+            'check_out_coordinates' => $validatedData['check_out_coordinates'], // Save check-out JSON coordinates
             'check_out_time' => now(),
             'status' => 'checked-out',
         ]);
 
         $attendance->load('event', 'councilPosition'); // Load necessary relations
+
         DB::commit();
 
         return ApiResponse::success(new AttendanceResource($attendance), 'Checked out successfully');

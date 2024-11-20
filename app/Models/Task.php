@@ -46,7 +46,7 @@ class Task extends Model implements HasMedia
     public const STATUS_IN_PROGRESS = 'In Progress';
     public const STATUS_COMPLETED = 'Completed';
     public const STATUS_NEED_REVISION = 'Needs Revision';
-  
+
     public const STATUS_REJECTED = 'Rejected';
 
 
@@ -142,12 +142,12 @@ public function scopeApproved($query)
 //     }
 // }
 public function scopeWithTaskRelations($query)
-{                        
+{
     return $query->latest()->with([
         'assignedCouncilPosition',
         'approvedByCouncilPosition',
         'media'
-        
+
     ]);
 }
 public function scopeTaskBelongToCouncilOf($query ,$councilId)
@@ -172,11 +172,11 @@ public function loadTaskRelations()
 
     }
 
-    
+
 public function getImage()
 {
 
-   
+
     if ($this->hasMedia('task_media')) {
         return $this->getFirstMediaUrl('task_media');
     }
