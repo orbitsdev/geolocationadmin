@@ -52,16 +52,6 @@ class Attendance extends Model implements HasMedia
         ]);
     }
 
-    public function hasCheckedIn()
-    {
-        return !is_null($this->check_in_time);
-    }
-
-    // Check if a user has already checked out
-    public function hasCheckedOut()
-    {
-        return !is_null($this->check_out_time);
-    }
 
     // Mark the attendance as checked in
     public function markCheckIn($latitude, $longitude)
@@ -98,4 +88,28 @@ class Attendance extends Model implements HasMedia
             ->singleFile(); // Ensures only one selfie per check-out
 
     }
+    public static function hasCheckedIn($eventId, $councilPositionId)
+    {
+        return self::where('event_id', $eventId)
+            ->where('council_position_id', $councilPositionId)
+            ->whereNotNull('check_in_time')
+            ->exists();
+    }
+
+    public static function hasCheckedOut($eventId, $councilPositionId)
+    {
+        return self::where('event_id', $eventId)
+            ->where('council_position_id', $councilPositionId)
+            ->whereNotNull('check_out_time')
+            ->exists();
+    }
+
+    public static function getForCouncilPosition($eventId, $councilPositionId)
+    {
+        return self::where('event_id', $eventId)
+            ->where('council_position_id', $councilPositionId)
+            ->first();
+    }
+
+
 }

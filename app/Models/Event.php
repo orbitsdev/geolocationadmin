@@ -13,7 +13,7 @@ class Event extends Model
     use HasFactory;
 
     protected $casts = [
-            
+
 
         'latitude' => 'double',
         'longitude' => 'double',
@@ -25,8 +25,8 @@ class Event extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-    
-    
+
+
     public function councilPosition()
     {
         return $this->belongsTo(CouncilPosition::class);
@@ -53,5 +53,20 @@ class Event extends Model
                  }]);
 }
 
+
+public function hasCheckedOut($councilPositionId)
+    {
+        return $this->attendances()
+            ->where('council_position_id', $councilPositionId)
+            ->whereNotNull('check_out_time')
+            ->exists();
+    }
+
+    public function getAttendanceForCouncilPosition($councilPositionId)
+    {
+        return $this->attendances()
+            ->where('council_position_id', $councilPositionId)
+            ->first();
+    }
 
 }

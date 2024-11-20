@@ -172,7 +172,7 @@ public function checkOut(Request $request, $councilId, $eventId)
                 ->toMediaCollection('check_out_selfies');
         }
 
-        // Update attendance details
+
         $attendance->update([
             'check_out_coordinates' => $validatedData['check_out_coordinates'], // Save check-out JSON coordinates
             'check_out_time' => now(),
