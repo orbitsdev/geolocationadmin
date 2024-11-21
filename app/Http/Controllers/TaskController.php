@@ -11,9 +11,9 @@ use App\Notifications\TaskUpdate;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\TaskResource;
 
-class TaskController extends Controller 
+class TaskController extends Controller
 {
-        
+
 
     /**
      * Display a listing of the resource.
@@ -59,7 +59,7 @@ class TaskController extends Controller
             if ($request->hasFile('media')) {
                 foreach ($request->file('media') as $file) {
                     $mediaItem = $task->addMedia($file)->preservingOriginal()->toMediaCollection('task_media');
-    
+
                     // $mediaItem = $review->addMedia($file)->toMediaCollection('review_media');
                     $filesData[] = [
                         'original_name' => $file->getClientOriginalName(),
@@ -68,10 +68,10 @@ class TaskController extends Controller
                     ];
                 }
             }
-            
-            
+
+
         $officer = CouncilPosition::findOrFail($validatedData['council_position_id']);
-        
+
 
         if ($officer && $officer->user) {
 
@@ -79,14 +79,14 @@ class TaskController extends Controller
 
             foreach ($officer->user->deviceTokens() as $token) {
                 FCMController::sendPushNotification(
-                    $token, 
-                    'Task Assigned', 
-                    "{$task->title} - Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date'), 
+                    $token,
+                    'Task Assigned',
+                    "{$task->title} - Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date'),
                     [
                         'council_position_id' => $officer->id,
                         'user_id' => $officer->user->id,
                         'notification' => 'task',
-                        'task_id' => $task->id, 
+                        'task_id' => $task->id,
                         'due_date' => $task->due_date, // Send raw due_date for client processing if needed
                     ]
                 );
@@ -143,21 +143,21 @@ class TaskController extends Controller
 
             $task->loadTaskRelations();
             $officer = CouncilPosition::findOrFail($task->assignedCouncilPosition->id);
-            
+
         if ($officer && $officer->user) {
             $officer->user->notify(new TaskUpdate($task->id, 'Task Assigned', $task->title));
             foreach ($officer->user->deviceTokens() as $token) {
                 FCMController::sendPushNotification(
-                    $token, 
-                    'Task Updated', 
-                    "{$task->title} - Updated Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') . 
-                    ", Status: " . ucfirst($task->status), 
+                    $token,
+                    'Task Updated',
+                    "{$task->title} - Updated Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
+                    ", Status: " . ucfirst($task->status),
                     [
                         'council_position_id' => $officer->id,
                         'user_id' => $officer->user->id,
                         'notification' => 'task',
-                        'task_id' => $task->id, 
-                        'due_date' => $task->due_date, 
+                        'task_id' => $task->id,
+                        'due_date' => $task->due_date,
                         'status' => $task->status,
                     ]
                 );
@@ -213,16 +213,16 @@ class TaskController extends Controller
 
     DB::beginTransaction();
     try {
-        
+
         $task->status = $validatedData['status'];
         $task->status_changed_at = now();
 
-      
+
         if ($task->status === Task::STATUS_COMPLETED ) {
-           
+
             $task->completed_at = now();
 
-           
+
             if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
                 $task->approved_by_council_position_id = $request->user()->defaultCouncilPosition()->id;
             }
@@ -232,12 +232,12 @@ class TaskController extends Controller
         }
 
 
-    
+
         if (!empty($validatedData['remarks'])) {
             $task->remarks = $validatedData['remarks'];
         }
 
-        
+
         $task->save();
         $task->loadTaskRelations();
 
@@ -253,22 +253,22 @@ class TaskController extends Controller
 
 public function uploadFiles(Request $request, $id)
 {
-    
+
     $task = Task::findOrFail($id);
 
-  
+
     $validatedData = $request->validate([
-        'media.*' => ['nullable', 'file', 'max:50480'], 
+        'media.*' => ['nullable', 'file', 'max:50480'],
     ]);
 
     DB::beginTransaction();
 
     try {
-        
+
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $file) {
                 $task->addMedia($file)
-                     ->preservingOriginal() 
+                     ->preservingOriginal()
                      ->toMediaCollection('task_media');
             }
         }
@@ -278,7 +278,7 @@ public function uploadFiles(Request $request, $id)
 
         $task->refresh()->loadTaskRelations();
 
-    
+
         return ApiResponse::success(new TaskResource($task), 'Files uploaded successfully', 201);
     } catch (\Throwable $e) { // Catch all exceptions, including errors
         DB::rollBack(); // Roll back transaction on failure
@@ -293,10 +293,10 @@ public function uploadFiles(Request $request, $id)
 
 public function deleteMedia(Request $request, $taskId, $mediaId)
 {
-   
+
     $task = Task::findOrFail($taskId);
 
-  
+
     $media = $task->getMedia('task_media')->where('id', $mediaId)->first();
 
     if (!$media) {
@@ -306,7 +306,7 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
     DB::beginTransaction();
 
     try {
-        
+
         $media->delete();
         DB::commit();
         $task->refresh()->loadTaskRelations();
@@ -327,7 +327,7 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
 
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
-    
+
     $councilPosition = CouncilPosition::findOrFail($councilPositionId);
 
     $councilId = $councilPosition->council_id;

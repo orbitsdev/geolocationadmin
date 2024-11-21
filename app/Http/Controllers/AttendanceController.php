@@ -62,7 +62,7 @@ class AttendanceController extends Controller
         'check_in_coordinates.longitude' => 'required|numeric',
         'device_id' => 'nullable|string',
         'device_name' => 'nullable|string',
-        'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+        'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|50480',
     ]);
 
     $user = $request->user();
@@ -146,7 +146,7 @@ public function checkOut(Request $request, $councilId, $eventId)
         'check_out_coordinates' => 'required|array',
         'check_out_coordinates.latitude' => 'required|numeric',
         'check_out_coordinates.longitude' => 'required|numeric',
-        'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+        'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:50480',
     ]);
     $user = $request->user();
     $councilPosition = $user->defaultCouncilPosition();
