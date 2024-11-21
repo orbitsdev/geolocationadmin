@@ -16,18 +16,19 @@ class EventResource extends JsonResource
      *
      * @return array<string, mixed>
      */
+    
     public function toArray(Request $request): array
     {
         return [
-          
+
 
             'id' => $this->id,
             'title' => $this->title ?? null,
             'description' => $this->description ?? null,
             'content' => $this->content ?? null,
-            'latitude' => $this->latitude ?? null,   
+            'latitude' => $this->latitude ?? null,
             'longitude' => $this->longitude ?? null,
-            'radius' => $this->radius ?? null,     
+            'radius' => $this->radius ?? null,
             'start_time' => $this->start_time ? $this->formattedDate($this->start_time) : null,
             'end_time' => $this->end_time ? $this->formattedDate($this->end_time) : null,
             'is_active' => $this->is_active ?? null,

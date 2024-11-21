@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Attendance;
 use App\Helpers\ApiResponse;
-use App\Http\Resources\AttendanceResource;
-use App\Traits\EventValidationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Traits\EventValidationTrait;
+use App\Http\Resources\AttendanceResource;
+use App\Http\Resources\EventAttendanceResource;
 
 class AttendanceController extends Controller
 {
@@ -56,7 +57,6 @@ class AttendanceController extends Controller
     public function checkIn(Request $request, $councilId, $eventId)
 {
     $validatedData = $request->validate([
-        'council_position_id' => 'required|exists:council_positions,id',
         'check_in_coordinates' => 'required|array',
         'check_in_coordinates.latitude' => 'required|numeric',
         'check_in_coordinates.longitude' => 'required|numeric',
@@ -64,6 +64,13 @@ class AttendanceController extends Controller
         'device_name' => 'nullable|string',
         'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
     ]);
+
+    $user = $request->user();
+    $councilPosition = $user->defaultCouncilPosition();
+
+    if (!$councilPosition) {
+        return ApiResponse::error('No default council position found for the user.', 403);
+    }
 
     $event = Event::where('council_id', $councilId)->findOrFail($eventId);
 
@@ -109,9 +116,9 @@ class AttendanceController extends Controller
         }
 
         // Update attendance details
-        $attendance->fill([
+           $attendance->fill([
             'check_in_coordinates' => $validatedData['check_in_coordinates'], // Save JSON coordinates
-            'status' => 'present',
+            'status' => 'checked-in',
             'check_in_time' => now(),
             'device_id' => $validatedData['device_id'] ?? $attendance->device_id,
             'device_name' => $validatedData['device_name'] ?? $attendance->device_name,
@@ -121,7 +128,7 @@ class AttendanceController extends Controller
 
         DB::commit();
 
-        return ApiResponse::success(new AttendanceResource($attendance), 'Attendance marked successfully');
+        return ApiResponse::success(new EventAttendanceResource($event, $attendance), 'Check-in successful');
     } catch (\Exception $e) {
         DB::rollBack();
         return ApiResponse::error('Failed to mark attendance', 500);
@@ -135,12 +142,18 @@ class AttendanceController extends Controller
 public function checkOut(Request $request, $councilId, $eventId)
 {
     $validatedData = $request->validate([
-        'council_position_id' => 'required|exists:council_positions,id',
+
         'check_out_coordinates' => 'required|array',
         'check_out_coordinates.latitude' => 'required|numeric',
         'check_out_coordinates.longitude' => 'required|numeric',
         'selfie_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
     ]);
+    $user = $request->user();
+    $councilPosition = $user->defaultCouncilPosition();
+
+    if (!$councilPosition) {
+        return ApiResponse::error('No default council position found for the user.', 403);
+    }
 
     $event = Event::where('council_id', $councilId)->findOrFail($eventId);
 
@@ -183,7 +196,7 @@ public function checkOut(Request $request, $councilId, $eventId)
 
         DB::commit();
 
-        return ApiResponse::success(new AttendanceResource($attendance), 'Checked out successfully');
+        return ApiResponse::success(new EventAttendanceResource($event, $attendance), 'Check-out successful');
     } catch (\Exception $e) {
         DB::rollBack();
         return ApiResponse::error('Failed to check out', 500);
@@ -191,6 +204,26 @@ public function checkOut(Request $request, $councilId, $eventId)
 }
 
 
+public function showEventAttendance(Request $request, $councilId, $eventId)
+{
+
+    $user = $request->user();
+
+
+    $councilPosition = $user->defaultCouncilPosition();
+
+    if (!$councilPosition) {
+        return ApiResponse::error('No default council position found for the user.', 403);
+    }
+
+
+    $event = Event::with('attendances')->findOrFail($eventId);
+
+
+    $attendance = $event->getAttendanceForCouncilPosition($councilPosition->id);
+
+    return new EventAttendanceResource($event, $attendance);
+}
 
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)

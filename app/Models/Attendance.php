@@ -79,36 +79,46 @@ class Attendance extends Model implements HasMedia
 
 
         $this->addMediaCollection('check_in_selfies')
-            ->useDisk('public') // Optional: specify disk if needed
-            ->singleFile(); // Ensures only one selfie per check-in (overwrite previous if any)
+            
+            ->singleFile();
 
 
         $this->addMediaCollection('check_out_selfies')
-            ->useDisk('public') // Optional: specify disk if needed
-            ->singleFile(); // Ensures only one selfie per check-out
-
-    }
-    public static function hasCheckedIn($eventId, $councilPositionId)
-    {
-        return self::where('event_id', $eventId)
-            ->where('council_position_id', $councilPositionId)
-            ->whereNotNull('check_in_time')
-            ->exists();
+            
+            ->singleFile();
     }
 
-    public static function hasCheckedOut($eventId, $councilPositionId)
+
+
+    public function getCheckInLatitudeAttribute()
     {
-        return self::where('event_id', $eventId)
-            ->where('council_position_id', $councilPositionId)
-            ->whereNotNull('check_out_time')
-            ->exists();
+        return isset($this->check_in_coordinates['latitude'])
+            ? (double) $this->check_in_coordinates['latitude']
+            : null;
     }
 
-    public static function getForCouncilPosition($eventId, $councilPositionId)
+    // Accessor for check-in longitude
+    public function getCheckInLongitudeAttribute()
     {
-        return self::where('event_id', $eventId)
-            ->where('council_position_id', $councilPositionId)
-            ->first();
+        return isset($this->check_in_coordinates['longitude'])
+            ? (double) $this->check_in_coordinates['longitude']
+            : null;
+    }
+
+    // Accessor for check-out latitude
+    public function getCheckOutLatitudeAttribute()
+    {
+        return isset($this->check_out_coordinates['latitude'])
+            ? (double) $this->check_out_coordinates['latitude']
+            : null;
+    }
+
+    // Accessor for check-out longitude
+    public function getCheckOutLongitudeAttribute()
+    {
+        return isset($this->check_out_coordinates['longitude'])
+            ? (double) $this->check_out_coordinates['longitude']
+            : null;
     }
 
 

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\EventResource;
+use App\Models\Attendance;
 
 class EventController extends Controller
 {
@@ -36,7 +37,7 @@ class EventController extends Controller
     public function store(Request $request, $councilId)
     {
 
-  
+
 
         $validatedData = $request->validate(  [
             'council_position_id' => 'required|exists:council_positions,id',
@@ -45,22 +46,22 @@ class EventController extends Controller
             'content' => 'nullable|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-             'radius' => 'required|numeric|min:1', 
+             'radius' => 'required|numeric|min:1',
             'specified_location' => 'sometimes|nullable|string',
             'map_location' => 'required|string',
             'place_id' => 'required|string',
-            'start_time' => 'required|date|before:end_time', 
-             'end_time' => 'required|date|after:start_time',  
+            'start_time' => 'required|date|before:end_time',
+             'end_time' => 'required|date|after:start_time',
             'is_active' => 'sometimes|boolean',
             'restrict_event' => 'sometimes|boolean',
             'max_capacity' => 'sometimes|nullable|integer|min:1',
             'type' => 'sometimes|nullable|string',
         ]);
 
-        
+
         $validatedData['council_id'] = $councilId;
 
-        
+
         DB::beginTransaction();
 
         try {
@@ -100,12 +101,12 @@ class EventController extends Controller
             'content' => 'nullable|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-             'radius' => 'required|numeric|min:1', 
+             'radius' => 'required|numeric|min:1',
             'specified_location' => 'sometimes|nullable|string',
             'map_location' => 'required|string',
             'place_id' => 'required|string',
-            'start_time' => 'required|date|before:end_time', 
-             'end_time' => 'required|date|after:start_time',  
+            'start_time' => 'required|date|before:end_time',
+             'end_time' => 'required|date|after:start_time',
             'is_active' => 'sometimes|boolean',
             'restrict_event' => 'sometimes|boolean',
             'max_capacity' => 'sometimes|nullable|integer|min:1',
@@ -167,5 +168,7 @@ class EventController extends Controller
     // Return the paginated events using the appropriate resource
     return ApiResponse::paginated($events, 'Events retrieved successfully', EventResource::class);
 }
+
+
 
 }

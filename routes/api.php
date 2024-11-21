@@ -48,8 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('councils', CouncilController::class);
 
 
-    Route::get('positions', [PositionController::class, 'index']);  
-    
+    Route::get('positions', [PositionController::class, 'index']);
+
     Route::get('councils/{council}/available-users', [CouncilPositionController::class, 'availableUsers']);
     Route::get('councils/{council}/search-officers', [CouncilPositionController::class, 'searchOfficer']);
     Route::get('councils/{council}/positions', [CouncilPositionController::class, 'index']);
@@ -77,6 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'index']);
     Route::get('/councils/council-events/{council_position_id}', [EventController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::post('councils/{councilId}/events/create', [EventController::class, 'store']);
+    Route::get('councils/{councilId}/events/{eventId}/attendance', [EventController::class, 'showEventAttendance']);
+
     Route::apiResource('councils.events', EventController::class);
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-in', [AttendanceController::class, 'checkIn']);
 
@@ -87,13 +89,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/read/multiple', [NotificationController::class, 'markMultipleAsRead']);
 
-   
+
 });
 
 
 Route::get('/send-notification', function(){
     FCMController::sendPushNotification('fUyNeZkhQ-6wn2-S-Jn48C:APA91bHZSBE0Lu8bOBpc98TPcXi6BywPoTpFr9aXfQjuJjIhK_6H8mlaoNRdpu_U2YXbLghaM-v1DiNH_8jMLcrhLcoCoPL4eiF8ioZp8oacivLXBqi1SC8', 'Task Assigned', 'test', [
-        
+
         'notification' => 'task',
     ]);
 });
