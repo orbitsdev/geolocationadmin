@@ -131,7 +131,7 @@ class AttendanceController extends Controller
         return ApiResponse::success(new EventAttendanceResource($event, $attendance), 'Check-in successful');
     } catch (\Exception $e) {
         DB::rollBack();
-        return ApiResponse::error('Failed to mark attendance', 500);
+        return ApiResponse::error('Failed to mark attendance'.$e->getMessage(), 500);
     }
 
 
@@ -199,7 +199,7 @@ public function checkOut(Request $request, $councilId, $eventId)
         return ApiResponse::success(new EventAttendanceResource($event, $attendance), 'Check-out successful');
     } catch (\Exception $e) {
         DB::rollBack();
-        return ApiResponse::error('Failed to check out', 500);
+        return ApiResponse::error('Failed to check out'.$e->getMessage(), 500);
     }
 }
 
