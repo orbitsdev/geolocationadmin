@@ -18,7 +18,7 @@ class AttendanceResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+          'id' => $this->id,
             'event_id' => $this->event_id,
             'council_position_id' => $this->council_position_id,
             'check_in_time' => $this->check_in_time
