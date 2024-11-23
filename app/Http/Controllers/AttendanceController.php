@@ -167,8 +167,8 @@ public function checkOut(Request $request, $councilId, $eventId)
     }
 
     $attendance = Attendance::where('event_id', $event->id)
-        ->where('council_position_id', $validatedData['council_position_id'])
-        ->firstOrFail();
+    ->where('council_position_id', $councilPosition->id) // Use the default council position
+    ->firstOrFail();
 
     if ($attendance->check_out_time) {
         return ApiResponse::error('You have already checked out.', 403);
