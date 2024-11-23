@@ -21,17 +21,33 @@ class AttendanceResource extends JsonResource
             'id' => $this->id,
             'event_id' => $this->event_id,
             'council_position_id' => $this->council_position_id,
-            'latitude' => number_format($this->latitude, 8, '.', ''),  // Preserve 8 decimal places as string
-            'longitude' => number_format($this->longitude, 8, '.', ''),
+            'check_in_time' => $this->check_in_time
+                ? $this->formattedDate($this->check_in_time)
+                : null,
+            'check_out_time' => $this->check_out_time
+                ? $this->formattedDate($this->check_out_time)
+                : null,
+            'check_in_coordinates' => $this->check_in_coordinates ? [
+                'latitude' => $this->check_in_latitude,
+                'longitude' => $this->check_in_longitude,
+            ] : null,
+            'check_out_coordinates' => $this->check_out_coordinates ? [
+                'latitude' => $this->check_out_latitude,
+                'longitude' => $this->check_out_longitude,
+            ] : null,
+            'check_in_selfie_url' => $this->getFirstMediaUrl('check_in_selfies') ?? null,
+            'check_out_selfie_url' => $this->getFirstMediaUrl('check_out_selfies') ?? null,
             'status' => $this->status,
-            'check_in_time' => $this->check_in_time ? $this->formattedDate($this->check_in_time) : null,
-            'check_out_time' => $this->check_out_time ? $this->formattedDate($this->check_out_time) : null,
+            'attendance_time' => $this->attendance_time
+                ? $this->attendance_time->toDateTimeString()
+                : null,
             'device_id' => $this->device_id,
             'device_name' => $this->device_name,
-            'selfie_image_url' => $this->selfie_image ? url('storage/' . $this->selfie_image) : null,
-            'created_at' => $this->created_at ? $this->formattedDate($this->created_at) : null,
-            'updated_at' => $this->updated_at ? $this->formattedDate($this->updated_at) : null,
-            'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
+            'attendance_allowed' => $this->attendance_allowed,
+            'notes' => $this->notes,
+            'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,
+            'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
             'event' => new EventResource($this->whenLoaded('event')),
         ];
     }
