@@ -45,27 +45,9 @@ class EventAttendanceResource extends JsonResource
             'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
             'total_attendance' => $this->attendances_count ?? 0,
 
-            // Include attendance details dynamically for the given council position
-            'attendance' => $this->attendance ? [
-                'check_in_time' => $this->attendance->check_in_time
-                    ? $this->formattedDate($this->attendance->check_in_time)
-                    : null,
-                'check_out_time' => $this->attendance->check_out_time
-                    ? $this->formattedDate($this->attendance->check_out_time)
-                    : null,
-
-                'check_in_coordinates' => $this->attendance->check_in_coordinates ? [
-                    'latitude' => $this->attendance->check_in_latitude,
-                    'longitude' => $this->attendance->check_in_longitude,
-                ] : null,
-                'check_out_coordinates' => $this->attendance->check_out_coordinates ? [
-                    'latitude' => $this->attendance->check_out_latitude,
-                    'longitude' => $this->attendance->check_out_longitude,
-                ] : null,
-
-                'check_in_selfie_url' => $this->attendance->getFirstMediaUrl('check_in_selfies') ?? null,
-                'check_out_selfie_url' => $this->attendance->getFirstMediaUrl('check_out_selfies') ?? null,
-            ] : null,
+            'attendance' => $this->attendance
+                ? new AttendanceResource($this->attendance)
+                : null,
         ];
     }
     protected function formattedDate($date)
