@@ -104,7 +104,7 @@ class AttendanceController extends Controller
         // Retrieve or create attendance record
         $attendance = Attendance::firstOrNew([
             'event_id' => $eventId,
-            'council_position_id' => $validatedData['council_position_id'],
+            'council_position_id' => $councilPosition->id,
         ]);
 
         // Handle check-in selfie upload
