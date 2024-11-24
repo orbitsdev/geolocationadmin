@@ -236,7 +236,9 @@ public function showEventAttendanceRecord(Request $request, $councilId, $eventId
     if (!$councilPosition) {
         return ApiResponse::error('No default council position found for the user.', 403);
     }
-
+    $attendances = Attendance::where('event_id', $eventId)
+    ->latest()->get();
+    ApiResponse::success($attendances);
     
     $attendances = Attendance::where('event_id', $eventId)
         ->latest()
