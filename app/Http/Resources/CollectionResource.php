@@ -32,8 +32,7 @@ class CollectionResource extends JsonResource
             'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
             // 'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
             'items' => CollectionItemResource::collection($this->whenLoaded('collectionItems')),
-            // 'total_amount' => $totalAmount,
-            'total_amount' => number_format($totalAmount, 2),
+            'total_amount' => $totalAmount,
             'item_count' => (int) $this->collection_items_count,
             'last_updated' => $this->updated_at ? $this->updated_at->diffForHumans() : null,
 
