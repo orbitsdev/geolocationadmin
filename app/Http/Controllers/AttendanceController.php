@@ -239,13 +239,14 @@ public function showEventAttendanceRecord(Request $request, $councilId, $eventId
 
     
     $attendances = Attendance::where('event_id', $eventId)
-        ->where('council_position_id', $councilPosition->id)
         ->latest()
         ->with(['event', 'councilPosition']) // Load necessary relationships
         ->paginate($perPage, ['*'], 'page', $page);
 
+    return ApiResponse::success($attendances);
+
     // Return paginated response
-    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceResource::class);
+    // return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceResource::class);
 }
 
 
