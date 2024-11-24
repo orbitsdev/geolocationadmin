@@ -20,6 +20,7 @@ class Event extends Model
         'radius' => 'double',
         'is_active' => 'boolean',
         'restrict_event' => 'boolean',
+        'is_publish' => 'boolean',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'created_at' => 'datetime',

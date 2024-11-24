@@ -30,6 +30,7 @@ return new class extends Migration
             $table->timestamp('end_time');
             $table->boolean('is_active')->default(true);
             $table->boolean('restrict_event')->default(false);
+            $table->boolean('is_publish')->default(true);
             $table->unsignedInteger('max_capacity')->nullable(); // Optional
             $table->string('type')->nullable(); // Optional
             $table->timestamps();
