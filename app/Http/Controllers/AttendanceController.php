@@ -238,7 +238,7 @@ public function showEventAttendanceRecord(Request $request, $councilId, $eventId
     }
     $attendances = Attendance::where('event_id', $eventId)
     ->latest()->get();
-    ApiResponse::success($attendances);
+    return ApiResponse::success($attendances);
     
     $attendances = Attendance::where('event_id', $eventId)
         ->latest()
