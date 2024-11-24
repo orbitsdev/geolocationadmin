@@ -36,7 +36,7 @@ public function store(Request $request)
         'description' => 'nullable|string',
         'items' => 'sometimes|array',
         'items.*.label' => 'required|string|max:255',
-        'items.*.amount' => 'required|numeric|min:0',
+        'items.*.amount' => 'required|numeric',
     ]);
 
   
