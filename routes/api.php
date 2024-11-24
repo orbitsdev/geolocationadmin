@@ -69,8 +69,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/posts/council-posts/{council_position_id}', [PostController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::apiResource('posts', PostController::class);
 
-    Route::delete('collections/{collectionId}/items/{itemId}', [CollectionController::class, 'removeItem']);
-    Route::get('/collections/council-collections/{council_position_id}', [CollectionController::class, 'fetchByCouncilPositionOrCouncil']);
+    Route::get('/collections/council', [CollectionController::class, 'fetchByCouncil']);
+    Route::delete('/collections/{collectionId}/items/{itemId}', [CollectionController::class, 'removeItem']);
     Route::apiResource('collections', CollectionController::class);
 
     Route::post('chat-rooms/{chatRoomId}/create-messages', [MessageController::class, 'store']);

@@ -54,10 +54,15 @@ public function removeItem($itemId)
 {
     return $this->collectionItems()->where('id', $itemId)->delete();
 }
-public function getWithRelations()
+// public function getWithRelations()
+// {
+//     return $this->with(['councilPosition', 'collectionItems'])->find($this->id);
+// }
+public function scopeWithRelation($query)
 {
-    return $this->with(['councilPosition', 'collectionItems'])->find($this->id);
+    return $query->with(['council','councilPosition', 'collectionItems',])->withCount('collectionItems');
 }
+
     
 
 }

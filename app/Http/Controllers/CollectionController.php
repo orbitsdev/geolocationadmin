@@ -16,63 +16,65 @@ class CollectionController extends Controller
      */
     public function index(Request $request)
 {
-    // Get the page and perPage from the query string, default to page 1 and 10 per page
+    
     $page = $request->query('page', 1);
     $perPage = $request->query('perPage', 10);
 
-    // Fetch collections with relationships and apply pagination
-    $collections = Collection::with('collectionItems', 'councilPosition')
-        ->paginate($perPage, ['*'], 'page', $page);
+  
+    $collections = Collection::withRelation()->paginate($perPage, ['*'], 'page', $page);
 
-    // Return the paginated API response
+    
     return ApiResponse::paginated($collections, 'Collections retrieved successfully', CollectionResource::class);
 }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255',
+        'type' => 'required|in:' . implode(',', array_keys(Collection::CHART_OPTIONS)),
+        'description' => 'nullable|string',
+        'items' => 'sometimes|array',
+        'items.*.label' => 'required|string|max:255',
+        'items.*.amount' => 'required|numeric|min:0',
+    ]);
 
-
-        $validatedData = $request->validate([
-            'council_position_id' => 'required|exists:council_positions,id',
-            'title' => 'required|string|max:255',
-            'type' => 'required|in:' . implode(',', array_keys(Collection::CHART_OPTIONS)),
-            'description' => 'nullable|string',
-            'items' => 'sometimes|array',  // Validate but don't include in $validatedData for Collection creation
-            'items.*.label' => 'required|string|max:255',
-            'items.*.amount' => 'required|numeric|min:0',
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            // Remove 'items' from $validatedData since it doesn't belong in the collections table
-            $collectionData = $validatedData;
-            unset($collectionData['items']);
-
-            // Create the collection without 'items'
-            $collection = Collection::create($collectionData);
-
-            // Handle the collection items if they are provided
-            if (isset($validatedData['items'])) {
-                foreach ($validatedData['items'] as $item) {
-                    $collection->collectionItems()->create($item);  // Assuming 'collectionItems' is the relationship
-                }
-            }
-
-            DB::commit();
-
-            return ApiResponse::success(new CollectionResource($collection->load('collectionItems')), 'Collection created successfully', 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Failed to create collection', ['error' => $e->getMessage()]);
-            return ApiResponse::error($e->getMessage(), 500);
-        }
+  
+    $user = $request->user();
+    $councilPosition = $user->defaultCouncilPosition();
+    if (!$councilPosition) {
+        return ApiResponse::error('No default council position found for the user.', 403);
     }
 
+    DB::beginTransaction();
+
+    try {
+        $collectionData = array_merge(
+            $validatedData,
+            ['council_position_id' => $councilPosition->id]
+        );
+        unset($collectionData['items']);
+
+        $collection = Collection::create($collectionData);
+        $collection->collectionItems()->createMany($validatedData['items'] ?? []);
+
+        DB::commit();
+
+        return ApiResponse::success(
+            new CollectionResource($collection->load('collectionItems')),
+            'Collection created successfully',
+            201
+        );
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Failed to create collection', [
+            'error' => $e->getMessage(),
+            'request' => $request->all(),
+            'user_id' => $request->user()->id,
+        ]);
+        return ApiResponse::error('Failed to create collection', 500);
+    }
+}
 
 
     /**
@@ -80,56 +82,82 @@ class CollectionController extends Controller
      */
     public function show(string $id)
     {
-        $collection = Collection::with('collectionItems', 'councilPosition')->findOrFail($id);
+        $collection = Collection::withRelation()->findOrFail($id);
         return ApiResponse::success(new CollectionResource($collection), 'Collection retrieved successfully');
-
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-{
-    $collection = Collection::findOrFail($id);
-
-    $validatedData = $request->validate([
-        'council_position_id' => 'sometimes|exists:council_positions,id',
-        'title' => 'sometimes|string|max:255',
-        'type' => 'sometimes|in:' . implode(',', array_keys(Collection::CHART_OPTIONS)),
-        'description' => 'nullable|string',
-        'items' => 'sometimes|array',
-        'items.*.label' => 'required|string|max:255',
-        'items.*.amount' => 'required|numeric|min:0',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        // Remove 'items' from $validatedData since it doesn't belong in the collections table
-        $collectionData = $validatedData;
-        unset($collectionData['items']);
-
-        // Update the collection without 'items'
-        $collection->update($collectionData);
-
-        // Handle the items, either by adding new or updating existing items
-        if (isset($validatedData['items'])) {
-            foreach ($validatedData['items'] as $item) {
-                // You can either update existing items or add new items.
-                // Assuming addItem() handles both adding and updating items:
-                $collection->addItem($item);
-            }
+    {
+        // Retrieve the collection or fail
+        $collection = Collection::findOrFail($id);
+    
+        // Validate the incoming data
+        $validatedData = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'type' => 'sometimes|in:' . implode(',', array_keys(Collection::CHART_OPTIONS)),
+            'description' => 'nullable|string',
+            'items' => 'sometimes|array',
+            'items.*.id' => 'sometimes|exists:collection_items,id',
+            'items.*.label' => 'required|string|max:255',
+            'items.*.amount' => 'required|numeric|min:0',
+        ]);
+    
+        $user = $request->user();
+        $councilPosition = $user->defaultCouncilPosition();
+        if (!$councilPosition) {
+            return ApiResponse::error('No default council position found for the user.', 403);
         }
-
-        DB::commit();
-
-        return ApiResponse::success(new CollectionResource($collection->load('collectionItems')), 'Collection updated successfully');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Failed to update collection', ['error' => $e->getMessage()]);
-        return ApiResponse::error('Failed to update collection', 500);
+    
+        DB::beginTransaction();
+    
+        try {
+           
+            $collectionData = $validatedData;
+            unset($collectionData['items']);
+    
+           
+            $collection->update($collectionData);
+    
+            $newItems = collect($validatedData['items'] ?? []);
+    
+            // Split the items into two groups
+            $existingItems = $newItems->filter(fn($item) => isset($item['id']));
+            $newItems = $newItems->filter(fn($item) => !isset($item['id']));
+            
+            // Update existing items
+            foreach ($existingItems as $itemData) {
+                $collection->collectionItems()
+                    ->where('id', $itemData['id'])
+                    ->first()
+                    ->update($itemData);
+            }
+    
+            //Delete items no longer in the request
+            $collection->collectionItems()
+                ->whereNotIn('id', $existingItems->pluck('id'))
+                ->delete();
+    
+            
+            $collection->collectionItems()->createMany($newItems);
+    
+            DB::commit();
+    
+            return ApiResponse::success(
+                new CollectionResource($collection->load('collectionItems')),
+                'Collection updated successfully'
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to update collection', ['error' => $e->getMessage()]);
+            return ApiResponse::error('Failed to update collection', 500);
+        }
     }
-}
+    
+
+    
 
 
     /**
@@ -138,67 +166,79 @@ class CollectionController extends Controller
     public function destroy(string $id)
     {
         $collection = Collection::findOrFail($id);
-
-
+    
         DB::beginTransaction();
-
+    
         try {
             $collection->delete();
-
-
+    
             DB::commit();
-
-            return ApiResponse::success(null, 'Collection deleted successfully');
+            return ApiResponse::success(null, 'Collection and its items deleted successfully');
         } catch (\Exception $e) {
-
             DB::rollBack();
+    
+            \Log::error('Failed to delete collection', ['error' => $e->getMessage()]);
             return ApiResponse::error('Failed to delete collection', 500);
         }
     }
-
-    public function removeItem($collectionId, $itemId)
-    {
-        $collection = Collection::findOrFail($collectionId);
-
-
-        DB::beginTransaction();
-
-        try {
-            $collection->removeItem($itemId);
-
-
-            DB::commit();
-
-            return ApiResponse::success(null, 'Collection item removed successfully');
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-            return ApiResponse::error('Failed to remove collection item', 500);
-        }
-    }
-
-    public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
-{
-
-    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
-
-    $councilId = $councilPosition->council_id;
     
 
+    public function removeItem($collectionId, $itemId)
+{
+    DB::beginTransaction();
 
-    $page = $request->query('page', 1);
-    $perPage = $request->query('perPage', 10);
+    try {
+        // Ensure the collection exists
+        $collection = Collection::findOrFail($collectionId);
 
-    // Query collections based on the council_position_id or council_id
-    $collections = Collection::where('council_position_id', $councilPosition->id)
-        ->whereHas('councilPosition', function ($query) use ($councilId) {
-            $query->where('council_id', $councilId);
-        })
-        ->with('collectionItems', 'councilPosition')
-        ->paginate($perPage, ['*'], 'page', $page); // Apply pagination
+        // Check if the item exists and belongs to the collection
+        $item = $collection->collectionItems()->where('id', $itemId)->first();
 
-    // Return the paginated collections using the appropriate resource
-    return ApiResponse::paginated($collections, 'Collections retrieved successfully', CollectionResource::class);
+        if (!$item) {
+            return ApiResponse::error('Collection item not found or does not belong to this collection.', 404);
+        }
+
+        // Delete the item
+        $item->delete();
+
+        DB::commit();
+
+        return ApiResponse::success(null, 'Collection item removed successfully');
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        \Log::error('Failed to remove collection item', [
+            'error' => $e->getMessage(),
+            'collection_id' => $collectionId,
+            'item_id' => $itemId,
+        ]);
+
+        return ApiResponse::error('Failed to remove collection item', 500);
+    }
 }
+
+
+
+    public function fetchByCouncil(Request $request)
+    {
+        // Retrieve the user's default council position
+        $user = $request->user();
+        $councilPosition = $user->defaultCouncilPosition();
+    
+        if (!$councilPosition) {
+            return ApiResponse::error('No default council position found for the user.', 403);
+        }
+    
+        $page = $request->query('page', 1);
+        $perPage = $request->query('perPage', 10);
+    
+        // Fetch collections by council ID with relationships
+        $collections = Collection::where('council_id', $councilPosition->council_id)
+            ->withRelation()
+            ->paginate($perPage, ['*'], 'page', $page);
+    
+        return ApiResponse::paginated($collections, 'Collections retrieved successfully', CollectionResource::class);
+    }
+    
 
 }

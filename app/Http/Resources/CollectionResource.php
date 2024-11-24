@@ -16,18 +16,22 @@ class CollectionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $totalAmount = $this->collectionItems->sum('amount');
+        $totalAmount = $this->collectionItems->sum(fn($item) => (double)$item->amount);
+
 
         return [
             'id' => $this->id,
             'title' => $this->title,
             'type' => $this->type,
             'description' => $this->description,
-            'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
+            'council' => new CouncilResource($this->whenLoaded('council')),
+            'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
+            // 'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
             'items' => CollectionItemResource::collection($this->whenLoaded('collectionItems')),
             'total_amount' => $totalAmount,
-            'item_count' => $this->collectionItems->count(),
-            'last_updated' => $this->updated_at->toDateTimeString(),
+            'item_count' => $this->collection_items_count,
+            'last_updated' => $this->updated_at ? $this->updated_at->diffForHumans() : null,
+
            
         ];
     }

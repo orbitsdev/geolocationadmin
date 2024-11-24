@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('collection_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('collection_id')->constrained('collections')->onDelete('cascade'); // Belongs to
-            $table->string('label');
-            $table->decimal('amount', 15, 2);
+            $table->foreignId('collection_id')
+              ->constrained('collections')
+              ->onDelete('cascade'); // Ensures related items are deleted
+        $table->string('label');
+        $table->text('amount');
+ 
             $table->timestamps();
         });
     }

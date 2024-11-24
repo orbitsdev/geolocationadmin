@@ -17,7 +17,7 @@ class CollectionItemResource extends JsonResource
         return [
             'id' => $this->id,
             'label' => $this->label,
-            'amount' => $this->amount,
+            'amount' =>$this->amount,
            
         ];
     }
