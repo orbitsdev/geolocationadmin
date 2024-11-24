@@ -225,6 +225,31 @@ public function showEventAttendance(Request $request, $councilId, $eventId)
     return new EventAttendanceResource($event, $attendance);
 }
 
+public function showEventAttendanceRecord(Request $request, $councilId, $eventId)
+{
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
+
+    $user = $request->user();
+    $councilPosition = $user->defaultCouncilPosition();
+
+    if (!$councilPosition) {
+        return ApiResponse::error('No default council position found for the user.', 403);
+    }
+
+    
+    $attendances = Attendance::where('event_id', $eventId)
+        ->where('council_position_id', $councilPosition->id)
+        ->latest()
+        ->with(['event', 'councilPosition']) // Load necessary relationships
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    // Return paginated response
+    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', Attendance::class);
+}
+
+
+
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
