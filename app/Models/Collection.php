@@ -12,14 +12,14 @@ class Collection extends Model
 {
     use HasFactory;
 
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::deleting(function ($collection) {
-            $collection->items()->delete(); // Delete related items
-        });
-    }
+    //     static::deleting(function ($collection) {
+    //         $collection->items()->delete(); // Delete related items
+    //     });
+    // }
     
     protected $casts = [
         'is_publish' => 'boolean',
