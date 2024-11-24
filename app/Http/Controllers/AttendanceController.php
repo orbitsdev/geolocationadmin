@@ -245,7 +245,7 @@ public function showEventAttendanceRecord(Request $request, $councilId, $eventId
         ->paginate($perPage, ['*'], 'page', $page);
 
     // Return paginated response
-    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', Attendance::class);
+    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceResource::class);
 }
 
 
