@@ -69,8 +69,8 @@ class EventController extends Controller
             $event->load(['council', 'councilPosition'])->loadCount('attendances');
             DB::commit();
 
-            return ApiResponse::success([$request->all()], 'Event created successfully',);
-            return ApiResponse::success([new EventResource($event), $request->all()], 'Event created successfully',);
+       
+            return ApiResponse::success(new EventResource($event), $request->all(), 'Event created successfully',);
         } catch (\Exception $e) {
             DB::rollBack();
             return ApiResponse::error('Failed to create event', 500);
