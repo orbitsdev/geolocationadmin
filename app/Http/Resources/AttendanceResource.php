@@ -35,8 +35,9 @@ class AttendanceResource extends JsonResource
                 'latitude' => $this->check_out_latitude,
                 'longitude' => $this->check_out_longitude,
             ] : null,
-            'check_in_selfie_url' => $this->getFirstMediaUrl('check_in_selfies') ?? null,
-            'check_out_selfie_url' => $this->getFirstMediaUrl('check_out_selfies') ?? null,
+          'check_in_selfie_url' => $this->getFirstMediaUrl('check_in_selfies') ?: url('images/placeholder-image.jpg'),
+'check_out_selfie_url' => $this->getFirstMediaUrl('check_out_selfies') ?: url('images/placeholder-image.jpg'),
+
             'status' => $this->status,
             'attendance_time' => $this->attendance_time
                 ? $this->attendance_time->toDateTimeString()
