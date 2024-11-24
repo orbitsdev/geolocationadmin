@@ -12,6 +12,13 @@ class Collection extends Model
 {
     use HasFactory;
 
+    
+    protected $casts = [
+        'is_publish' => 'boolean',
+      
+    ];
+
+
     public const LINE_CHART = 'Line Chart';
     public const BAR_CHART = 'Bar Chart';
     public const PIE_CHART = 'Pie Chart';

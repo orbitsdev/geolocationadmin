@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('type')->default('Bar Chart')->nullable();
             $table->text('description')->nullable();
+            $table->boolean('is_publish')->default(true);
 
             //amount
 
