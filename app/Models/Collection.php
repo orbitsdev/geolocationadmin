@@ -67,7 +67,7 @@ public function removeItem($itemId)
 // }
 public function scopeWithRelation($query)
 {
-    return $query->with(['council','councilPosition', 'collectionItems',])->withCount('collectionItems');
+    return $query->latest()->with(['council','councilPosition', 'collectionItems',])->withCount('collectionItems');
 }
 
     
