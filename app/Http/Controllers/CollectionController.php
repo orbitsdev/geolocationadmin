@@ -51,7 +51,10 @@ public function store(Request $request)
     try {
         $collectionData = array_merge(
             $validatedData,
-            ['council_position_id' => $councilPosition->id]
+            [
+                'council_position_id' => $councilPosition->id,
+                'council_id' => $councilPosition->council_id,
+                ]
         );
         unset($collectionData['items']);
 
@@ -236,6 +239,7 @@ public function store(Request $request)
         $collections = Collection::where('council_id', $councilPosition->council_id)
             ->withRelation()
             ->paginate($perPage, ['*'], 'page', $page);
+            // return ApiResponse::success([$request->all(), ]);
     
         return ApiResponse::paginated($collections, 'Collections retrieved successfully', CollectionResource::class);
     }
