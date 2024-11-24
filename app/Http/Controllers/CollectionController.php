@@ -103,7 +103,7 @@ public function store(Request $request)
             'type' => 'sometimes|in:' . implode(',', array_keys(Collection::CHART_OPTIONS)),
             'description' => 'nullable|string',
             'items' => 'sometimes|array',
-            'items.*.id' => 'sometimes|exists:collection_items,id',
+            'items.*.id' => 'nullable|exists:collection_items,id', // Allow nullable IDs for new items
             'items.*.label' => 'required|string|max:255',
             'items.*.amount' => 'required|numeric',
         ]);
@@ -117,11 +117,10 @@ public function store(Request $request)
         DB::beginTransaction();
     
         try {
-           
             $collectionData = $validatedData;
             unset($collectionData['items']);
     
-           
+            // Update collection
             $collection->update($collectionData);
     
             $newItems = collect($validatedData['items'] ?? []);
@@ -138,12 +137,12 @@ public function store(Request $request)
                     ->update($itemData);
             }
     
-            //Delete items no longer in the request
+            // Delete items no longer in the request
             $collection->collectionItems()
                 ->whereNotIn('id', $existingItems->pluck('id'))
                 ->delete();
     
-            
+            // Create new items
             $collection->collectionItems()->createMany($newItems);
     
             DB::commit();
