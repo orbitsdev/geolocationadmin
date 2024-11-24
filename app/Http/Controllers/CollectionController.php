@@ -105,7 +105,7 @@ public function store(Request $request)
             'items' => 'sometimes|array',
             'items.*.id' => 'sometimes|exists:collection_items,id',
             'items.*.label' => 'required|string|max:255',
-            'items.*.amount' => 'required|numeric|min:0',
+            'items.*.amount' => 'required|numeric',
         ]);
     
         $user = $request->user();
