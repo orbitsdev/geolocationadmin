@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Event;
+use App\Models\Collection;
 use Illuminate\Http\Request;
 use App\Http\Resources\FileResource;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -37,8 +39,15 @@ class PostResource extends JsonResource
                     'extension' => $extension, 
                 ];
             }),
-            // 'file' => new FileResource($this->whenLoaded('file')),
-            // 'files' => FileResource::collection($this->whenLoaded('files')),
+            'related_model' => $this->postable ? [
+                'type' => class_basename($this->postable_type), // Extract the model name (e.g., 'Event', 'Collection')
+                'id' => $this->postable_id, // The ID of the related model
+                'data' => $this->postable instanceof Event 
+                    ? new EventResource($this->postable) 
+                    : ($this->postable instanceof Collection 
+                        ? new CollectionResource($this->postable) 
+                        : null),
+            ] : null,
            
         ];
     }

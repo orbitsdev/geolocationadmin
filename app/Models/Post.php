@@ -15,6 +15,11 @@ class Post extends Model implements HasMedia
     use InteractsWithMedia;
 
 
+    protected $casts = [
+        'is_publish' => 'boolean',
+      
+    ];
+    
     public function registerMediaCollections(): void
     {
 

@@ -34,6 +34,7 @@ public function store(Request $request)
         'title' => 'required|string|max:255',
         'type' => 'required|in:' . implode(',', array_keys(Collection::CHART_OPTIONS)),
         'description' => 'nullable|string',
+        'is_publish' => 'required|boolean', 
         'items' => 'sometimes|array',
         'items.*.label' => 'required|string|max:255',
         'items.*.amount' => 'required|numeric',
