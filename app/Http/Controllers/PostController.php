@@ -54,7 +54,7 @@ class PostController extends Controller
 
     try {
 
-        $postData = Arr::except($validatedData, ['files']);
+        $postData = Arr::except($validatedData, ['media']);
         $postData['council_id'] = $councilPosition->council_id; 
          $postData['council_position_id'] = $councilPosition->id; 
         $post = Post::create($postData);
@@ -129,6 +129,7 @@ class PostController extends Controller
     DB::beginTransaction();
     
     try {
+        $postData = Arr::except($validatedData, ['media']);
         $postData = array_merge($validatedData, [
             'council_position_id' => $councilPosition->id,
             'council_id' => $councilPosition->council_id,
