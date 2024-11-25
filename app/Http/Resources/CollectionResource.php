@@ -34,6 +34,7 @@ class CollectionResource extends JsonResource
             'items' => CollectionItemResource::collection($this->whenLoaded('collectionItems')),
             'total_amount' => $totalAmount,
             'item_count' => (int) $this->collection_items_count,
+            'is_publish' => $this->is_publish, // Include the is_publish attribute
             'last_updated' => $this->updated_at ? $this->updated_at->diffForHumans() : null,
 
            
