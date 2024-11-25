@@ -137,6 +137,7 @@ public function store(Request $request)
             'title' => 'sometimes|string|max:255',
             'type' => 'sometimes|in:' . implode(',', array_keys(Collection::CHART_OPTIONS)),
             'description' => 'nullable|string',
+            'is_publish' => 'required|boolean', 
             'items' => 'sometimes|array',
             'items.*.id' => 'nullable|exists:collection_items,id', // Allow nullable IDs for new items
             'items.*.label' => 'required|string|max:255',
