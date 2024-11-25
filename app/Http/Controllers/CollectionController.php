@@ -224,7 +224,7 @@ public function store(Request $request)
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Failed to update collection', ['error' => $e->getMessage()]);
-            return ApiResponse::error('Failed to update collection', 500);
+            return ApiResponse::error('Failed to update collection'.$e->getMessage(), 500);
         }
     }
     
