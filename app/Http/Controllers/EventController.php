@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
+use App\Models\User;
 use App\Models\Event;
+use App\Models\Attendance;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\EventResource;
-use App\Models\Attendance;
 
 class EventController extends Controller
 {
@@ -46,10 +48,11 @@ class EventController extends Controller
             'content' => 'nullable|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-             'radius' => 'required|numeric|min:1',
+            'radius' => 'required|numeric|min:1',
             'specified_location' => 'sometimes|nullable|string',
             'map_location' => 'required|string',
             'place_id' => 'required|string',
+            'is_publish' => 'required|boolean', 
             'start_time' => 'required|date|before:end_time',
              'end_time' => 'required|date|after:start_time',
             'is_active' => 'sometimes|boolean',
@@ -66,6 +69,40 @@ class EventController extends Controller
 
         try {
             $event = Event::create($validatedData);
+
+
+            if ($validatedData['is_publish']) {
+                // Create Post
+                $post = Post::create([
+                    'council_position_id' => $validatedData['council_position_id'],
+                    'title' => $event->title,
+                    'content' => $event->description,
+                    'description' => 'Published event: ' . $event->title,
+                    'postable_type' => Event::class,
+                    'postable_id' => $event->id,
+                ]);
+    
+                // Notify users in the same council
+                $councilUsers = User::whereHas('councilPositions', function ($query) use ($councilId) {
+                    $query->where('council_id', $councilId);
+                })->get();
+    
+                foreach ($councilUsers as $recipient) {
+                    foreach ($recipient->devices as $device) {
+                        FCMController::sendPushNotification(
+                            $device->device_token,
+                            'New Event Published',
+                            "Event: {$event->title} has been published!",
+                            [
+                                'notification_type' => 'event',
+                                'event_id' => $event->id,
+                                'post_id' => $post->id,
+                                'council_id' => $councilId,
+                            ]
+                        );
+                    }
+                }
+            }
             $event->load(['council', 'councilPosition'])->loadCount('attendances');
             DB::commit();
 
@@ -105,6 +142,7 @@ class EventController extends Controller
             'specified_location' => 'sometimes|nullable|string',
             'map_location' => 'required|string',
             'place_id' => 'required|string',
+            'is_publish' => 'required|boolean', 
             'start_time' => 'required|date|before:end_time',
              'end_time' => 'required|date|after:start_time',
             'is_active' => 'sometimes|boolean',
@@ -118,6 +156,46 @@ class EventController extends Controller
 
         try {
             $event->update($validatedData);
+
+            if ($validatedData['is_publish'] ?? false) {
+                // Prepare post data
+                $postData = [
+                    'title' => $event->title,
+                    'content' => $event->description,
+                    'description' => 'Published event: ' . $event->title,
+                    'council_id' => $event->council_id,
+                    'council_position_id' => $event->council_position_id,
+                    'postable_type' => Event::class,
+                    'postable_id' => $event->id,
+                ];
+    
+                
+                $event->post()->updateOrCreate(['postable_id' => $event->id, 'postable_type' => Event::class], $postData);
+    
+                // Notify users in the council
+                $users = User::whereHas('councilPositions', function ($query) use ($event) {
+                    $query->where('council_id', $event->council_id);
+                })->get();
+    
+                foreach ($users as $user) {
+                    foreach ($user->devices as $device) {
+                        FCMController::sendPushNotification(
+                            $device->device_token,
+                            'Updated Event Published',
+                            "{$event->title} has been updated and published.",
+                            [
+                                'notification_type' => 'event_update',
+                                'event_id' => $event->id,
+                                'post_id' => $event->post->id ?? null,
+                                'council_id' => $event->council_id,
+                            ]
+                        );
+                    }
+                }
+            } else {
+                // If `is_publish` is false, delete the associated post
+                $event->post()->delete();
+            }
 
             DB::commit();
 
