@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
+use App\Models\User;
 use App\Models\Collection;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
@@ -61,6 +63,38 @@ public function store(Request $request)
 
         $collection = Collection::create($collectionData);
         $collection->collectionItems()->createMany($validatedData['items'] ?? []);
+
+        if ($validatedData['is_publish']) {
+           $post = Post::create([
+                'council_position_id' => $councilPosition->id,
+                'title' => $collection->title,
+                'content' => $collection->description,
+                'description' => 'Published collection: ' . $collection->title,
+                'postable_type' => Collection::class,
+                'postable_id' => $collection->id,
+            ]);
+
+
+            $councilUsers = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
+                $query->where('council_id', $councilPosition->council_id);
+            })->get();
+
+            foreach ($councilUsers as $recipient) {
+                foreach ($recipient->deviceTokens as $token) {
+                    FCMController::sendPushNotification(
+                        $token,
+                        'New Collection Published',
+                        "Collection: {$collection->title} has been published!",
+                        [
+                            'notification_type' => 'collection',
+                            'collection_id' => $collection->id,
+                            'post_id' => $post->id,
+                            'council_id' => $councilPosition->council_id,
+                        ]
+                    );
+                }
+            }
+        }
 
         DB::commit();
 
@@ -145,6 +179,41 @@ public function store(Request $request)
     
             // Create new items
             $collection->collectionItems()->createMany($newItems);
+
+            if ($validatedData['is_publish'] ?? false) {
+                $postData = [
+                    'title' => $collection->title,
+                    'content' => $collection->description,
+                    'council_id' => $collection->council_id,
+                    'council_position_id' => $collection->council_position_id,
+                ];
+    
+                // Update or create the post
+                $collection->post()->updateOrCreate(['postable_id' => $collection->id, 'postable_type' => Collection::class], $postData);
+
+                $users = User::whereHas('councilPositions', function ($query) use ($collection) {
+                    $query->where('council_id', $collection->council_id);
+                })->get();
+    
+                foreach ($users as $user) {
+                    foreach ($user->deviceTokens() as $token) {
+                        FCMController::sendPushNotification(
+                            $token,
+                            'Updated Collection Published',
+                            "{$collection->title} has been updated and published.",
+                            [
+                                'council_id' => $collection->council_id,
+                                'council_position_id' => $collection->council_position_id,
+                                'collection_id' => $collection->id,
+                                'notification' => 'collection_update',
+                            ]
+                        );
+                    }
+                }
+            } else {
+                // If `is_publish` is false, delete the associated post
+                $collection->post()->delete();
+            }
     
             DB::commit();
     
