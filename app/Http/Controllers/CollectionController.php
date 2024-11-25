@@ -67,6 +67,7 @@ public function store(Request $request)
         if ($validatedData['is_publish']) {
            $post = Post::create([
                 'council_position_id' => $councilPosition->id,
+                'council_id' => $collection->council_id,
                 'title' => $collection->title,
                 'content' => $collection->description,
                 'description' => 'Published collection: ' . $collection->title,

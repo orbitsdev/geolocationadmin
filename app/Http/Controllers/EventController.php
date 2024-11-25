@@ -75,6 +75,7 @@ class EventController extends Controller
                 // Create Post
                 $post = Post::create([
                     'council_position_id' => $validatedData['council_position_id'],
+                    'council_id' => $event->council_id,
                     'title' => $event->title,
                     'content' => $event->description,
                     'description' => 'Published event: ' . $event->title,
