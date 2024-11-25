@@ -38,6 +38,7 @@ class EventResource extends JsonResource
             'specified_location' => $this->specified_location ?? null,
             'map_location' => $this->map_location ?? null,
             'place_id' => $this->place_id ?? null,
+            'is_publish' => $this->is_publish,
             'council' => new CouncilResource($this->whenLoaded('council')),
             'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
             'total_attendance' => $this->attendances_count ?? 0,
