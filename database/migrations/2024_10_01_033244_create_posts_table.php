@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreignId('council_position_id')->nullable();
             $table->text('title')->nullable();
             $table->text('content')->nullable();
+
+            
             $table->text('description')->nullable();
             $table->boolean('is_publish')->default(true);
             $table->timestamps();
