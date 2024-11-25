@@ -78,11 +78,11 @@ public function store(Request $request)
             $councilUsers = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
                 $query->where('council_id', $councilPosition->council_id);
             })->get();
-
+            
             foreach ($councilUsers as $recipient) {
-                foreach ($recipient->deviceTokens as $token) {
+                foreach ($recipient->devices as $device) { // Use devices relationship here
                     FCMController::sendPushNotification(
-                        $token,
+                        $device->device_token, // Use device_token attribute
                         'New Collection Published',
                         "Collection: {$collection->title} has been published!",
                         [
