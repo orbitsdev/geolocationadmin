@@ -21,6 +21,16 @@ class Collection extends Model
     //         $collection->items()->delete(); // Delete related items
     //     });
     // }
+
+    protected static function booted()
+    {
+        static::deleting(function ($collection) {
+            // Delete associated post if it exists
+            if ($collection->post) {
+                $collection->post->delete();
+            }
+        });
+    }
     
     protected $casts = [
         'is_publish' => 'boolean',

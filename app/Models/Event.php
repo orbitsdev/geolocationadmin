@@ -13,6 +13,16 @@ class Event extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::deleting(function ($event) {
+            // Delete associated post if it exists
+            if ($event->post) {
+                $event->post->delete();
+            }
+        });
+    }
+
     protected $casts = [
 
 
