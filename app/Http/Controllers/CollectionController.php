@@ -110,7 +110,7 @@ public function store(Request $request)
             'request' => $request->all(),
             'user_id' => $request->user()->id,
         ]);
-        return ApiResponse::error('Failed to create collection', 500);
+        return ApiResponse::error('Failed to create collection'.$e->getMessage(), 500);
     }
 }
 
