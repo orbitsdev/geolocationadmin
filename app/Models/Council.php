@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Post;
 use App\Models\ChatRoom;
 use App\Models\Collection;
 use App\Models\CouncilPosition;
@@ -26,6 +27,9 @@ class Council extends Model
             'councilPositions',
             
         ]);
+    }
+    public function posts(){
+        return $this->hasMany(Post::class);
     }
 
     public function collections(){

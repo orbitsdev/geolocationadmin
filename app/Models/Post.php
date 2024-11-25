@@ -7,20 +7,38 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-class Post extends Model
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class Post extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia;
 
-    public function files(): MorphMany
+
+    public function registerMediaCollections(): void
     {
-        return $this->morphMany(File::class, 'fileable');
+
+        $this->addMediaCollection('post_media');
+
     }
-    public function file(): MorphOne
+    public function postable()
     {
-        return $this->morphOne(File::class, 'fileable');
+        return $this->morphTo();
     }
 
+    // public function files(): MorphMany
+    // {
+    //     return $this->morphMany(File::class, 'fileable');
+    // }
+    // public function file(): MorphOne
+    // {
+    //     return $this->morphOne(File::class, 'fileable');
+    // }
+
+    public function council()
+    {
+        return $this->belongsTo(Council::class, 'council_id');
+    }
     public function councilPosition()
     {
         return $this->belongsTo(CouncilPosition::class, 'council_position_id');
@@ -44,9 +62,10 @@ class Post extends Model
     public function loadPostRelations()
     {
         return $this->load([
+            'council',
             'councilPosition',
-            'file',
-            'files'
+            'media',
+            // 'files'
         ]);
     }
 

@@ -39,7 +39,7 @@ class PostController extends Controller
         'title' => 'required|string|max:255',
         'content' => 'required|string',
         'description' => 'nullable|string',
-        'files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048'
+        'media.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5048'
     ]);
 
     DB::beginTransaction();
@@ -52,15 +52,11 @@ class PostController extends Controller
         $post = Post::create($postData);
 
 
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                $path = $file->store('uploads','public');
-                $post->files()->create([
-                    'file' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize(),
-                ]);
+        if ($request->hasFile('media')) {
+            foreach ($request->file('media') as $file) {
+                $post->addMedia($file)
+                     ->preservingOriginal()
+                     ->toMediaCollection('post_media');
             }
         }
 

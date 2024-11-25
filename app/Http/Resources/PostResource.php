@@ -24,9 +24,21 @@ class PostResource extends JsonResource
            
             'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
             'updated_at' => $this->updated_at ? $this->updated_at->diffForHumans() : null,
-            'council_position' => new PostCounsilPositionResource($this->whenLoaded('councilPosition')),
-            'file' => new FileResource($this->whenLoaded('file')),
-            'files' => FileResource::collection($this->whenLoaded('files')),
+            'council' => new CouncilResource($this->whenLoaded('council')),
+            'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
+            'media' => $this->getMedia('post_media')->map(function ($media) {
+                $extension = $media->file_name ? pathinfo($media->file_name, PATHINFO_EXTENSION) : null;
+
+                return [
+                    'id' => $media->id, // Include the media ID
+                    'file_name' => $media->file_name,
+                    'url' => $media->getUrl(),
+                    'type' => $media->mime_type,
+                    'extension' => $extension, 
+                ];
+            }),
+            // 'file' => new FileResource($this->whenLoaded('file')),
+            // 'files' => FileResource::collection($this->whenLoaded('files')),
            
         ];
     }
