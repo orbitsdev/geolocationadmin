@@ -19,7 +19,7 @@ class Post extends Model implements HasMedia
         'is_publish' => 'boolean',
       
     ];
-    
+
     public function registerMediaCollections(): void
     {
 
@@ -60,8 +60,10 @@ class Post extends Model implements HasMedia
     {
         return $query->with([
             'councilPosition',
-            'file',
-            'files'
+            'council',
+            'media'
+            // 'file',
+            // 'files'
         ]);
     }
     public function loadPostRelations()

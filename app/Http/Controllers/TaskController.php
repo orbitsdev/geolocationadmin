@@ -44,7 +44,7 @@ class TaskController extends Controller
             'due_date' => 'required|date',
             'is_lock' => 'sometimes|boolean',  // Validate as boolean
             'is_done' => 'sometimes|boolean',
-            'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
+           'media.*' => ['nullable', 'file', 'max:50480'],
         ]);
 
         // Set default values if not provided

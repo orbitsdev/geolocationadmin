@@ -67,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tasks', TaskController::class);
 
     Route::get('/posts/council-posts/{council_position_id}', [PostController::class, 'fetchByCouncilPositionOrCouncil']);
+    Route::get('/posts/council/{council_id}', [PostController::class, 'fetchByCouncil']);
     Route::apiResource('posts', PostController::class);
 
     Route::get('/collections/council', [CollectionController::class, 'fetchByCouncil']);

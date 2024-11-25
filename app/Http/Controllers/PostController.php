@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
@@ -35,30 +36,55 @@ class PostController extends Controller
     public function store(Request $request)
 {
     $validatedData = $request->validate([
-        'council_position_id' => 'required|exists:council_positions,id',
+     
         'title' => 'required|string|max:255',
         'content' => 'required|string',
         'description' => 'nullable|string',
-        'media.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5048'
+        'is_publish' => 'required|boolean', // Add `is_publish` validation
+        'media.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:50480', // Allowing images and videos
     ]);
+    $user = $request->user();
+    $councilPosition = $user->defaultCouncilPosition();
+
+    if (!$councilPosition) {
+        return ApiResponse::error('No default council position found for the user.', 403);
+    }
 
     DB::beginTransaction();
 
     try {
 
         $postData = Arr::except($validatedData, ['files']);
-
-
         $post = Post::create($postData);
 
 
-        if ($request->hasFile('media')) {
-            foreach ($request->file('media') as $file) {
-                $post->addMedia($file)
-                     ->preservingOriginal()
-                     ->toMediaCollection('post_media');
+       // Handle media upload
+       if ($request->hasFile('media')) {
+        foreach ($request->file('media') as $file) {
+            $post->addMedia($file)->preservingOriginal()->toMediaCollection('post_media');
+        }
+    }
+        
+
+    if ($validatedData['is_publish']) {
+        $users = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
+            $query->where('council_id', $councilPosition->council_id);
+        })->get();
+
+        foreach ($users as $user) {
+            foreach ($user->devices as $device) {
+                FCMController::sendPushNotification(
+                    $device->device_token,
+                    'New Post Published',
+                    "{$post->title}",
+                    [
+                        'notification_type' => 'post',
+                        'post_id' => $post->id,
+                    ]
+                );
             }
         }
+    }
 
         DB::commit();
         $post->loadPostRelations();
@@ -71,17 +97,8 @@ class PostController extends Controller
     }
 }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
 
-        $post = Post::withPostRelations()->findOrFail($id);
-        return ApiResponse::success(new PostResource($post), 'Post retrieved successfully');
-    }
-
-    /**
+ /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
@@ -90,29 +107,55 @@ class PostController extends Controller
 
     // Validate the incoming request
     $validatedData = $request->validate([
-        'council_position_id' => 'sometimes|exists:council_positions,id',
+      
         'title' => 'sometimes|string|max:255',
         'content' => 'sometimes|string',
         'description' => 'nullable|string',
-        'files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        'is_publish' => 'required|boolean', // Add `is_publish` validation
+        'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
     ]);
+
+    
+    $user = $request->user();
+    $councilPosition = $user->defaultCouncilPosition();
+
+    if (!$councilPosition) {
+        return ApiResponse::error('No default council position found for the user.', 403);
+    }
+
 
     DB::beginTransaction();
 
     try {
-        // Update the post with the validated data
+        $postData = array_merge($validatedData, [
+            'council_position_id' => $councilPosition->id,
+        ]);
         $post->update($validatedData);
+        
+        if ($request->hasFile('media')) {
+            foreach ($request->file('media') as $file) {
+                $mediaItem = $post->addMedia($file)->preservingOriginal()->toMediaCollection('post_media');
+            }
+        }
 
-        // Check if any files are uploaded and handle the file upload process
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                $path = $file->store('uploads', 'public');
-                $post->files()->create([
-                    'file' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize(),
-                ]);
+        // Send notifications if the post is published
+        if ($validatedData['is_publish']) {
+            $users = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
+                $query->where('council_id', $councilPosition->council_id);
+            })->get();
+    
+            foreach ($users as $user) {
+                foreach ($user->devices as $device) {
+                    FCMController::sendPushNotification(
+                        $device->device_token,
+                        'Post Updated',
+                        "{$post->title}",
+                        [
+                            'notification_type' => 'post_update',
+                            'post_id' => $post->id,
+                        ]
+                    );
+                }
             }
         }
 
@@ -128,6 +171,18 @@ class PostController extends Controller
     }
 }
 
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+
+        $post = Post::withPostRelations()->findOrFail($id);
+        return ApiResponse::success(new PostResource($post), 'Post retrieved successfully');
+    }
+
+   
 
     /**
      * Remove the specified resource from storage.
@@ -160,28 +215,20 @@ class PostController extends Controller
         }
     }
 
-    public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
-    {
-        
-        $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+    public function fetchByCouncil(Request $request, $councilId)
+{
+    // Pagination parameters
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
 
+    // Query posts by council
+    $posts = Post::where('council_id', $councilId)
+        ->withPostRelations() // Load relationships (e.g., council, councilPosition, media)
+        ->paginate($perPage, ['*'], 'page', $page);
 
-        $councilId = $councilPosition->council_id;
+    // Return paginated response
+    return ApiResponse::paginated($posts, 'Posts retrieved successfully', PostResource::class);
+}
 
-
-        $page = $request->query('page', 1);
-        $perPage = $request->query('perPage', 10);
-
-
-        $posts = Post::where('council_position_id', $councilPosition->id)
-            ->whereHas('councilPosition', function ($query) use ($councilId) {
-                $query->where('council_id', $councilId);
-            })
-            ->withPostRelations()
-            ->paginate($perPage, ['*'], 'page', $page);
-
-
-        return ApiResponse::paginated($posts, 'Posts retrieved successfully', PostResource::class);
-    }
 
 }
