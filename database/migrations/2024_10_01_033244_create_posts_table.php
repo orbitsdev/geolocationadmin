@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->morphs('postable'); // Adds `postable_id` and `postable_type`
+            $table->nullableMorphs('postable'); // `postable_id` and `postable_type`
             $table->foreignId('council_id')->nullable();
             $table->foreignId('council_position_id')->nullable();
             $table->text('title')->nullable();
             $table->text('content')->nullable();
 
-            
+
             $table->text('description')->nullable();
             $table->boolean('is_publish')->default(true);
             $table->timestamps();
