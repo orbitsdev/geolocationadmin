@@ -6,6 +6,7 @@ use App\Models\Council;
 use App\Models\CollectionItem;
 use App\Models\CouncilPosition;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Collection extends Model
@@ -41,6 +42,10 @@ class Collection extends Model
         self::RADAR_CHART => self::RADAR_CHART,
     ];
 
+    public function post(): MorphOne
+    {
+        return $this->morphOne(Post::class, 'postable');
+    }
     public function council()
     {
         return $this->belongsTo(Council::class, 'council_id');

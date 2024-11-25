@@ -6,6 +6,7 @@ use App\Models\Council;
 use App\Models\Attendance;
 use App\Models\CouncilPosition;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Event extends Model
@@ -26,7 +27,10 @@ class Event extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
+    public function post(): MorphOne
+    {
+        return $this->morphOne(Post::class, 'postable');
+    }
 
     public function councilPosition()
     {
