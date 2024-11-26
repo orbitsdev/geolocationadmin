@@ -225,7 +225,7 @@ class PostController extends Controller
     $page = $request->query('page', 1);
     $perPage = $request->query('perPage', 10);
 
-    // Query posts by council
+   
     $posts = Post::where('council_id', $councilId)
         ->withPostRelations() // Load relationships (e.g., council, councilPosition, media)
         ->paginate($perPage, ['*'], 'page', $page);
