@@ -106,6 +106,8 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
 {
+
+    return ApiResponse::success($request->all());
     $post = Post::findOrFail($id);
 
     // Validate the incoming request
@@ -114,7 +116,7 @@ class PostController extends Controller
         'title' => 'sometimes|string|max:255',
         'content' => 'sometimes|string',
         'description' => 'nullable|string',
-    'is_publish' => 'required|in:true,false,1,0',
+        'is_publish' => 'required|in:true,false,1,0',
 
         'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
     ]);
