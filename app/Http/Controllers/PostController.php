@@ -200,7 +200,7 @@ class PostController extends Controller
 
         try {
 
-           
+
 
 
             $post->delete();
@@ -231,5 +231,37 @@ class PostController extends Controller
     return ApiResponse::paginated($posts, 'Posts retrieved successfully', PostResource::class);
 }
 
+
+public function deleteMedia(Request $request, $postId, $mediaId)
+{
+
+    $post = Post::findOrFail($postId);
+
+
+    $media = $post->getMedia('post_media')->where('id', $mediaId)->first();
+
+    if (!$media) {
+        return ApiResponse::error('Media not found for this task.', 404);
+    }
+
+    DB::beginTransaction();
+
+    try {
+
+        $media->delete();
+        DB::commit();
+        $post->refresh()->loadPostRelations();
+
+        return ApiResponse::success(new TaskResource($task), 'Media deleted successfully.');
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        \Log::error('Failed to delete media for task', [
+            'error' => $e->getMessage(),
+            'post_id' => $postId,
+            'media_id' => $mediaId,
+        ]);
+
+        return ApiResponse::error('Failed to delete media: ' . $e->getMessage(), 500);
+    }
 
 }
