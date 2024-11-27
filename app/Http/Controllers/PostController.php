@@ -40,7 +40,8 @@ class PostController extends Controller
         'title' => 'required|string|max:255',
         'content' => 'required|string',
         'description' => 'nullable|string',
-        'is_publish' => 'required|boolean', // Add `is_publish` validation
+      'is_publish' => 'required|boolean',
+
         'media.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:50480', // Allowing images and videos
     ]);
     $user = $request->user();
@@ -113,7 +114,7 @@ class PostController extends Controller
         'title' => 'sometimes|string|max:255',
         'content' => 'sometimes|string',
         'description' => 'nullable|string',
-        'is_publish' => 'required|boolean',
+      'is_publish' => 'required|boolean',
         'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
     ]);
 
