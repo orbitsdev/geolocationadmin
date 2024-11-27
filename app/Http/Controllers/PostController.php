@@ -252,7 +252,7 @@ public function deleteMedia(Request $request, $postId, $mediaId)
         DB::commit();
         $post->refresh()->loadPostRelations();
 
-        return ApiResponse::success(new TaskResource($task), 'Media deleted successfully.');
+        return ApiResponse::success(new PostResource($post), 'Media deleted successfully.');
     } catch (\Throwable $e) {
         DB::rollBack();
         \Log::error('Failed to delete media for task', [
@@ -264,4 +264,5 @@ public function deleteMedia(Request $request, $postId, $mediaId)
         return ApiResponse::error('Failed to delete media: ' . $e->getMessage(), 500);
     }
 
+  }
 }
