@@ -36,7 +36,7 @@ class PostController extends Controller
     public function store(Request $request)
 {
     $validatedData = $request->validate([
-     
+
         'title' => 'required|string|max:255',
         'content' => 'required|string',
         'description' => 'nullable|string',
@@ -55,8 +55,8 @@ class PostController extends Controller
     try {
 
         $postData = Arr::except($validatedData, ['media']);
-        $postData['council_id'] = $councilPosition->council_id; 
-         $postData['council_position_id'] = $councilPosition->id; 
+        $postData['council_id'] = $councilPosition->council_id;
+         $postData['council_position_id'] = $councilPosition->id;
         $post = Post::create($postData);
 
 
@@ -66,7 +66,7 @@ class PostController extends Controller
             $post->addMedia($file)->preservingOriginal()->toMediaCollection('post_media');
         }
     }
-        
+
 
     if ($validatedData['is_publish']) {
         $users = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
@@ -109,7 +109,7 @@ class PostController extends Controller
 
     // Validate the incoming request
     $validatedData = $request->validate([
-      
+
         'title' => 'sometimes|string|max:255',
         'content' => 'sometimes|string',
         'description' => 'nullable|string',
@@ -117,7 +117,7 @@ class PostController extends Controller
         'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
     ]);
 
-    
+
     $user = $request->user();
     $councilPosition = $user->defaultCouncilPosition();
 
@@ -127,7 +127,7 @@ class PostController extends Controller
 
 
     DB::beginTransaction();
-    
+
     try {
         $postData = Arr::except($validatedData, ['media']);
         $postData = array_merge($validatedData, [
@@ -135,7 +135,7 @@ class PostController extends Controller
             'council_id' => $councilPosition->council_id,
         ]);
         $post->update($postData);
-        
+
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $file) {
                 $mediaItem = $post->addMedia($file)->preservingOriginal()->toMediaCollection('post_media');
@@ -147,7 +147,7 @@ class PostController extends Controller
             $users = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
                 $query->where('council_id', $councilPosition->council_id);
             })->get();
-    
+
             foreach ($users as $user) {
                 foreach ($user->devices as $device) {
                     FCMController::sendPushNotification(
@@ -186,7 +186,7 @@ class PostController extends Controller
         return ApiResponse::success(new PostResource($post), 'Post retrieved successfully');
     }
 
-   
+
 
     /**
      * Remove the specified resource from storage.
@@ -200,10 +200,7 @@ class PostController extends Controller
 
         try {
 
-            foreach ($post->files as $file) {
-                Storage::delete($file->file);  // Delete file from storage
-                $file->delete();  // Remove from database
-            }
+           
 
 
             $post->delete();
@@ -225,7 +222,7 @@ class PostController extends Controller
     $page = $request->query('page', 1);
     $perPage = $request->query('perPage', 10);
 
-   
+
     $posts = Post::where('council_id', $councilId)
         ->withPostRelations() // Load relationships (e.g., council, councilPosition, media)
         ->paginate($perPage, ['*'], 'page', $page);
