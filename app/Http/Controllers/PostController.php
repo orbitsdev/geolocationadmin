@@ -105,8 +105,9 @@ class PostController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-{
+{   
 
+    return ApiResponse::success($request->all());
     
     $post = Post::findOrFail($id);
 
