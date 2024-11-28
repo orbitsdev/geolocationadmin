@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\CouncilPosition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\CouncilPositionResource;
+use App\Http\Resources\UserResource;
 
 class CouncilPositionController extends Controller
 {
@@ -150,30 +151,35 @@ class CouncilPositionController extends Controller
         }
     }
 
-    public function switchPosition(Request $request, $id)
-    {
-        $position = CouncilPosition::findOrFail($id);
+    public function swithAccount(Request $request, $id)
+{
+    $position = CouncilPosition::findOrFail($id);
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
-            // Set 'is_login' to false for any existing positions with 'is_login' set to true for the same user
-            CouncilPosition::where('user_id', $position->user_id)
-                ->where('is_login', true)
-                ->update(['is_login' => false]);
+    try {
+        // Set 'is_login' to false for any existing positions with 'is_login' set to true for the same user
+        CouncilPosition::where('user_id', $position->user_id)
+            ->where('is_login', true)
+            ->update(['is_login' => false]);
 
-            // Set 'is_login' to true for the selected position
-            $position->update(['is_login' => true]);
+        // Set 'is_login' to true for the selected position
+        $position->update(['is_login' => true]);
 
-            DB::commit();
+        // Reload the user data with updated council positions
+        $user = User::with(['councilPositions' => function ($query) {
+            $query->notLogin();
+        }])->findOrFail($position->user_id);
 
-            return ApiResponse::success(new CouncilPositionResource($position), 'Council position switched successfully');
-        } catch (\Exception $e) {
-            DB::rollBack();
+        DB::commit();
 
-            return ApiResponse::error('Failed to switch council position', 500);
-        }
+        return ApiResponse::success(new UserResource($user), 'Position switched successfully');
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return ApiResponse::error('Failed to switch council position', 500);
     }
+}
 
     public function availableUsers(Request $request, $councilId)
     {
