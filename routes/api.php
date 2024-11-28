@@ -68,6 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/posts/council-posts/{council_position_id}', [PostController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::get('/posts/council/{council_id}', [PostController::class, 'fetchByCouncil']);
+    Route::delete('/posts/{postId}/media/{mediaId}', [PostController::class, 'deleteMedia']);
+
     Route::apiResource('posts', PostController::class);
 
     Route::get('/collections/council', [CollectionController::class, 'fetchByCouncil']);
