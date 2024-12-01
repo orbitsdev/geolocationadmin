@@ -234,7 +234,6 @@ public function updateProfile(Request $request)
            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
-         return ApiResponse::success([$validatedData, $request->all()]);
 
         DB::beginTransaction();
 
