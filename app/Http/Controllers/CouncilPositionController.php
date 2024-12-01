@@ -151,7 +151,7 @@ class CouncilPositionController extends Controller
         }
     }
 
-    public function swithAccount(Request $request, $id)
+    public function switchPosition(Request $request, $id)
 {
     $position = CouncilPosition::findOrFail($id);
 
