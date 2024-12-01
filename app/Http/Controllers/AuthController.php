@@ -234,6 +234,7 @@ public function updateProfile(Request $request)
            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
+        
 
         DB::beginTransaction();
 
@@ -248,8 +249,8 @@ public function updateProfile(Request $request)
             }
 
             // Handle avatar upload if provided
-            if ($request->hasFile('avatar')) {
-                $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
+            if ($request->hasFile('profile_image')) {
+                $user->addMediaFromRequest('profile_image')->toMediaCollection('avatar');
             }
 
             $user->save();
