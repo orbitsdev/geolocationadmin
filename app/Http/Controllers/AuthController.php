@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Device;
 use Illuminate\Support\Str;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\UserResource;
-use App\Models\Device;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
-use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -171,8 +171,6 @@ class AuthController extends Controller
     // Get the details of the authenticated user
     public function updateUser(Request $request)
 {
-
-    return ApiResponse::success($request->all());
     $user = $request->user();
 
     $validatedData = $request->validate([
