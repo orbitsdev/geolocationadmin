@@ -171,6 +171,8 @@ class AuthController extends Controller
     // Get the details of the authenticated user
     public function updateUser(Request $request)
 {
+
+    return ApiResponse::success($request->all());
     $user = $request->user();
 
     $validatedData = $request->validate([
