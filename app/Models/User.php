@@ -133,12 +133,9 @@ public function assignPosition($councilId, $position, $isLogin = false)
         'is_login' => $isLogin,
     ]);
 }
-
-
 public function registerMediaCollections(): void
 {
-    $this->addMediaCollection('avatar');
-
+    $this->addMediaCollection('avatar')->singleFile();
 }
 
 
