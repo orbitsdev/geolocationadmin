@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('provider')->default('CREDENTIALS');
             $table->string('provider_id')->nullable();
             $table->text('image')->nullable();
+            $table->string('email_verification_code')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

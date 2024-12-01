@@ -44,7 +44,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'userDetails']);
-    Route::put('user', [AuthController::class, 'updateUser']);
+    Route::put('user', [AuthController::class, 'updateUser']); // Removed duplicate route
     Route::apiResource('councils', CouncilController::class);
 
 

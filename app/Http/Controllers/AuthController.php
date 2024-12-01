@@ -10,6 +10,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Device;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -219,6 +220,47 @@ class AuthController extends Controller
 
     return ApiResponse::success(new UserResource($user), 'User updated successfully');
 }
+
+
+public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validatedData = $request->validate([
+            'first_name' => 'sometimes|string|max:255',
+            'last_name' => 'sometimes|string|max:255',
+            'avatar' => ['nullable', 'file', 'max:50480'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Update name if provided
+            if (!empty($validatedData['first_name'])) {
+                $user->first_name = $validatedData['first_name'];
+            }
+
+            if (!empty($validatedData['last_name'])) {
+                $user->last_name = $validatedData['last_name'];
+            }
+
+            // Handle avatar upload if provided
+            if ($request->hasFile('avatar')) {
+                $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
+            }
+
+            $user->save();
+            $user->refresh();
+
+            DB::commit();
+
+            // Return updated user details
+            return ApiResponse::success(new UserResource($user), 'Profile updated successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ApiResponse::error('Failed to update profile: ' . $e->getMessage(), 500);
+        }
+    }
 
 
 
