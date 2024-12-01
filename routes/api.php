@@ -44,8 +44,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'userDetails']);
-    Route::put('user', [AuthController::class, 'updateProfile']);
-    
+    Route::put('user/profile-update', [AuthController::class, 'updateProfile']);
+
     Route::apiResource('councils', CouncilController::class);
 
 
