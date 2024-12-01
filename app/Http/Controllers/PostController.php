@@ -107,7 +107,7 @@ class PostController extends Controller
     public function update(Request $request, string $id)
 {   
 
-    return ApiResponse::success($request->all());
+   
     
     $post = Post::findOrFail($id);
 
