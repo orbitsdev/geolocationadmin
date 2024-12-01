@@ -225,7 +225,7 @@ class AuthController extends Controller
 public function updateProfile(Request $request)
     {
 
-        
+        return ApiResponse::success($request->all(), 'User updated successfully');
         $user = $request->user();
 
         $validatedData = $request->validate([
