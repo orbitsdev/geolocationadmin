@@ -225,7 +225,7 @@ class AuthController extends Controller
 public function updateProfile(Request $request)
     {
 
-        return ApiResponse::success($request->all());
+      
         $user = $request->user();
 
         $validatedData = $request->validate([
@@ -233,6 +233,8 @@ public function updateProfile(Request $request)
             'last_name' => 'sometimes|string|max:255',
             'avatar' => ['nullable', 'file', 'max:50480'],
         ]);
+
+         return ApiResponse::success($validatedData);
 
         DB::beginTransaction();
 
