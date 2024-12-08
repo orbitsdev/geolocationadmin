@@ -34,7 +34,10 @@ class NotifyDueTasks extends Command
       
         \Log::info('NotifyDueTasks started.');
 
-    
+        FCMController::sendPushNotification('dtDt-Ti8QJGx9yqJKM1MUI:APA91bF8s23xMbSH45U6DMTEpkTe6LANBupnkPdSSOjv37f0F5MoKPeq3KN3SCXRdX16JZYAWje3hoAk9wdmU32kUtXfiAOzUVnO5xnKNfa4ggvq4wwdEaA', 'Task Assigned', 'test', [
+
+            'notification' => 'due_task',
+        ]);
 
    
     }
