@@ -50,6 +50,8 @@ class NotifyDueTasks extends Command
                                    
                                 ]
                             );
+
+                            $this->info('send');
                         }
     
         // Send a test notification
