@@ -184,4 +184,9 @@ public function getImage()
     return asset('images/placeholder-image.jpg');
 }
 
+public function user()
+{
+    return $this->councilPosition?->user();
+}
+
 }
