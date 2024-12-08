@@ -22,6 +22,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'role' => $this->role,
             'image' => $this->getImage(),
+            
             'council_positions'=> CouncilPositionResource::collection($this->councilPositions),
             'default_position' => new CouncilPositionResource($this->defaultCouncilPosition()),
         ];
