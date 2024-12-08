@@ -48,7 +48,7 @@ class NotifyDueTasks extends Command
         return;
     }
 
-    foreach ($user->deviceTokens as $token) {
+    foreach ($user->deviceTokens() as $token) {
         try {
             FCMController::sendPushNotification(
                 $token,
