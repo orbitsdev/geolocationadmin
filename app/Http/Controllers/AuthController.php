@@ -231,7 +231,7 @@ public function updateProfile(Request $request)
         $validatedData = $request->validate([
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
-           'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
         
