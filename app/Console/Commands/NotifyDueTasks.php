@@ -31,81 +31,42 @@ class NotifyDueTasks extends Command
     {
 
         
+      
         \Log::info('NotifyDueTasks started.');
 
-        $user = User::find(5);
-    
-        if (!$user) {
-            $this->error('User with ID 5 not found.');
-            \Log::error('User with ID 5 not found.');
-            return;
-        }
-    
-        if ($user->deviceTokens->isEmpty()) {
-            $this->error('No device tokens found for the user.');
-            \Log::error('No device tokens found for user ID 5.');
-            return;
-        }
-    
-        foreach ($user->deviceTokens as $token) {
-            try {
-                FCMController::sendPushNotification(
-                    $token->device_token,
-                    'Task Due Soon',
-                    "Due date test",
-                    [
-                        'user_id' => $user->id,
-                        'notification_type' => 'task_due',
-                    ]
-                );
-                $this->info("Notification sent to token: {$token->device_token}");
-                \Log::info("Notification sent to token: {$token->device_token}");
-            } catch (\Exception $e) {
-                $this->error("Failed to send notification to token: {$token->device_token}. Error: {$e->getMessage()}");
-                \Log::error("Failed to send notification to token: {$token->device_token}. Error: {$e->getMessage()}");
-            }
-        }
-    
-        \Log::info('NotifyDueTasks completed.');
-    
-        // Send a test notification
-        // $user->notify(new TaskUpdate(0, 'Test Notification', 'This is a test notification to check the system.'));
-    
-        // $this->info('Test notification sent to user ID 5.');
-        // $now = Carbon::now();
-        // $soon = $now->addMinutes(1); // Define "about to be due" threshold
+    $user = User::find(5);
 
-        // // Fetch tasks nearing their due date
-        // $tasks = Task::where('due_date', '>=', $now)
-        //     ->where('due_date', '<=', $soon)
-        //     ->where('is_done', false)
-        //     ->get();
+    if (!$user) {
+        $this->error('User with ID 5 not found.');
+        \Log::error('User with ID 5 not found.');
+        return;
+    }
 
-        //     foreach ($tasks as $task) {
-        //         $user = $task->user;
-    
-        //         if ($user) {
-        //             // Notify via Laravel Notifications
-        //             $user->notify(new \App\Notifications\TaskUpdate($task->id, 'Task Due Soon', $task->title));
-    
-        //             // Notify via push notification
-        //             foreach ($user->deviceTokens as $token) {
-        //                 FCMController::sendPushNotification(
-        //                     $token->device_token,
-        //                     'Task Due Soon',
-        //                     "{$task->title} - Due: " . Carbon::parse($task->due_date)->format('M d, Y h:i A'),
-        //                     [
-        //                         'council_position_id' => $task->council_position_id,
-        //                         'user_id' => $user->id,
-        //                         'notification' => 'task_due',
-        //                         'task_id' => $task->id,
-        //                         'due_date' => $task->due_date,
-        //                     ]
-        //                 );
-        //             }
-    
-        //             $this->info("Notified user {$user->id} for task {$task->id}");
-        //         }
-        //     }
+    if ($user->deviceTokens->isEmpty()) {
+        $this->error('No device tokens found for the user.');
+        \Log::error('No device tokens found for user ID 5.');
+        return;
+    }
+
+    foreach ($user->deviceTokens as $token) {
+        try {
+            FCMController::sendPushNotification(
+                $token,
+                'Task Due Soon',
+                "Due date test",
+                [
+                    'user_id' => $user->id,
+                    'notification_type' => 'task_due',
+                ]
+            );
+            $this->info("Notification sent to token: {$token}");
+            \Log::info("Notification sent to token: {$token}");
+        } catch (\Exception $e) {
+            $this->error("Failed to send notification to token: {$token}. Error: {$e->getMessage()}");
+            \Log::error("Failed to send notification to token: {$token}. Error: {$e->getMessage()}");
+        }
+    }
+
+    \Log::info('NotifyDueTasks completed.');
     }
 }
