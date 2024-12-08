@@ -186,7 +186,7 @@ public function getImage()
 
 public function user()
 {
-    return $this->councilPosition?->user();
+    return $this->assignedCouncilPosition?->user();
 }
 
 }
