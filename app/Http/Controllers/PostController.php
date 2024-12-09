@@ -115,12 +115,14 @@ class PostController extends Controller
         'title' => 'sometimes|string|max:255',
         'content' => 'sometimes|string',
         'description' => 'nullable|string',
-        'is_publish' => 'required|boolean',
+        'is_publish' => 'nullable|boolean',
         'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
     ]);
 
     // Normalize is_publish to boolean
     $validatedData['is_publish'] = filter_var($validatedData['is_publish'], FILTER_VALIDATE_BOOLEAN);
+
+
 
     $user = $request->user();
     $councilPosition = $user->defaultCouncilPosition();
