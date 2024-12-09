@@ -16,6 +16,7 @@ class Post extends Model implements HasMedia
 
     protected $casts = [
         'is_publish' => 'boolean',
+      
     ];
 
 

@@ -71,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/posts/council/{council_id}', [PostController::class, 'fetchByCouncil']);
     Route::delete('/posts/{postId}/media/{mediaId}', [PostController::class, 'deleteMedia']);
 
+    Route::post('posts/update/{id}',[PostController::class,'updatePost'])->name('update.posts');
     Route::apiResource('posts', PostController::class);
 
     Route::get('/collections/council', [CollectionController::class, 'fetchByCouncil']);

@@ -179,6 +179,79 @@ class PostController extends Controller
          }
      }
      
+     public function updatePost(Request $request, string $id)
+     {
+         $post = Post::findOrFail($id);
+     
+         // Validate the incoming request
+         $validatedData = $request->validate([
+             'title' => 'sometimes|string|max:255',
+             'content' => 'sometimes|string',
+             'description' => 'nullable|string',
+             'is_publish' => 'required|boolean',
+           'media.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:50480', // Allowing images and videos
+         ]);
+     
+         // Ensure `is_publish` has a default value if not provided
+         $validatedData['is_publish'] = isset($validatedData['is_publish']) 
+             ? filter_var($validatedData['is_publish'], FILTER_VALIDATE_BOOLEAN)
+             : false; // Default to false if not provided
+     
+         $user = $request->user();
+         $councilPosition = $user->defaultCouncilPosition();
+     
+         if (!$councilPosition) {
+             return ApiResponse::error('No default council position found for the user.', 403);
+         }
+     
+         DB::beginTransaction();
+     
+         try {
+             // Update post data
+             $postData = Arr::except($validatedData, ['media']);
+             $postData['council_position_id'] = $councilPosition->id;
+             $postData['council_id'] = $councilPosition->council_id;
+     
+             $post->update($postData);
+     
+             // Handle media files
+             if ($request->hasFile('media')) {
+                 foreach ($request->file('media') as $file) {
+                     $post->addMedia($file)->preservingOriginal()->toMediaCollection('post_media');
+                 }
+             }
+     
+             // Send notifications if the post is published
+             if ($validatedData['is_publish']) {
+                 $users = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
+                     $query->where('council_id', $councilPosition->council_id);
+                 })->get();
+     
+                 foreach ($users as $user) {
+                     foreach ($user->devices as $device) {
+                         FCMController::sendPushNotification(
+                             $device->device_token,
+                             'Post Updated',
+                             "{$post->title}",
+                             [
+                                 'notification_type' => 'post_update',
+                                 'post_id' => $post->id,
+                             ]
+                         );
+                     }
+                 }
+             }
+     
+             $post->loadPostRelations();
+             DB::commit();
+     
+             return ApiResponse::success(new PostResource($post), 'Post updated successfully');
+         } catch (\Exception $e) {
+             DB::rollBack();
+             return ApiResponse::error('Failed to update post: ' . $e->getMessage(), 500);
+         }
+     }
+     
 
 
 
