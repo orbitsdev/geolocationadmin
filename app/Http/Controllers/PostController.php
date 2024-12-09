@@ -115,7 +115,7 @@ class PostController extends Controller
              'title' => 'sometimes|string|max:255',
              'content' => 'sometimes|string',
              'description' => 'nullable|string',
-             'is_publish' => 'nullable|boolean', // Allow nullable
+           'is_publish' => 'required|boolean',
              'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
          ]);
      
