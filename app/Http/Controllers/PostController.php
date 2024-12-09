@@ -116,7 +116,7 @@ class PostController extends Controller
              'content' => 'sometimes|string',
              'description' => 'nullable|string',
            'is_publish' => 'required|boolean',
-             'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
+           'media.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:50480', // Allowing images and videos
          ]);
      
          // Ensure `is_publish` has a default value if not provided
