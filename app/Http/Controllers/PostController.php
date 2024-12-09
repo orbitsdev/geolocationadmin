@@ -104,24 +104,23 @@ class PostController extends Controller
  /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-{   
-
-   
     
+
+     public function update(Request $request, string $id)
+{
     $post = Post::findOrFail($id);
 
     // Validate the incoming request
     $validatedData = $request->validate([
-
         'title' => 'sometimes|string|max:255',
         'content' => 'sometimes|string',
         'description' => 'nullable|string',
-      'is_publish' => 'required|in:true,false,1,0',
-
+        'is_publish' => 'required|boolean',
         'media.*' => ['nullable', 'file', 'mimes:jpeg,png,mp4', 'max:50480'],
     ]);
 
+    // Normalize is_publish to boolean
+    $validatedData['is_publish'] = filter_var($validatedData['is_publish'], FILTER_VALIDATE_BOOLEAN);
 
     $user = $request->user();
     $councilPosition = $user->defaultCouncilPosition();
@@ -130,24 +129,24 @@ class PostController extends Controller
         return ApiResponse::error('No default council position found for the user.', 403);
     }
 
-
     DB::beginTransaction();
 
     try {
+        // Update post data
         $postData = Arr::except($validatedData, ['media']);
-        $postData = array_merge($validatedData, [
-            'council_position_id' => $councilPosition->id,
-            'council_id' => $councilPosition->council_id,
-        ]);
+        $postData['council_position_id'] = $councilPosition->id;
+        $postData['council_id'] = $councilPosition->council_id;
+
         $post->update($postData);
 
+        // Handle media files
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $file) {
-                $mediaItem = $post->addMedia($file)->preservingOriginal()->toMediaCollection('post_media');
+                $post->addMedia($file)->preservingOriginal()->toMediaCollection('post_media');
             }
         }
 
-        // Send notifications if the post is published
+        // Send notifications if post is published
         if ($validatedData['is_publish']) {
             $users = User::whereHas('councilPositions', function ($query) use ($councilPosition) {
                 $query->where('council_id', $councilPosition->council_id);
@@ -168,9 +167,7 @@ class PostController extends Controller
             }
         }
 
-        // Load the relationships, including files (if they exist)
         $post->loadPostRelations();
-
         DB::commit();
 
         return ApiResponse::success(new PostResource($post), 'Post updated successfully');
@@ -179,6 +176,7 @@ class PostController extends Controller
         return ApiResponse::error('Failed to update post: ' . $e->getMessage(), 500);
     }
 }
+
 
 
     /**
