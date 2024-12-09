@@ -63,7 +63,7 @@ class Post extends Model implements HasMedia
             'media'
             // 'file',
             // 'files'
-        ]);
+        ])->latest();
     }
     public function loadPostRelations()
     {
