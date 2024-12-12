@@ -31,6 +31,9 @@ class EventResource extends JsonResource
             'radius' => $this->radius ?? null,
             'start_time' => $this->start_time ? $this->formattedDate($this->start_time) : null,
             'end_time' => $this->end_time ? $this->formattedDate($this->end_time) : null,
+            'date' => $this->end_time ? $this->dateOnly($this->end_time) : null,
+            'start_time_only' => $this->start_time ? $this->timeOnly($this->start_time) : null,
+            'end_time_only' => $this->end_time ? $this->timeOnly($this->end_time) : null,
             'is_active' => $this->is_active ?? null,
             'restrict_event' => $this->restrict_event ?? null,
             'max_capacity' => $this->max_capacity ?? null,
@@ -48,6 +51,16 @@ class EventResource extends JsonResource
     protected function formattedDate($date)
     {
         return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('m/d/Y, g:i A');
+        // return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('l, F j, Y, g:i A');
+    }
+    protected function dateOnly($date)
+    {
+        return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('m/d/Y');
+        // return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('l, F j, Y, g:i A');
+    }
+    protected function timeOnly($date)
+    {
+        return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('m/d/Y');
         // return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('l, F j, Y, g:i A');
     }
 }
