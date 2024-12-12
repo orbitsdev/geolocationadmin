@@ -47,7 +47,7 @@ class EventResource extends JsonResource
     }
     protected function formattedDate($date)
     {
-        return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('m/d/YYYY, g:i A');
+        return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('m/d/Y, g:i A');
         // return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('l, F j, Y, g:i A');
     }
 }
