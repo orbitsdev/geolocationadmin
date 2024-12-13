@@ -48,6 +48,7 @@ class Task extends Model implements HasMedia
     public const STATUS_NEED_REVISION = 'Needs Revision';
 
     public const STATUS_REJECTED = 'Rejected';
+    public const STATUS_RESUBMIT = 'Resubmit';
 
 
     public const STATUS_OPTIONS = [
@@ -56,6 +57,7 @@ class Task extends Model implements HasMedia
         self::STATUS_COMPLETED => self::STATUS_COMPLETED,
         self::STATUS_NEED_REVISION => self::STATUS_NEED_REVISION,
         self::STATUS_REJECTED => self::STATUS_REJECTED,
+        self::STATUS_RESUBMIT => self::STATUS_RESUBMIT,
     ];
 
 
