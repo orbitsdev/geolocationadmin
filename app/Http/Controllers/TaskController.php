@@ -339,7 +339,7 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
 
     // Get the councilPosition of the logged-in user
     $user = $request->user(); // Authenticated user
-    $councilId = $user->defaultCouncilPosition?->council_id;
+    $councilId = $user->defaultCouncilPosition()?->council_id;
 
     // Ensure councilPosition exists for the user
     if (!$councilId) {
