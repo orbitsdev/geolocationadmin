@@ -328,7 +328,24 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
 
-    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+    $councilPosition = CouncilPosition::find($councilPositionId);
+
+    if (!$councilPosition) {
+
+        $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            [],
+            0,
+            $request->query('perPage', 10),
+            $request->query('page', 1),
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return ApiResponse::paginated(
+            $emptyPaginator,
+            'No tasks found for the specified council position.',
+            TaskResource::class
+        );
+    }
 
     $councilId = $councilPosition->council_id;
 
@@ -345,8 +362,15 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
         ->paginate($perPage, ['*'], 'page', $page);
 
 
-    return ApiResponse::paginated($tasks, 'Tasks retrieved successfully', TaskResource::class);
+    return ApiResponse::paginated(
+        $tasks,
+        'Tasks retrieved successfully',
+        TaskResource::class
+    );
+
+    
 }
+
 
 
 
