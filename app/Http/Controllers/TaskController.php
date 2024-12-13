@@ -322,14 +322,11 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
     }
 }
 
-
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
-
     $councilPosition = CouncilPosition::find($councilPositionId);
 
     if (!$councilPosition) {
-
         $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
             [],
             0,
@@ -347,26 +344,31 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
 
     $councilId = $councilPosition->council_id;
 
-
+    
     $page = $request->query('page', 1);
     $perPage = $request->query('perPage', 10);
 
+ 
+    $status = $request->query('status');
 
-    $tasks = Task::where('council_position_id', $councilPosition->id)
+
+    $tasksQuery = Task::where('council_position_id', $councilPosition->id)
         ->whereHas('assignedCouncilPosition', function ($query) use ($councilId) {
             $query->where('council_id', $councilId);
         })
-        ->withTaskRelations()
-        ->paginate($perPage, ['*'], 'page', $page);
+        ->withTaskRelations();
 
+    if (!empty($status)) {
+        $tasksQuery->byStatus($status);
+    }
+
+    $tasks = $tasksQuery->paginate($perPage, ['*'], 'page', $page);
 
     return ApiResponse::paginated(
         $tasks,
         'Tasks retrieved successfully',
         TaskResource::class
     );
-
-    
 }
 
 
