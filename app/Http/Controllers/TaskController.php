@@ -322,8 +322,6 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
     }
 }
 
-
-
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
     // Validate input
@@ -337,37 +335,28 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
     $perPage = $request->input('per_page', 10);
     $status = $request->input('status');
 
-   
-    $user = $request->user(); // Authenticated user
-    $councilId = $user->defaultCouncilPosition()?->council_id;
-
-   
-    if (!$councilId) {
-        return ApiResponse::error('User does not belong to any council.', 403);
-    }
-
-  
+    // Find the council position and handle error if it doesn't exist
     $councilPosition = CouncilPosition::findOrFail($councilPositionId);
 
     
 
-    // Ensure the councilPosition belongs to the same council
-    if ($councilPosition->council_id !== $councilId) {
-        return ApiResponse::error('Unauthorized to access this council position.', 403);
-    }
+    $councilId = $councilPosition->council_id;
 
-    // Build the query for tasksgd
-    $tasksQuery = Task::where('council_position_id', $councilPosition->id);
+    // Query tasks
+    $tasksQuery = Task::where('council_position_id', $councilPosition->id)
+        ->whereHas('assignedCouncilPosition', function ($query) use ($councilId) {
+            $query->where('council_id', $councilId);
+        });
 
-    // Apply status filter if provided
+    // Apply optional status filter
     if (!empty($status)) {
         $tasksQuery->where('status', $status);
     }
 
-    // Fetch paginated results
+    // Paginate tasks
     $tasks = $tasksQuery->withTaskRelations()->latest()->paginate($perPage, ['*'], 'page', $page);
 
-    // Return response
+    // Return tasks
     return ApiResponse::paginated(
         $tasks,
         'Tasks retrieved successfully',
