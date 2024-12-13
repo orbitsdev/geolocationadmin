@@ -322,17 +322,32 @@ public function deleteMedia(Request $request, $taskId, $mediaId)
     }
 }
 
+
+
 public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositionId)
 {
+    // Validate input
+    $request->validate([
+        'page' => 'integer|min:1',
+        'per_page' => 'integer|min:1',
+        'status' => 'nullable|string',
+    ]);
+
+    $page = $request->input('page', 1);
+    $perPage = $request->input('per_page', 10);
+    $status = $request->input('status');
+
+    // Find the council position and handle error if it doesn't exist
     $councilPosition = CouncilPosition::find($councilPositionId);
 
     if (!$councilPosition) {
+        // Return an empty paginated result if council position doesn't exist
         $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
-            [],
-            0,
-            $request->input('perPage', 10),
-            $request->input('page', 1),
-            ['path' => $request->url(), 'input' => $request->input()]
+            [], // Empty data
+            0,  // Total items
+            $perPage, // Items per page
+            $page, // Current page
+            ['path' => $request->url(), 'query' => $request->query()]
         );
 
         return ApiResponse::paginated(
@@ -344,34 +359,27 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
 
     $councilId = $councilPosition->council_id;
 
-    
-    $page = $request->input('page', 1);
-    $perPage = $request->input('perPage', 10);
-
- 
-    $status = $request->input('status');
-
-
+    // Query tasks
     $tasksQuery = Task::where('council_position_id', $councilPosition->id)
         ->whereHas('assignedCouncilPosition', function ($query) use ($councilId) {
             $query->where('council_id', $councilId);
-        })
-        ->withTaskRelations();
-        if (!empty($status)) {
-            $tasksQuery = $tasksQuery->byStatus($status);
-        }
-        
+        });
 
-    $tasks = $tasksQuery->paginate($perPage, ['*'], 'page', $page);
+    // Apply optional status filter
+    if (!empty($status)) {
+        $tasksQuery->where('status', $status);
+    }
 
+    // Paginate tasks
+    $tasks = $tasksQuery->withTaskRelations()->latest()->paginate($perPage, ['*'], 'page', $page);
+
+    // Return tasks
     return ApiResponse::paginated(
         $tasks,
         'Tasks retrieved successfully',
         TaskResource::class
     );
 }
-
-
 
 
 
