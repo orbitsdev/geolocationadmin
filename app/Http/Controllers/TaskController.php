@@ -204,39 +204,36 @@ class TaskController extends Controller
 {
     $task = Task::findOrFail($id);
 
-    // Validate the request data
+   
     $validatedData = $request->validate([
         'status' => 'required|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
-        'remarks' => 'sometimes|string|nullable', // Optional remarks for the status change
-        'is_admin_action' => 'sometimes|boolean', // Optional boolean field to indicate an approval action
+        'remarks' => 'sometimes|string|nullable', 
+        'is_admin_action' => 'sometimes|boolean', 
     ]);
 
     DB::beginTransaction();
     try {
-
+      
         $task->status = $validatedData['status'];
         $task->status_changed_at = now();
 
-
-        if ($task->status === Task::STATUS_COMPLETED ) {
-
+        if ($task->status === Task::STATUS_COMPLETED) {
+           
             $task->completed_at = now();
 
-
+          
             if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
                 $task->approved_by_council_position_id = $request->user()->defaultCouncilPosition()->id;
             }
         } else {
-            // For other statuses, reset only the approval-related fields, but leave completed_at intact
+           
             $task->approved_by_council_position_id = null;
         }
 
-
-
+      
         if (!empty($validatedData['remarks'])) {
             $task->remarks = $validatedData['remarks'];
         }
-
 
         $task->save();
         $task->loadTaskRelations();
@@ -250,6 +247,7 @@ class TaskController extends Controller
         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
     }
 }
+
 
 public function uploadFiles(Request $request, $id)
 {
