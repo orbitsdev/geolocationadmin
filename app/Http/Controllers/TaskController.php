@@ -336,6 +336,8 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
     $perPage = $request->input('per_page', 10);
     $status = $request->input('status');
 
+    return ApiResponse::success([$page,$perPage, $status, $councilPositionId]);
+
     // Find the council position or return an empty response
     $councilPosition = CouncilPosition::find($councilPositionId);
 
