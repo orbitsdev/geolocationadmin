@@ -337,34 +337,26 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
     $perPage = $request->input('per_page', 10);
     $status = $request->input('status');
 
-    // Get the councilPosition of the logged-in user
+   
     $user = $request->user(); // Authenticated user
     $councilId = $user->defaultCouncilPosition()?->council_id;
 
-    // Ensure councilPosition exists for the user
+   
     if (!$councilId) {
         return ApiResponse::error('User does not belong to any council.', 403);
     }
 
-    // Find the councilPosition being queried
-    $councilPosition = CouncilPosition::find($councilPositionId);
+  
+    $councilPosition = CouncilPosition::findOrFail($councilPositionId);
 
-    if (!$councilPosition) {
-        return ApiResponse::paginated(
-            new \Illuminate\Pagination\LengthAwarePaginator(
-                [], 0, $perPage, $page, ['path' => $request->url(), 'query' => $request->query()]
-            ),
-            'No tasks found for the specified council position.',
-            TaskResource::class
-        );
-    }
+    
 
     // Ensure the councilPosition belongs to the same council
     if ($councilPosition->council_id !== $councilId) {
         return ApiResponse::error('Unauthorized to access this council position.', 403);
     }
 
-    // Build the query for tasks
+    // Build the query for tasksgd
     $tasksQuery = Task::where('council_position_id', $councilPosition->id);
 
     // Apply status filter if provided
