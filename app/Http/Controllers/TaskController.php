@@ -330,9 +330,9 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
         $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
             [],
             0,
-            $request->query('perPage', 10),
-            $request->query('page', 1),
-            ['path' => $request->url(), 'query' => $request->query()]
+            $request->input('perPage', 10),
+            $request->input('page', 1),
+            ['path' => $request->url(), 'input' => $request->input()]
         );
 
         return ApiResponse::paginated(
@@ -345,11 +345,11 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
     $councilId = $councilPosition->council_id;
 
     
-    $page = $request->query('page', 1);
-    $perPage = $request->query('perPage', 10);
+    $page = $request->input('page', 1);
+    $perPage = $request->input('perPage', 10);
 
  
-    $status = $request->query('status');
+    $status = $request->input('status');
 
 
     $tasksQuery = Task::where('council_position_id', $councilPosition->id)
@@ -357,10 +357,10 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
             $query->where('council_id', $councilId);
         })
         ->withTaskRelations();
-
-    if (!empty($status)) {
-        $tasksQuery->byStatus($status);
-    }
+        if (!empty($status)) {
+            $tasksQuery = $tasksQuery->byStatus($status);
+        }
+        
 
     $tasks = $tasksQuery->paginate($perPage, ['*'], 'page', $page);
 

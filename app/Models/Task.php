@@ -113,12 +113,11 @@ class Task extends Model implements HasMedia
         $this->save();
     }
 
-
-public function scopeByStatus($query, $status)
-{
-    return $query->where('status', $status);
-}
-
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+    
 
 public function scopeByCouncilPosition($query, $councilPositionId)
 {
