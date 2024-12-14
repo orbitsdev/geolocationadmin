@@ -28,31 +28,29 @@ class MediaController extends Controller
         return ApiResponse::error('The user does not have a default council position.', 403);
     }
 
-    // Get the council_id of the default council position
     $councilId = $defaultCouncilPosition->council_id;
 
-    // Pagination inputs
     $page = $request->input('page', 1);
     $perPage = $request->input('per_page', 10);
 
-    // Adjust query: Use proper joins to ensure relationships are loaded correctly
-    $media = Media::query()
-        ->whereHasMorph(
-            'model',
-            [\App\Models\Task::class],
-            function ($query) use ($councilId) {
-                // Filter tasks by council_position_id belonging to the council_id
-                $query->whereHas('councilPosition', function ($q) use ($councilId) {
-                    $q->where('council_id', $councilId);
-                });
-            }
-        )
-        ->with(['model.councilPosition']) // Ensure relationships are loaded
-        ->paginate($perPage, ['*'], 'page', $page);
+    // Query Media with loaded relationships
+    $media = Media::whereHasMorph(
+        'model',
+        [\App\Models\Task::class],
+        function ($query) use ($councilId) {
+            $query->whereHas('councilPosition', function ($subQuery) use ($councilId) {
+                $subQuery->where('council_id', $councilId);
+            });
+        }
+    )
+    ->with(['model' => function ($query) {
+        $query->with('councilPosition'); // Load councilPosition relationship on Task
+    }])
+    ->paginate($perPage, ['*'], 'page', $page);
 
-    // Use the ApiResponse helper for consistent response
     return ApiResponse::paginated($media, 'Media files retrieved successfully', MediaResource::class);
 }
+
 
 
 
