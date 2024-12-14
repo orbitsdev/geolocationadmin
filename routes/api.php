@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\CouncilController;
 use App\Http\Controllers\MessageController;
@@ -95,7 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/read/multiple', [NotificationController::class, 'markMultipleAsRead']);
 
-
+    Route::get('/media/by-council/{councilId}', [MediaController::class, 'fetchMediaByCouncil']);
 });
 
 
