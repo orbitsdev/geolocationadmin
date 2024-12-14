@@ -15,7 +15,7 @@ class MediaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $model = $this->whenLoaded('model');
+        $model = $this->whenLoaded('model'); // Load the model relationship (e.g., Task)
 
         return [
             'id' => $this->id,
@@ -26,7 +26,7 @@ class MediaResource extends JsonResource
             'size' => $this->size ?? 0,
             'collection_name' => $this->collection_name,
 
-            // Include council position only for specific models
+            // Include council position data if the model is a Task
             'council_position' => $model instanceof \App\Models\Task
                 ? new CouncilPositionResource($model->councilPosition)
                 : null,
