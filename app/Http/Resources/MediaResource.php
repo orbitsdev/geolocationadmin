@@ -15,21 +15,20 @@ class MediaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $model = $this->whenLoaded('model');
+        $model = $this->model; // Retrieve the owning model (e.g., Task)
 
         return [
-            'id' => $this->id,
-            'file_name' => $this->file_name ?? 'N/A',
+            'id' => $this->id, // Media ID
+            'file_name' => $this->file_name,
             'url' => $this->getUrl(),
-            'type' => $this->mime_type ?? 'unknown',
+            'type' => $this->mime_type,
             'extension' => $this->file_name ? pathinfo($this->file_name, PATHINFO_EXTENSION) : null,
-            'size' => $this->size ?? 0,
-            'collection_name' => $this->collection_name,
-            // 'created_at' => $this->created_at,
-            // 'updated_at' => $this->updated_at,
+            'size' => $this->size,
+            'created_at' => $this->created_at ? $this->created_at->format('F j, Y, g:i A') : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->format('F j, Y, g:i A') : null,
 
-            // Include council position only for specific models
-            'council_position' => $model instanceof \App\Models\Task
+            // Include the related CouncilPosition resource if available
+            'council_position' => $model && method_exists($model, 'councilPosition')
                 ? new CouncilPositionResource($model->councilPosition)
                 : null,
         ];
