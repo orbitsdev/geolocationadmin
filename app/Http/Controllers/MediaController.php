@@ -16,48 +16,34 @@ class MediaController extends Controller
     
     public function fetchMediaByCouncil(Request $request)
 {
-   
     $request->validate([
         'page' => 'integer|min:1',
         'per_page' => 'integer|min:1',
     ]);
 
-
     $user = $request->user();
-
- 
     $defaultCouncilPosition = $user->defaultCouncilPosition();
 
-   
     if (!$defaultCouncilPosition) {
-
-     
-        return ApiResponse::error('The user does not have a default council position.',  403);
-       
+        return ApiResponse::error('The user does not have a default council position.', 403);
     }
 
- 
     $councilId = $defaultCouncilPosition->council_id;
-
-
     $page = $request->input('page', 1);
     $perPage = $request->input('per_page', 10);
-
 
     $media = Media::whereHasMorph(
         'model',
         [\App\Models\Task::class],
         function ($query) use ($councilId) {
-            $query->where('council_position_id', function ($subQuery) use ($councilId) {
+            $query->whereIn('council_position_id', function ($subQuery) use ($councilId) {
                 $subQuery->select('id')
                          ->from('council_positions')
                          ->where('council_id', $councilId);
             });
         }
-    )
-    ->paginate($perPage, ['*'], 'page', $page);
+    )->paginate($perPage, ['*'], 'page', $page);
 
- 
     return response()->json([
         'data' => MediaResource::collection($media->items()),
         'meta' => [
@@ -69,6 +55,7 @@ class MediaController extends Controller
         'message' => 'Media files retrieved successfully',
     ]);
 }
+
 
 
 }
