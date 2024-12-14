@@ -13,44 +13,47 @@ class MediaController extends Controller
 {
     
 
-    
     public function fetchMediaByCouncil(Request $request)
-    {
-        $request->validate([
-            'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1',
-        ]);
-    
-        $user = $request->user();
-        $defaultCouncilPosition = $user->defaultCouncilPosition();
-    
-        if (!$defaultCouncilPosition) {
-            return ApiResponse::error('The user does not have a default council position.', 403);
-        }
-    
-        $councilId = $defaultCouncilPosition->council_id;
-        $page = $request->input('page', 1);
-        $perPage = $request->input('per_page', 10);
-    
-        // Query to fetch the media related to tasks of the council
-        $media = Media::whereHasMorph(
+{
+    $request->validate([
+        'page' => 'integer|min:1',
+        'per_page' => 'integer|min:1',
+    ]);
+
+    // Get the authenticated user
+    $user = $request->user();
+    $defaultCouncilPosition = $user->defaultCouncilPosition();
+
+    if (!$defaultCouncilPosition) {
+        return ApiResponse::error('The user does not have a default council position.', 403);
+    }
+
+    // Get the council_id of the default council position
+    $councilId = $defaultCouncilPosition->council_id;
+
+    // Pagination inputs
+    $page = $request->input('page', 1);
+    $perPage = $request->input('per_page', 10);
+
+    // Adjust query: Use proper joins to ensure relationships are loaded correctly
+    $media = Media::query()
+        ->whereHasMorph(
             'model',
             [\App\Models\Task::class],
             function ($query) use ($councilId) {
-                $query->whereIn('council_position_id', function ($subQuery) use ($councilId) {
-                    $subQuery->select('id')
-                             ->from('council_positions')
-                             ->where('council_id', $councilId);
+                // Filter tasks by council_position_id belonging to the council_id
+                $query->whereHas('councilPosition', function ($q) use ($councilId) {
+                    $q->where('council_id', $councilId);
                 });
             }
         )
-        ->with('model.councilPosition') // Eager load the related councilPosition through Task
+        ->with(['model.councilPosition']) // Ensure relationships are loaded
         ->paginate($perPage, ['*'], 'page', $page);
-    
-        // Use the ApiResponse helper to format the paginated response
-        return ApiResponse::paginated($media, 'Media files retrieved successfully', \App\Http\Resources\MediaResource::class);
-    }
-    
+
+    // Use the ApiResponse helper for consistent response
+    return ApiResponse::paginated($media, 'Media files retrieved successfully', MediaResource::class);
+}
+
 
 
 
