@@ -35,25 +35,19 @@ class MediaController extends Controller
             'model',
             [\App\Models\Task::class],
             function ($query) use ($councilId) {
-                $query->whereIn('council_position_id', function ($subQuery) use ($councilId) {
-                    $subQuery->select('id')
-                             ->from('council_positions')
-                             ->where('council_id', $councilId);
-                });
+                $query->where('status', \App\Models\Task::STATUS_COMPLETED) // Only completed tasks
+                      ->whereNotNull('approved_by_council_position_id') // Approved tasks
+                      ->whereIn('council_position_id', function ($subQuery) use ($councilId) {
+                          $subQuery->select('id')
+                                   ->from('council_positions')
+                                   ->where('council_id', $councilId);
+                      });
             }
         )->paginate($perPage, ['*'], 'page', $page);
     
-        return response()->json([
-            'data' => MediaResource::collection($media->items()),
-            'meta' => [
-                'current_page' => $media->currentPage(),
-                'last_page' => $media->lastPage(),
-                'per_page' => $media->perPage(),
-                'total' => $media->total(),
-            ],
-            'message' => 'Media files retrieved successfully',
-        ]);
+        return ApiResponse::paginated($media, 'Media files retrieved successfully', \App\Http\Resources\MediaResource::class);
     }
+    
 
 
 
