@@ -84,8 +84,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/councils/council-events/{council_position_id}', [EventController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::post('councils/{councilId}/events/create', [EventController::class, 'store']);
 
+    Route::get('councils/events/my-attendances', [AttendanceController::class, 'myAttendance']);
     Route::get('councils/events/{eventId}/attendances', [AttendanceController::class, 'showEventAttendance']);
-
     Route::get('councils/events/{eventId}/attendance-record', [AttendanceController::class, 'showEventAttendanceRecord']);
 
     Route::apiResource('councils.events', EventController::class);

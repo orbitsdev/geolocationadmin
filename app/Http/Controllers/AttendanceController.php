@@ -204,6 +204,31 @@ public function checkOut(Request $request, $councilId, $eventId)
 }
 
 
+public function myAttendance(Request $request)
+{
+
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
+
+    $user = $request->user();
+    $councilPosition = $user->defaultCouncilPosition();
+
+    if (!$councilPosition) {
+        return ApiResponse::error('No  position found for the user.', 403);
+    }
+ 
+    
+    $attendances = Attendance::whereHas('councilPosition',function($query) use($councilPosition){
+        $query->where('council_id', $councilPosition->council_id);
+    })->latest()
+        ->withRelations() 
+        ->paginate($perPage, ['*'], 'page', $page);
+
+
+    // Return paginated response
+    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', EventAttendanceResource::class);
+}
+
 public function showEventAttendance(Request $request,  $eventId)
 {
 
