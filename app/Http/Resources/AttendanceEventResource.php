@@ -53,6 +53,9 @@ class AttendanceEventResource extends JsonResource
 
     protected function formattedDate($date)
     {
-        return Carbon::parse($date)->format('l, F j, Y, g:i A');
+        return Carbon::parse($date)->format('m/d/Y, g:i A');
+        // return Carbon::parse($date)->format('l, F j, Y, g:i A');
     }
+
+    
 }
