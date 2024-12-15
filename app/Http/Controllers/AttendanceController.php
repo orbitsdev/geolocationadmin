@@ -220,7 +220,7 @@ public function showEventAttendance(Request $request,  $eventId)
     
     $attendances = Attendance::where('event_id', $eventId)
         ->latest()
-        ->with(['event', 'councilPosition']) // Load necessary relationships
+        ->withRelations() 
         ->paginate($perPage, ['*'], 'page', $page);
 
 
@@ -243,7 +243,7 @@ public function showEventAttendanceRecord(Request $request,  $eventId)
     
     $attendances = Attendance::where('event_id', $eventId)
         ->latest()
-        ->with(['event', 'councilPosition']) // Load necessary relationships
+        ->withRelations() // Load necessary relationships
         ->paginate($perPage, ['*'], 'page', $page);
 
 
