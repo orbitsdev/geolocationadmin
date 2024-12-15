@@ -20,10 +20,10 @@ class AttendanceEventResource extends JsonResource
             'event_id' => $this->event_id,
             'council_position_id' => $this->council_position_id,
             'check_in_time' => $this->check_in_time
-                ? $this->formattedDate($this->check_in_time)
+                ? $this->timeOnly($this->check_in_time)
                 : null,
             'check_out_time' => $this->check_out_time
-                ? $this->formattedDate($this->check_out_time)
+                ? $this->timeOnly($this->check_out_time)
                 : null,
             'check_in_coordinates' => $this->check_in_coordinates ? [
                 'latitude' => $this->check_in_latitude,
@@ -53,9 +53,13 @@ class AttendanceEventResource extends JsonResource
 
     protected function formattedDate($date)
     {
-        // return Carbon::parse($date)->format('m/d/Y, g:i A');
         return Carbon::parse($date)->format('l, F j, Y, g:i A');
     }
 
+    protected function timeOnly($date)
+    {
+        return Carbon::parse($date)->setTimezone(config('app.timezone'))->format(' F j, Y g:i A');
+        // return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('l, F j, Y, g:i A');
+    }
     
 }
