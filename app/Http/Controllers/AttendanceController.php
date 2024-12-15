@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Traits\EventValidationTrait;
 use App\Http\Resources\AttendanceResource;
+use App\Http\Resources\AttendanceEventResource;
 use App\Http\Resources\EventAttendanceResource;
 
 class AttendanceController extends Controller
@@ -226,7 +227,7 @@ public function myAttendance(Request $request)
 
 
     // Return paginated response
-    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', EventAttendanceResource::class);
+    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceEventResource::class);
 }
 
 public function showEventAttendance(Request $request,  $eventId)
