@@ -36,7 +36,7 @@ class AttendanceController extends Controller
      */
     public function show(string $id)
     {
-        //
+      
     }
 
     /**
@@ -204,28 +204,31 @@ public function checkOut(Request $request, $councilId, $eventId)
 }
 
 
-public function showEventAttendance(Request $request, $councilId, $eventId)
+public function showEventAttendance(Request $request,  $eventId)
 {
 
+    $page = $request->query('page', 1);
+    $perPage = $request->query('perPage', 10);
+
     $user = $request->user();
-
-
     $councilPosition = $user->defaultCouncilPosition();
 
     if (!$councilPosition) {
         return ApiResponse::error('No default council position found for the user.', 403);
     }
+ 
+    
+    $attendances = Attendance::where('event_id', $eventId)
+        ->latest()
+        ->with(['event', 'councilPosition']) // Load necessary relationships
+        ->paginate($perPage, ['*'], 'page', $page);
 
 
-    $event = Event::with('attendances')->findOrFail($eventId);
-
-
-    $attendance = $event->getAttendanceForCouncilPosition($councilPosition->id);
-
-    return new EventAttendanceResource($event, $attendance);
+    // Return paginated response
+    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', EventAttendanceResource::class);
 }
 
-public function showEventAttendanceRecord(Request $request, $councilId, $eventId)
+public function showEventAttendanceRecord(Request $request,  $eventId)
 {
     $page = $request->query('page', 1);
     $perPage = $request->query('perPage', 10);

@@ -83,13 +83,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('chat-rooms/{chatRoomId}/messages', [MessageController::class, 'index']);
     Route::get('/councils/council-events/{council_position_id}', [EventController::class, 'fetchByCouncilPositionOrCouncil']);
     Route::post('councils/{councilId}/events/create', [EventController::class, 'store']);
-    Route::get('councils/{councilId}/events/{eventId}/attendance', [AttendanceController::class, 'showEventAttendance']);
-    Route::get('councils/{councilId}/events/{eventId}/attendance-record', [AttendanceController::class, 'showEventAttendanceRecord']);
+
+    Route::get('councils/events/{eventId}/attendances', [AttendanceController::class, 'showEventAttendance']);
+
+    Route::get('councils/events/{eventId}/attendance-record', [AttendanceController::class, 'showEventAttendanceRecord']);
 
     Route::apiResource('councils.events', EventController::class);
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-in', [AttendanceController::class, 'checkIn']);
 
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-out', [AttendanceController::class, 'checkOut']);
+    
     Route::post('devices/register', [DeviceController::class, 'storeOrUpdate']);
     Route::delete('devices/{deviceId}', [DeviceController::class, 'destroy']);
 
