@@ -58,7 +58,7 @@ class AttendanceEventResource extends JsonResource
 
     protected function timeOnly($date)
     {
-        return Carbon::parse($date)->setTimezone(config('app.timezone'))->format(' F j, Y g:i A');
+        return Carbon::parse($date)->setTimezone(config('app.timezone'))->format(' g:i A');
         // return Carbon::parse($date)->setTimezone(config('app.timezone'))->format('l, F j, Y, g:i A');
     }
     
