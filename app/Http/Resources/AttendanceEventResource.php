@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AttendanceEventResource extends JsonResource
@@ -48,5 +49,10 @@ class AttendanceEventResource extends JsonResource
             'council_position' => new CouncilPositionResource($this->whenLoaded('councilPosition')),
             'event' => new EventResource($this->whenLoaded('event')),
         ];
+    }
+
+    protected function formattedDate($date)
+    {
+        return Carbon::parse($date)->format('l, F j, Y, g:i A');
     }
 }
