@@ -92,7 +92,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('councils.events', EventController::class);
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-in', [AttendanceController::class, 'checkIn']);
-
     Route::post('councils/{councilId}/events/{eventId}/attendance/check-out', [AttendanceController::class, 'checkOut']);
     
     Route::post('devices/register', [DeviceController::class, 'storeOrUpdate']);

@@ -251,7 +251,7 @@ public function showEventAttendance(Request $request,  $eventId)
 
 
     // Return paginated response
-    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', EventAttendanceResource::class);
+    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceEventResource::class);
 }
 
 public function showEventAttendanceRecord(Request $request,  $eventId)
@@ -274,7 +274,7 @@ public function showEventAttendanceRecord(Request $request,  $eventId)
 
 
     // Return paginated response
-    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceResource::class);
+    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceEventResource::class);
 }
 
 
