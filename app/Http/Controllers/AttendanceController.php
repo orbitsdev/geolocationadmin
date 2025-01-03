@@ -75,6 +75,10 @@ class AttendanceController extends Controller
 
     $event = Event::where('council_id', $councilId)->findOrFail($eventId);
 
+    //validtate if active 
+    if (!$event->is_active) {
+        return ApiResponse::error('Event is not active', 403);
+    }
     // Validate event timing if restriction is enabled
     if ($event->restrict_event) {
         try {
@@ -170,6 +174,12 @@ public function checkOut(Request $request, $councilId, $eventId)
     $attendance = Attendance::where('event_id', $event->id)
     ->where('council_position_id', $councilPosition->id) // Use the default council position
     ->firstOrFail();
+
+    
+
+    if (!$event->is_active) {
+        return ApiResponse::error('Event is not active', 403);
+    }
 
     if ($attendance->check_out_time) {
         return ApiResponse::error('You have already checked out.', 403);

@@ -53,6 +53,7 @@ class EventController extends Controller
             'map_location' => 'required|string',
             'place_id' => 'required|string',
             'is_publish' => 'required|boolean', 
+             
             'start_time' => 'required|date|before:end_time',
              'end_time' => 'required|date|after:start_time',
             'is_active' => 'sometimes|boolean',
