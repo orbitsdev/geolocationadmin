@@ -20,9 +20,9 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request->input('page', 1);
-        $perPage = $request->input('perPage', 10);
-        $councilId = $request->input('councilId', 10);
+    $page = $request->query('page', 1);
+        $perPage = $request->query('perPage', 10);
+        $councilId = $request->query('councilId', );
 
         // Fetch the tasks with pagination
         $tasks = Task::taskBelongToCouncilOf($councilId)->withTaskRelations()->paginate($perPage, ['*'], 'page', $page);
