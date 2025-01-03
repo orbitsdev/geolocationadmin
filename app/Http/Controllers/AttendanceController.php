@@ -253,30 +253,23 @@ public function showEventAttendance(Request $request,  $eventId)
     // Return paginated response
     return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', AttendanceEventResource::class);
 }
-
-public function showEvent(Request $request,  $eventId)
+public function showEvent(Request $request, $eventId)
 {
-
-    $page = $request->query('page', 1);
-    $perPage = $request->query('perPage', 10);
-
     $user = $request->user();
     $councilPosition = $user->defaultCouncilPosition();
 
     if (!$councilPosition) {
         return ApiResponse::error('No default council position found for the user.', 403);
     }
- 
-    
-    $attendances = Attendance::where('event_id', $eventId)
-        ->latest()
-        ->with(['event', 'councilPosition']) // Load necessary relationships
-        ->paginate($perPage, ['*'], 'page', $page);
 
+    // Fetch the event with necessary relationships
+    $event = Event::withRelation() // Load necessary relationships
+        ->findOrFail($eventId);
 
-    // Return paginated response
-    return ApiResponse::paginated($attendances, 'Attendances retrieved successfully', EventAttendanceResource::class);
+    // Return the event details
+    return ApiResponse::success(new EventAttendanceResource($event), 'Event retrieved successfully');
 }
+
 
 public function showEventAttendanceRecord(Request $request,  $eventId)
 {
