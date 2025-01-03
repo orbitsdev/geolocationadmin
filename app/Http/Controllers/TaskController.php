@@ -364,4 +364,34 @@ public function fetchByCouncilPositionOrCouncil(Request $request, $councilPositi
     );
 }
 
+public function fetchTasksByCouncilPositionAndStatus(Request $request, $councilPositionId)
+{
+   
+    $request->validate([
+        'page' => 'integer|min:1',
+        'per_page' => 'integer|min:1',
+        'status' => 'nullable|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
+    ]);
+
+    $page = $request->input('page', 1);
+    $perPage = $request->input('per_page', 10);
+    $status = $request->input('status');
+
+    
+    $tasksQuery = Task::where('council_position_id', $councilPositionId);
+
+    
+    if (!empty($status)) {
+        $tasksQuery->where('status', $status);
+    
+    $tasks = $tasksQuery->withTaskRelations()->latest()->paginate($perPage, ['*'], 'page', $page);
+
+    // Return API response
+    return ApiResponse::paginated(
+        $tasks,
+        'Tasks retrieved successfully',
+        TaskResource::class
+    );
+}
+
 }
