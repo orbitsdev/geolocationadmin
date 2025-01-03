@@ -262,12 +262,21 @@ public function showEvent(Request $request, $eventId)
         return ApiResponse::error('No default council position found for the user.', 403);
     }
 
-    // Fetch the event with necessary relationships
-    $event = Event::withRelation() // Load necessary relationships
+    // Fetch the event
+    $event = Event::with(['council', 'councilPosition'])
+        ->withCount('attendances') // Count attendances for this event
         ->findOrFail($eventId);
 
-    // Return the event details
-    return ApiResponse::success(new EventAttendanceResource($event), 'Event retrieved successfully');
+    // Fetch attendance record for the current user and event
+    $attendance = Attendance::where('event_id', $eventId)
+        ->where('council_position_id', $councilPosition->id)
+        ->first();
+
+    // Return the event with the attendance record
+    return ApiResponse::success(
+        new EventAttendanceResource($event, $attendance),
+        'Event attendance details retrieved successfully'
+    );
 }
 
 
