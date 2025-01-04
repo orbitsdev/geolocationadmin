@@ -240,140 +240,36 @@ class TaskController extends Controller
         $task->save();
         $task->loadTaskRelations();
 
-         if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
-            $notificationTitle = "Task Updated: {$task->title}";
-            $notificationBody = "Status: {$task->status} | Due: " .
-                ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
-                "\nUpdated by  {$request->user()->fullName()}";
 
+        //chec if admin or not
+        if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
+            $officer = $task->assignedCouncilPosition;
 
-             
-            $officers = CouncilPosition::where('council_id', $task->assignedCouncilPosition->council_id)->where('grant_access', true)->get();
+            // Notify the officer
+            if ($officer->user) {
+            $notificationTitle = "Task Update: {$task->title}";
+            $notificationBody = "The task '{$task->title}' has been updated. Due Date: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') . ", Status: " . ucfirst($task->status);
 
-            foreach ($officers as $officer) {
-                $officer->user->notify(new TaskUpdate($task->id, $notificationTitle, $notificationBody));
-                foreach ($officer->user->deviceTokens() as $token) {
-                    FCMController::sendPushNotification(
-                        $token,
-                        $notificationTitle,
-                        $notificationBody,
-                        [
-                            'council_position_id' => $officer->id,
-                            'user_id' => $officer->user->id,
-                            'notification' => 'task',
-                            'task_id' => $task->id,
-                            'due_date' => $task->due_date, // Send raw due_date for client processing if needed
-                        ]
-                    );
-                }
-            }
-            // $officer = $task->assignedCouncilPosition;
-            // $officer->user->notify(new TaskUpdate($task->id, $notificationTitle, $notificationBody));
-
-           
-            // foreach ($officer->user->deviceTokens() as $token) {
-            //     FCMController::sendPushNotification(
-            //         $token,
-            //         $notificationTitle,
-            //         $notificationBody,
-            //         [
-            //             'council_position_id' => $officer->id,
-            //             'user_id' => $officer->user->id,
-            //             'notification' => 'task',
-            //             'task_id' => $task->id,
-            //             'due_date' => $task->due_date, // Send raw due_date for client processing if needed
-            //         ]
-            //     );
-            // }
-
-         }else{
-
-         }
-
-        //  $officer = $task->assignedCouncilPosition;
+            $officer->user->notify(new TaskUpdate($task->id, $notificationTitle, $task->title));
+            foreach ($officer->user->deviceTokens() as $token) {
+                FCMController::sendPushNotification(
+                $token,
+                $notificationTitle,
+                $notificationBody,
+                [
+                    'council_position_id' => $officer->id,
+                    'user_id' => $officer->user->id,
+                    'notification' => 'task',
+                    'task_id' => $task->id,
+                    'due_date' => $task->due_date,
+                    'status' => $task->status,
+                ]
+                );
+            }}
+            
         
-        //  if ($officer && $officer->user) {
-        //      // Prepare more descriptive message
-        //      $notificationTitle = "Task Updated: {$task->title}";
-        //      $notificationBody = "Status: {$task->status} | Due: " .
-        //          ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
-        //          "\nUpdated by Admin: {$request->user()->fullName()}";
-     
-        //      // Send notification via Laravel's notification system
-        //      $officer->user->notify(new TaskUpdate(
-        //          $task->id,
-        //          $notificationTitle,
-        //          $notificationBody
-        //      ));
-     
-        //      // Send FCM push notifications
-        //      foreach ($officer->user->deviceTokens() as $token) {
-        //          FCMController::sendPushNotification(
-        //              $token,
-        //              $notificationTitle,
-        //              $notificationBody,
-        //              [
-        //                  'council_position_id' => $officer->id,
-        //                  'user_id' => $officer->user->id,
-        //                  'notification' => 'task',
-        //                  'task_id' => $task->id,
-        //                  'due_date' => $task->due_date,
-        //              ]
-        //          );
-        //      }
-        //  }
-        
-        // if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
-        //     // notify the officer
-        //     $officer = $task->assignedCouncilPosition;
-        //     $officer->user->notify(new TaskUpdate($task->id, 'Task Updated', $task->title));
-        //     foreach ($officer->user->deviceTokens() as $token) {
-        //         FCMController::sendPushNotification(
-        //             $token,
-        //             'Task Assigned',
-        //             "{$task->title} - Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date'),
-        //             [
-        //                 'council_position_id' => $officer->id,
-        //                 'user_id' => $officer->user->id,
-        //                 'notification' => 'task',
-        //                 'task_id' => $task->id,
-        //                 'due_date' => $task->due_date, // Send raw due_date for client processing if needed
-        //             ]
-        //         );
-        //     }
-        //     // notifu offcer where has grat
-        // }else{
-        //    // get user where has grant access position and notify
 
-        //     $user = $request->user();
-        //     $officers = CouncilPosition::where('council_id', $user->defaultCouncilPosition()->council_id)
-        //         ->where('grant_access', true)
-        //         ->get();
-
-
-        //     foreach ($officers as $officer) {
-        //         $officer->user->notify(new TaskUpdate($task->id, 'Task Updated', $task->title));
-        //         foreach ($officer->user->deviceTokens() as $token) {
-        //             FCMController::sendPushNotification(
-        //                 $token,
-        //                 'Task Updated',
-        //                 "{$task->title} - Updated Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
-        //                 ", Status: " . ucfirst($task->status),
-        //                 [
-        //                     'council_position_id' => $officer->id,
-        //                     'user_id' => $officer->user->id,
-        //                     'notification' => 'task',
-        //                     'task_id' => $task->id,
-        //                     'due_date' => $task->due_date,
-        //                     'status' => $task->status,
-        //                 ]
-        //             );
-        //         }
-        //     }
-
-           
-
-        
+        }
 
         DB::commit();
 
