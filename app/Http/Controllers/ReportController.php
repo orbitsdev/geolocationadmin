@@ -41,6 +41,7 @@ class ReportController extends Controller
     }
 
 
+    
     public function exportEventsByCouncil($councilId)
     {
         $council = Council::findOrFail($councilId);
