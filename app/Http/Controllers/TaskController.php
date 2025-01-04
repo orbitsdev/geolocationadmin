@@ -290,6 +290,7 @@ class TaskController extends Controller
 //     }
 // }
 
+
 public function updateStatus(Request $request, $id)
 {
     $task = Task::findOrFail($id);
@@ -301,6 +302,7 @@ public function updateStatus(Request $request, $id)
     ]);
 
     DB::beginTransaction();
+
     try {
         $task->status = $validatedData['status'];
         $task->status_changed_at = now();
@@ -338,16 +340,17 @@ public function updateStatus(Request $request, $id)
                         ->pluck('user');
 
                     foreach ($adminUsers as $admin) {
+                        // Notify the admin
                         $admin->notify(new TaskUpdate(
                             $task->id,
                             'Task Status Updated',
                             "{$task->title} - Status: " . ucfirst($task->status)
                         ));
 
-                        $tokens = $admin->devices()->pluck('device_token')->toArray();
-                        if (!empty($tokens)) {
+                        // Send push notification for each device token
+                        foreach ($admin->deviceTokens() as $token) {
                             FCMController::sendPushNotification(
-                                $tokens,
+                                $token,
                                 'Task Status Updated',
                                 "{$task->title} - Status: " . ucfirst($task->status) .
                                 ", Updated By: {$assignedCouncilPosition->user->fullName()}",
@@ -378,6 +381,7 @@ public function updateStatus(Request $request, $id)
         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
     }
 }
+
 
 public function uploadFiles(Request $request, $id)
 {
