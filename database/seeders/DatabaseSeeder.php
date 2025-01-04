@@ -21,10 +21,10 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CouncilSeeder::class,
             PositionSeeder::class,
-            EventSeeder::class,
-            AttendanceSeeder::class,
-            DeviceSeeder::class,
-            FileSeeder::class,
+            // EventSeeder::class,
+            // AttendanceSeeder::class,
+            // DeviceSeeder::class,
+            // FileSeeder::class,
         ]);
         // \App\Models\User::factory(10)->create();
 
