@@ -200,37 +200,119 @@ class TaskController extends Controller
     }
 
 
-    public function updateStatus(Request $request, $id)
+//     public function updateStatus(Request $request, $id)
+// {
+//     $task = Task::findOrFail($id);
+
+   
+//     $validatedData = $request->validate([
+//         'status' => 'required|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
+//         'remarks' => 'sometimes|string|nullable', 
+//         'is_admin_action' => 'sometimes|boolean', 
+//     ]);
+
+//     DB::beginTransaction();
+//     try {
+      
+//         $task->status = $validatedData['status'];
+//         $task->status_changed_at = now();
+
+//         if ($task->status === Task::STATUS_COMPLETED) {
+           
+//             $task->completed_at = now();
+
+          
+//             if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
+//                 $task->approved_by_council_position_id = $request->user()->defaultCouncilPosition()->id;
+//             }
+//         } else {
+           
+//             $task->approved_by_council_position_id = null;
+//         }
+
+      
+//         if (!empty($validatedData['remarks'])) {
+//             $task->remarks = $validatedData['remarks'];
+//         }
+
+//         $task->save();
+//         $task->loadTaskRelations();
+
+//         $user = $request->user();
+
+//         if ($user->isNotAdmin()) {
+//             $councilId = $task->assignedCouncilPosition->council_id;
+
+//             // Fetch all council positions with grant access (admins)
+//             $adminUsers = CouncilPosition::where('council_id', $councilId)
+//                 ->where('grant_access', true) // Only admins with grant access
+//                 ->whereHas('user') // Ensure a user is associated with the position
+//                 ->get()
+//                 ->pluck('user');
+
+//             foreach ($adminUsers as $admin) {
+//                 $admin->notify(new TaskUpdate(
+//                     $task->id,
+//                     'Task Status Updated',
+//                     "{$task->title} - Status: " . ucfirst($task->status)
+//                 ));
+
+//                 // Send FCM push notifications to admin users
+//                 foreach ($admin->deviceTokens() as $token) {
+//                     FCMController::sendPushNotification(
+//                         $token,
+//                         'Task Status Updated',
+//                         "{$task->title} - Status: " . ucfirst($task->status) .
+//                         ", Updated By: {$task->assignedCouncilPosition->user->fullName()}",
+//                         [
+//                             'council_position_id' => $admin->defaultCouncilPosition()->id ?? null,
+//                             'user_id' => $admin->id,
+//                             'notification' => 'task',
+//                             'task_id' => $task->id,
+//                             'status' => $task->status,
+//                         ]
+//                     );
+//                 }
+//             }
+//         }
+
+       
+
+
+
+//         DB::commit();
+
+//         return ApiResponse::success(new TaskResource($task), 'Task status updated successfully');
+//     } catch (\Exception $e) {
+//         DB::rollBack();
+//         \Log::error('Failed to update task status', ['error' => $e->getMessage()]);
+//         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
+//     }
+// }
+public function updateStatus(Request $request, $id)
 {
     $task = Task::findOrFail($id);
 
-   
     $validatedData = $request->validate([
         'status' => 'required|string|in:' . implode(',', array_keys(Task::STATUS_OPTIONS)),
-        'remarks' => 'sometimes|string|nullable', 
-        'is_admin_action' => 'sometimes|boolean', 
+        'remarks' => 'sometimes|string|nullable',
+        'is_admin_action' => 'sometimes|boolean',
     ]);
 
     DB::beginTransaction();
     try {
-      
         $task->status = $validatedData['status'];
         $task->status_changed_at = now();
 
         if ($task->status === Task::STATUS_COMPLETED) {
-           
             $task->completed_at = now();
-
-          
             if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
                 $task->approved_by_council_position_id = $request->user()->defaultCouncilPosition()->id;
             }
         } else {
-           
             $task->approved_by_council_position_id = null;
         }
 
-      
         if (!empty($validatedData['remarks'])) {
             $task->remarks = $validatedData['remarks'];
         }
@@ -238,12 +320,60 @@ class TaskController extends Controller
         $task->save();
         $task->loadTaskRelations();
 
+        $user = $request->user();
+
+        if ($user->isNotAdmin()) {
+            $assignedCouncilPosition = $task->assignedCouncilPosition;
+
+            if ($assignedCouncilPosition) {
+                $councilId = $assignedCouncilPosition->council_id;
+
+                if ($councilId) {
+                    $adminUsers = CouncilPosition::where('council_id', $councilId)
+                        ->where('grant_access', true)
+                        ->whereHas('user')
+                        ->with('user.deviceTokens')
+                        ->get()
+                        ->pluck('user');
+
+                    foreach ($adminUsers as $admin) {
+                        $admin->notify(new TaskUpdate(
+                            $task->id,
+                            'Task Status Updated',
+                            "{$task->title} - Status: " . ucfirst($task->status)
+                        ));
+
+                        $tokens = $admin->deviceTokens()->pluck('token')->toArray();
+                        if (!empty($tokens)) {
+                            FCMController::sendPushNotification(
+                                $tokens,
+                                'Task Status Updated',
+                                "{$task->title} - Status: " . ucfirst($task->status) .
+                                ", Updated By: {$assignedCouncilPosition->user->fullName()}",
+                                [
+                                    'council_position_id' => $admin->defaultCouncilPosition()->id ?? null,
+                                    'user_id' => $admin->id,
+                                    'notification' => 'task',
+                                    'task_id' => $task->id,
+                                    'status' => $task->status,
+                                ]
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
         DB::commit();
 
         return ApiResponse::success(new TaskResource($task), 'Task status updated successfully');
     } catch (\Exception $e) {
         DB::rollBack();
-        \Log::error('Failed to update task status', ['error' => $e->getMessage()]);
+        \Log::error('Failed to update task status', [
+            'task_id' => $task->id,
+            'error' => $e->getMessage(),
+            'user_id' => $request->user()->id,
+        ]);
         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
     }
 }

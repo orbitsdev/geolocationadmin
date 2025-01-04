@@ -101,7 +101,10 @@ class User extends Authenticatable implements FilamentUser, HasName , HasMedia
     {
         return $query->where('role', '!=', 'admin');
     }
-
+    public function isNotAdmin()
+    {
+        return $this->role !== 'admin';
+    }
 
 
     // this can be use for.. who change the status 
