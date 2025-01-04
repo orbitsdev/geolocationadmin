@@ -114,6 +114,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::prefix('report')->name('report.')->group(function () {
     Route::get('/event/attendance/export/{eventId}', [ReportController::class, 'exportEventAttendance'])->name('event-attendance');
+
+    Route::get('/council/{councilId}/position/{councilPositionId}/attendance/export', [ReportController::class, 'exportAttendanceByCouncilPosition'])->name('council-position-attendance');
 });
 
 
