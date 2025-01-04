@@ -33,15 +33,17 @@ class ReportController extends Controller
     public function exportAttendanceByCouncilPosition($councilId, $councilPositionId)
     {
         $council = Council::findOrFail($councilId);
-
+        $officer = CouncilPosition::findOrFail($councilPositionId);
+        $name = $officer->user->fullName();
+        $position = $officer->position;
         $createdDate = now()->format('F_j_Y');
-        $filename = 'Council-' . $council->id . '-Position-' . $councilPositionId . '-Attendance-' . $createdDate . '.xlsx';
+        $filename = $name.'-'.$position.'-Attendance-' . $createdDate . '.xlsx';
 
         return Excel::download(new AttendanceByCouncilPositionExport($councilId, $councilPositionId), $filename);
     }
 
 
-    
+
     public function exportEventsByCouncil($councilId)
     {
         $council = Council::findOrFail($councilId);
