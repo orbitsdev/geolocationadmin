@@ -277,9 +277,9 @@ class TaskController extends Controller
                     }
                 }
             }
-        } else {
+        } 
 
-            // Notify only the assigned officer
+        if($validatedData['is_admin_action'] == true){
             $officer = $task->assignedCouncilPosition;
         
             if ($officer && $officer->user && $officer->user->id !== $request->user()->id) {
@@ -305,7 +305,6 @@ class TaskController extends Controller
                     );
                 }
             }
-            
         }
         
 
