@@ -15,16 +15,15 @@
     <tbody>
         @foreach ($tasks as $task)
             <tr>
-                {{-- <td align="left" width="40">{{ $task->id }}</td> --}}
+                {{-- <td align="left">{{ $task->id }}</td> --}}
                 <td align="left" width="40">{{ $task->title }}</td>
                 <td align="left" width="40">{{ $task->task_details ?? 'N/A' }}</td>
                 <td align="left" width="40">{{ $task->due_date ? $task->due_date->format('F j, Y, g:i A') : 'N/A' }}</td>
                 <td align="left" width="40">{{ $task->completed_at ? $task->completed_at->format('F j, Y, g:i A') : 'N/A' }}</td>
                 <td align="left" width="40">{{ ucfirst($task->status) }}</td>
                 <td align="left" width="40">{{ $task->remarks ?? 'N/A' }}</td>
-                <td align="left" width="40">{{ $task?->assignedCouncilPosition?->user?->fullName() ?? 'N/A' }}</td>
-                <td align="left" width="40">{{ $task?->approvedByCouncilPosition?->user?->fullName() ?? 'N/A' }}</td>
-                
+                <td align="left" width="40">{{ $task->assignedCouncilPosition?->user?->fullName() ?? 'N/A' }}</td>
+                <td align="left" width="40">{{ $task->approvedByCouncilPosition?->user?->fullName() ?? 'N/A' }}</td>
             </tr>
         @endforeach
     </tbody>
