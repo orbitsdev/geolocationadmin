@@ -250,7 +250,7 @@ class TaskController extends Controller
             $notificationTitle = "Task Update: {$task->title}";
             $notificationBody = "The task '{$task->title}' has been updated. Due Date: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') . ", Status: " . ucfirst($task->status);
 
-            $officer->user->notify(new TaskUpdate($task->id, $notificationTitle, $task->title));
+            $officer->user->notify(new TaskUpdate($task->id, $notificationTitle, $notificationBody));
             foreach ($officer->user->deviceTokens() as $token) {
                 FCMController::sendPushNotification(
                 $token,
