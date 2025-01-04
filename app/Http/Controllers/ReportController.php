@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Exports\AttendanceExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EventsByCouncilExport;
+use App\Exports\CollectionsByCouncilExport;
 use App\Exports\AttendanceByCouncilPositionExport;
 
 class ReportController extends Controller
@@ -45,5 +46,15 @@ class ReportController extends Controller
         $filename = 'Council-' . $council->id . '-Events-' . $createdDate . '.xlsx';
 
         return Excel::download(new EventsByCouncilExport($councilId), $filename);
+    }
+
+    public function exportCollectionsByCouncil($councilId)
+    {
+        $council = Council::findOrFail($councilId);
+
+        $createdDate = now()->format('F_j_Y');
+        $filename = 'Council-' . $council->id . '-Collections-' . $createdDate . '.xlsx';
+
+        return Excel::download(new CollectionsByCouncilExport($councilId), $filename);
     }
 }
