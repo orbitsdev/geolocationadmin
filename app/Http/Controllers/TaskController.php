@@ -272,7 +272,7 @@ class TaskController extends Controller
         }else{
             //has access officers 
             $user = $request->user();
-            $officers = CouncilPosition::where('council_id', $user->defaultCouncilPosition->council_id)->where('grant_access', true)->get();
+            $officers = CouncilPosition::where('council_id', $user->defaultCouncilPosition()->council_id)->where('grant_access', true)->get();
 
             //notfy all officers
             foreach ($officers as $officer) {
