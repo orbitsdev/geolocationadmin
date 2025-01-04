@@ -289,6 +289,7 @@ class TaskController extends Controller
 //         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
 //     }
 // }
+
 public function updateStatus(Request $request, $id)
 {
     $task = Task::findOrFail($id);
@@ -332,7 +333,7 @@ public function updateStatus(Request $request, $id)
                     $adminUsers = CouncilPosition::where('council_id', $councilId)
                         ->where('grant_access', true)
                         ->whereHas('user')
-                        ->with('user.deviceTokens')
+                        ->with('user.devices')
                         ->get()
                         ->pluck('user');
 
@@ -343,7 +344,7 @@ public function updateStatus(Request $request, $id)
                             "{$task->title} - Status: " . ucfirst($task->status)
                         ));
 
-                        $tokens = $admin->deviceTokens()->pluck('token')->toArray();
+                        $tokens = $admin->devices()->pluck('token')->toArray();
                         if (!empty($tokens)) {
                             FCMController::sendPushNotification(
                                 $tokens,
@@ -377,7 +378,6 @@ public function updateStatus(Request $request, $id)
         return ApiResponse::error('Failed to update task status: ' . $e->getMessage(), 500);
     }
 }
-
 
 public function uploadFiles(Request $request, $id)
 {
