@@ -269,6 +269,36 @@ class TaskController extends Controller
             
         
 
+        }else{
+            //has access officers 
+            $user = $request->user();
+            $officers = CouncilPosition::where('council_id', $user->defaultCouncilPosition->council_id)->where('grant_access', true)->get();
+
+            //notfy all officers
+            foreach ($officers as $officer) {
+                if ($officer->user) {
+                    $notificationTitle = "Task Update: {$task->title}";
+                    $notificationBody = "The task '{$task->title}' has been updated. Due Date: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') . ", Status: " . ucfirst($task->status);
+    
+                    $officer->user->notify(new TaskUpdate($task->id, $notificationTitle, $notificationBody));
+                    foreach ($officer->user->deviceTokens() as $token) {
+                        FCMController::sendPushNotification(
+                            $token,
+                            $notificationTitle,
+                            $notificationBody,
+                            [
+                                'council_position_id' => $officer->id,
+                                'user_id' => $officer->user->id,
+                                'notification' => 'task',
+                                'task_id' => $task->id,
+                                'due_date' => $task->due_date,
+                                'status' => $task->status,
+                            ]
+                        );
+                    }
+                }
+            }
+            
         }
 
         DB::commit();
