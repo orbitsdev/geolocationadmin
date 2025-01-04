@@ -261,26 +261,36 @@ class TaskController extends Controller
             }
             // notifu offcer where has grat
         }else{
-            // notify approve by officer
-            $officer = $task->approvedByCouncilPosition;
-            //check if niot empty
-            if($officer){
+           // get user where has grant access position and notify
+
+            $user = $request->user();
+            $officers = CouncilPosition::where('council_id', $user->defaultCouncilPosition()->council_id)
+                ->where('grant_access', true)
+                ->get();
+
+
+            foreach ($officers as $officer) {
                 $officer->user->notify(new TaskUpdate($task->id, 'Task Updated', $task->title));
                 foreach ($officer->user->deviceTokens() as $token) {
                     FCMController::sendPushNotification(
                         $token,
                         'Task Updated',
-                        "{$task->title} - Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date'),
+                        "{$task->title} - Updated Due: " . ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
+                        ", Status: " . ucfirst($task->status),
                         [
                             'council_position_id' => $officer->id,
                             'user_id' => $officer->user->id,
                             'notification' => 'task',
                             'task_id' => $task->id,
-                            'due_date' => $task->due_date, // Send raw due_date for client processing if needed
+                            'due_date' => $task->due_date,
+                            'status' => $task->status,
                         ]
                     );
                 }
             }
+
+           
+
         }
 
         DB::commit();
