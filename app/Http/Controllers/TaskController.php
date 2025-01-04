@@ -282,7 +282,7 @@ class TaskController extends Controller
         if($validatedData['is_admin_action'] == true){
             $officer = $task->assignedCouncilPosition;
         
-            if ($officer && $officer->user && $officer->user->id !== $request->user()->id) {
+            if ($officer) {
                 $notificationTitle = "Task Update: {$task->title}";
                 $notificationBody = "The task '{$task->title}' has been updated. Due Date: " . 
                                     ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') . 
