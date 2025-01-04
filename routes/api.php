@@ -106,10 +106,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/media/by-council/{councilId}', [MediaController::class, 'fetchMediaByCouncil']);
 
-    Route::prefix('report')->name('report.')->group(function () {
-        Route::get('/event/attendance/export/{eventId}', [ReportController::class, 'exportEventAttendance'])->name('event-attendance');
-    });
+    // Route::prefix('report')->name('report.')->group(function () {
+    //     Route::get('/event/attendance/export/{eventId}', [ReportController::class, 'exportEventAttendance'])->name('event-attendance');
+    // });
     
+});
+
+Route::prefix('report')->name('report.')->group(function () {
+    Route::get('/event/attendance/export/{eventId}', [ReportController::class, 'exportEventAttendance'])->name('event-attendance');
 });
 
 
