@@ -18,7 +18,7 @@ class ReportController extends Controller
             ? $event->created_at->format('F_j_Y')
             : 'Unknown_Date';
 
-        $filename = $event->title .'-'. $createdDate . '.xlsx';
+        $filename = $event->title .'-Attendance-'. $createdDate . '.xlsx';
 
         return Excel::download(new AttendanceExport($event), $filename);
     }
