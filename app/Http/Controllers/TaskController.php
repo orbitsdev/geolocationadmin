@@ -344,7 +344,7 @@ public function updateStatus(Request $request, $id)
                             "{$task->title} - Status: " . ucfirst($task->status)
                         ));
 
-                        $tokens = $admin->devices()->pluck('token')->toArray();
+                        $tokens = $admin->devices()->pluck('device_token')->toArray();
                         if (!empty($tokens)) {
                             FCMController::sendPushNotification(
                                 $tokens,
