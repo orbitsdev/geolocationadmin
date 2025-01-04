@@ -12,12 +12,12 @@
     <tbody>
         @foreach ($attendances as $attendance)
             <tr>
-                <td width="40" align="left">{{ $attendance->event?->title ?? 'N/A' }}</td>
-                <td width="40" align="left">{{ $attendance?->councilPosition?->user?->fullName() ?? 'N/A' }}</td>
-                <td width="40" align="left">{{ $attendance?->councilPosition?->position ?? 'N/A' }}</td>
-                <td width="40" align="left">{{ $attendance?->check_in_time ? $attendance->check_in_time->format('F j, Y, g:i A') : 'N/A' }}</td>
-                <td width="40" align="left">{{ $attendance?->check_out_time ? $attendance->check_out_time->format('F j, Y, g:i A') : 'N/A' }}</td>
-                <td width="40" align="left">{{ ucfirst($attendance?->status ?? 'N/A') }}</td>
+                <td  align="left" width="40" >{{ $attendance->event?->title ?? 'N/A' }}</td>
+                <td  align="left" width="40" >{{ $attendance?->councilPosition?->user?->fullName() ?? 'N/A' }}</td>
+                <td  align="left" width="40" >{{ $attendance?->councilPosition?->position ?? 'N/A' }}</td>
+                <td  align="left" width="40" >{{ $attendance?->check_in_time ? $attendance->check_in_time->format('F j, Y, g:i A') : 'N/A' }}</td>
+                <td  align="left" width="40" >{{ $attendance?->check_out_time ? $attendance->check_out_time->format('F j, Y, g:i A') : 'N/A' }}</td>
+                <td  align="left" width="40" >{{ ucfirst($attendance?->status ?? 'N/A') }}</td>
             </tr>
         @endforeach
     </tbody>
