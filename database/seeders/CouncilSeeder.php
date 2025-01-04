@@ -15,10 +15,10 @@ class CouncilSeeder extends Seeder
     public function run(): void
     {
         $councils = [
-            ['name' => '2020-2021', 'is_active' => false],
-            ['name' => '2021-2022', 'is_active' => false],
-            ['name' => '2022-2023', 'is_active' => false],  // Previously active
-            ['name' => '2023-2024', 'is_active' => true],    // Currently active
+            // ['name' => '2020-2021', 'is_active' => false],
+            // ['name' => '2021-2022', 'is_active' => false],
+            // ['name' => '2022-2023', 'is_active' => false],  // Previously active
+            ['name' => '2024-2025', 'is_active' => true],    // Currently active
         ];
 
 
