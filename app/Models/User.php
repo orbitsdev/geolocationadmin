@@ -93,6 +93,17 @@ class User extends Authenticatable implements FilamentUser, HasName , HasMedia
 
     }   
 
+    //is not admin
+   
+
+    //scopre is not admin
+    public function scopeIsNotAdmin($query)
+    {
+        return $query->where('role', '!=', 'admin');
+    }
+
+
+
     // this can be use for.. who change the status 
 
     public function defaultCouncilPosition()

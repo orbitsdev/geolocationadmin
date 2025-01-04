@@ -188,7 +188,7 @@ class CouncilPositionController extends Controller
         $perPage = $request->input('perPage', 20); // Default to 20 items per batch
 
         // Fetch users who do not already have a position in this council
-        $usersQuery = User::whereDoesntHave('councilPositions', function($query) use ($councilId) {
+        $usersQuery = User::isNotAdmin()->whereDoesntHave('councilPositions', function($query) use ($councilId) {
             $query->where('council_id', $councilId);
         });
 
@@ -224,7 +224,9 @@ class CouncilPositionController extends Controller
         // Apply search if provided
         if ($search) {
             $officersQuery->whereHas('user',function($query) use ($search) {
-                $query->where('first_name', 'LIKE', "%{$search}%")
+                $query
+                ->isNotAdmin()
+                ->where('first_name', 'LIKE', "%{$search}%")
                     ->orWhere('last_name', 'LIKE', "%{$search}%")
                     ->orWhere('email', 'LIKE', "%{$search}%");
             });
