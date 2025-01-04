@@ -325,7 +325,9 @@ public function updateStatus(Request $request, $id)
 
         $user = $request->user();
 
+        // Notification Logic
         if ($user->isNotAdmin()) {
+            // Notify all positions with `grant_access` (Admins)
             $assignedCouncilPosition = $task->assignedCouncilPosition;
 
             if ($assignedCouncilPosition) {
@@ -340,20 +342,17 @@ public function updateStatus(Request $request, $id)
                         ->pluck('user');
 
                     foreach ($adminUsers as $admin) {
-                        // Notify the admin
                         $admin->notify(new TaskUpdate(
                             $task->id,
                             'Task Status Updated',
                             "{$task->title} - Status: " . ucfirst($task->status)
                         ));
 
-                        // Send push notification for each device token
                         foreach ($admin->deviceTokens() as $token) {
                             FCMController::sendPushNotification(
                                 $token,
                                 'Task Status Updated',
-                                "{$task->title} - Status: " . ucfirst($task->status) .
-                                ", Updated By: {$assignedCouncilPosition->user->fullName()}",
+                                "{$task->title} - Status: " . ucfirst($task->status) . ", Updated By: {$assignedCouncilPosition->user->fullName()}",
                                 [
                                     'council_position_id' => $admin->defaultCouncilPosition()->id ?? null,
                                     'user_id' => $admin->id,
@@ -364,6 +363,32 @@ public function updateStatus(Request $request, $id)
                             );
                         }
                     }
+                }
+            }
+        } else {
+            // Notify the assigned council position
+            if ($task->assignedCouncilPosition && $task->assignedCouncilPosition->user) {
+                $assignedUser = $task->assignedCouncilPosition->user;
+
+                $assignedUser->notify(new TaskUpdate(
+                    $task->id,
+                    'Task Status Updated by Admin',
+                    "{$task->title} - Status: " . ucfirst($task->status)
+                ));
+
+                foreach ($assignedUser->deviceTokens() as $token) {
+                    FCMController::sendPushNotification(
+                        $token,
+                        'Task Status Updated by Admin',
+                        "{$task->title} - Status: " . ucfirst($task->status),
+                        [
+                            'council_position_id' => $task->assignedCouncilPosition->id,
+                            'user_id' => $assignedUser->id,
+                            'notification' => 'task',
+                            'task_id' => $task->id,
+                            'status' => $task->status,
+                        ]
+                    );
                 }
             }
         }
