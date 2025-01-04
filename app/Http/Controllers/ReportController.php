@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Council;
 use Illuminate\Http\Request;
+use App\Models\CouncilPosition;
 use App\Exports\AttendanceExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EventsByCouncilExport;
 use App\Exports\CollectionsByCouncilExport;
+use App\Exports\TasksByCouncilPositionExport;
 use App\Exports\AttendanceByCouncilPositionExport;
 
 class ReportController extends Controller
@@ -56,5 +58,17 @@ class ReportController extends Controller
         $filename = 'Council-' . $council->id . '-Collections-' . $createdDate . '.xlsx';
 
         return Excel::download(new CollectionsByCouncilExport($councilId), $filename);
+    }
+
+
+    public function exportTasksByCouncilPosition($councilPositionId)
+    {
+        $councilPosition = CouncilPosition::findOrFail($councilPositionId);
+    $name = $councilPosition->user->fullName();
+
+        $createdDate = now()->format('F_j_Y');
+        $filename = $name.'-Tasks-' . $createdDate . '.xlsx';
+
+        return Excel::download(new TasksByCouncilPositionExport($councilPositionId), $filename);
     }
 }
