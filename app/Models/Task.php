@@ -190,4 +190,8 @@ public function user()
     return $this->assignedCouncilPosition?->user();
 }
 
+public function scopeOverdue($query)
+{
+    return $query->where('due_date', '<', now())->where('is_done', false);
+}
 }

@@ -17,6 +17,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CouncilPositionController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,8 @@ Route::middleware('guest')->group(function () {
 
 
 Route::middleware('auth:sanctum')->group(function () {
+
+
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'userDetails']);
     Route::post('user/profile-update', [AuthController::class, 'updateProfile']);
@@ -102,6 +105,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notifications/read/multiple', [NotificationController::class, 'markMultipleAsRead']);
 
     Route::get('/media/by-council/{councilId}', [MediaController::class, 'fetchMediaByCouncil']);
+
+    Route::prefix('report')->name('report.')->group(function () {
+        Route::get('/event/attendance/export/{eventId}', [ReportController::class, 'exportEventAttendance'])->name('event-attendance');
+    });
+    
 });
 
 
@@ -111,3 +119,5 @@ Route::get('/send-notification', function(){
         'notification' => 'task',
     ]);
 });
+
+
