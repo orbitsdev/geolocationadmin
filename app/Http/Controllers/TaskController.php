@@ -240,41 +240,63 @@ class TaskController extends Controller
         $task->save();
         $task->loadTaskRelations();
 
-        if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
+         if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
+            $notificationTitle = "Task Updated: {$task->title}";
+            $notificationBody = "Status: {$task->status} | Due: " .
+                ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
+                "\nUpdated by  {$request->user()->fullName()}";
             $officer = $task->assignedCouncilPosition;
-        
-            if ($officer && $officer->user) {
-                // Prepare more descriptive message
-                $notificationTitle = "Task Updated: {$task->title}";
-                $notificationBody = "Status: {$task->status} | Due: " .
-                    ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
-                    "\nUpdated by Admin: {$request->user()->fullName()}";
-        
-                // Send notification via Laravel's notification system
-                $officer->user->notify(new TaskUpdate(
-                    $task->id,
+            $officer->user->notify(new TaskUpdate($task->id, $notificationTitle, $notificationBody));
+
+           
+            foreach ($officer->user->deviceTokens() as $token) {
+                FCMController::sendPushNotification(
+                    $token,
                     $notificationTitle,
-                    $notificationBody
-                ));
-        
-                // Send FCM push notifications
-                foreach ($officer->user->deviceTokens() as $token) {
-                    FCMController::sendPushNotification(
-                        $token,
-                        $notificationTitle,
-                        $notificationBody,
-                        [
-                            'council_position_id' => $officer->id,
-                            'user_id' => $officer->user->id,
-                            'notification' => 'task',
-                            'task_id' => $task->id,
-                            'due_date' => $task->due_date,
-                        ]
-                    );
-                }
+                    $notificationBody,
+                    [
+                        'council_position_id' => $officer->id,
+                        'user_id' => $officer->user->id,
+                        'notification' => 'task',
+                        'task_id' => $task->id,
+                        'due_date' => $task->due_date, // Send raw due_date for client processing if needed
+                    ]
+                );
             }
-        }
+         }
+
+        //  $officer = $task->assignedCouncilPosition;
         
+        //  if ($officer && $officer->user) {
+        //      // Prepare more descriptive message
+        //      $notificationTitle = "Task Updated: {$task->title}";
+        //      $notificationBody = "Status: {$task->status} | Due: " .
+        //          ($task->due_date ? Carbon::parse($task->due_date)->format('M d, Y h:i A') : 'No due date') .
+        //          "\nUpdated by Admin: {$request->user()->fullName()}";
+     
+        //      // Send notification via Laravel's notification system
+        //      $officer->user->notify(new TaskUpdate(
+        //          $task->id,
+        //          $notificationTitle,
+        //          $notificationBody
+        //      ));
+     
+        //      // Send FCM push notifications
+        //      foreach ($officer->user->deviceTokens() as $token) {
+        //          FCMController::sendPushNotification(
+        //              $token,
+        //              $notificationTitle,
+        //              $notificationBody,
+        //              [
+        //                  'council_position_id' => $officer->id,
+        //                  'user_id' => $officer->user->id,
+        //                  'notification' => 'task',
+        //                  'task_id' => $task->id,
+        //                  'due_date' => $task->due_date,
+        //              ]
+        //          );
+        //      }
+        //  }
         
         // if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
         //     // notify the officer
