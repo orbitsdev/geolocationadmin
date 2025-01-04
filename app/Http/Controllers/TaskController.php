@@ -241,7 +241,7 @@ class TaskController extends Controller
         $task->loadTaskRelations();
 
 
-        if (!empty($validatedData['is_admin_action']) && $validatedData['is_admin_action']) {
+        if ($validatedData['is_admin_action'] == false) {
             // Notify only the assigned officer
             $officer = $task->assignedCouncilPosition;
         
