@@ -100,7 +100,7 @@ class TaskController extends Controller
             DB::rollBack();
 
             // Return an error response in case of failure
-            return ApiResponse::error('Failed to create task', 500);
+            return ApiResponse::error('Failed to create task'.$e->getMessage(), 500);
         }
     }
 
