@@ -26,8 +26,8 @@ return new class extends Migration
             $table->text('specified_location')->nullable();
             $table->text('map_location')->nullable();
             $table->text('place_id')->nullable();
-            $table->timestamp('start_time')->nullable(false);
-            $table->timestamp('end_time')->nullable(false);
+            $table->timestamp('start_time')->nullable();
+            $table->timestamp('end_time')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('restrict_event')->default(false);
             $table->boolean('is_publish')->default(true);
